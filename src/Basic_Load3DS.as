@@ -4,9 +4,9 @@
 
 Demonstrates:
 
-How to use the Loader3D object to load and parse an external 3ds model.
-How to extract material data and use it to set materials on a model.
-how to access the children of a loaded 3ds model.
+How to use the Loader3D object to load an embedded internal 3ds model.
+How to map an external asset reference inside a file to an internal embedded asset
+How to extract material data and use it to set custom material properties on a model.
 
 Code by Rob Bateman
 rob@infiniteturtles.co.uk
@@ -64,11 +64,11 @@ package
 	
 	[SWF(backgroundColor="#000000", frameRate="60", quality="LOW")]
 	
-	public class Basic_LoadModel extends Sprite
+	public class Basic_Load3DS extends Sprite
 	{
-    	//signature swf
-    	[Embed(source="/../embeds/signature.swf", symbol="Signature")]
-    	public var SignatureSwf:Class;
+		//signature swf
+		[Embed(source="/../embeds/signature.swf", symbol="Signature")]
+		public var SignatureSwf:Class;
 		
 		//solider ant texture
 		[Embed(source="/../embeds/soldier_ant.jpg")]
@@ -83,7 +83,7 @@ package
 		private var SandTexture:Class;
 		
 		//engine variables
-    	private var scene:Scene3D;
+		private var scene:Scene3D;
 		private var camera:HoverCamera3D;
 		private var view:View3D;
 		
@@ -110,7 +110,7 @@ package
 		/**
 		 * Constructor
 		 */
-		public function Basic_LoadModel()
+		public function Basic_Load3DS()
 		{
 			init();
 		}
@@ -142,7 +142,6 @@ package
 			camera.minTiltAngle = 10;
 			camera.hover(true);
 			
-			//view = new View3D({scene:scene, camera:camera});
 			view = new View3D();
 			view.scene = scene;
 			view.camera = camera;
@@ -151,14 +150,14 @@ package
 			addChild(view);
 			
 			//add signature
-            Signature = Sprite(new SignatureSwf());
-            SignatureBitmap = new Bitmap(new BitmapData(Signature.width, Signature.height, true, 0));
-            stage.quality = StageQuality.HIGH;
-            SignatureBitmap.bitmapData.draw(Signature);
-            stage.quality = StageQuality.LOW;
-            addChild(SignatureBitmap);
-            
-            addChild(new AwayStats(view));
+			Signature = Sprite(new SignatureSwf());
+			SignatureBitmap = new Bitmap(new BitmapData(Signature.width, Signature.height, true, 0));
+			stage.quality = StageQuality.HIGH;
+			SignatureBitmap.bitmapData.draw(Signature);
+			stage.quality = StageQuality.LOW;
+			addChild(SignatureBitmap);
+			
+			addChild(new AwayStats(view));
 		}
 		
 		/**
@@ -221,9 +220,9 @@ package
 			
 			view.render();
 		}
-				
+		
 		/**
-		 * Listener function for loading complete event on loader
+		 * Listener function for asset complete event on loader
 		 */
 		private function onAssetComplete(event:AssetEvent):void
 		{
@@ -245,32 +244,32 @@ package
 		 * Mouse down listener for navigation
 		 */
 		private function onMouseDown(event:MouseEvent):void
-        {
-            lastPanAngle = camera.panAngle;
+		{
+			lastPanAngle = camera.panAngle;
 			lastTiltAngle = camera.tiltAngle;
 			lastMouseX = stage.mouseX;
-            lastMouseY = stage.mouseY;
-        	move = true;
-        	stage.addEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
-        }
+			lastMouseY = stage.mouseY;
+			move = true;
+			stage.addEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
+		}
 		
 		/**
 		 * Mouse up listener for navigation
 		 */
-        private function onMouseUp(event:MouseEvent):void
-        {
-        	move = false;
-        	stage.removeEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);     
-        }
-        
+		private function onMouseUp(event:MouseEvent):void
+		{
+			move = false;
+			stage.removeEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
+		}
+		
 		/**
 		 * Mouse stage leave listener for navigation
 		 */
-        private function onStageMouseLeave(event:Event):void
-        {
-        	move = false;
-        	stage.removeEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);     
-        }
+		private function onStageMouseLeave(event:Event):void
+		{
+			move = false;
+			stage.removeEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
+		}
 		
 		/**
 		 * stage listener for resize events
@@ -279,7 +278,7 @@ package
 		{
 			view.width = stage.stageWidth;
 			view.height = stage.stageHeight;
-            SignatureBitmap.y = stage.stageHeight - Signature.height;
+			SignatureBitmap.y = stage.stageHeight - Signature.height;
 		}
 	}
 }
