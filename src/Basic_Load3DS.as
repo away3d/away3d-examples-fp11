@@ -180,7 +180,7 @@ package
 			loader.scale(300);
 			loader.z = 200;
 			loader.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetComplete);
-			loader.parse(new AntModel(), new Max3DSParser(), assetLoaderContext);
+			loader.loadData(new AntModel(), new Max3DSParser(), assetLoaderContext);
 			
 			scene.addChild(loader);
 			
