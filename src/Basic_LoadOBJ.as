@@ -44,19 +44,19 @@ package
 {
 	import away3d.cameras.*;
 	import away3d.containers.*;
+	import away3d.controllers.*;
 	import away3d.core.base.*;
 	import away3d.debug.*;
 	import away3d.entities.Mesh;
 	import away3d.events.*;
-	import away3d.library.AssetLibrary;
-	import away3d.library.assets.AssetType;
+	import away3d.library.*;
+	import away3d.library.assets.*;
 	import away3d.lights.*;
 	import away3d.loaders.*;
-	import away3d.loaders.misc.AssetLoaderContext;
+	import away3d.loaders.misc.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
 	import away3d.materials.methods.*;
-	import away3d.primitives.Plane;
 	
 	import flash.display.*;
 	import flash.events.*;
@@ -90,8 +90,9 @@ package
 		
 		//engine variables
 		private var scene:Scene3D;
-		private var camera:HoverCamera3D;
+		private var camera:Camera3D;
 		private var view:View3D;
+		private var cameraController:HoverController;
 		
 		//signature variables
 		private var Signature:Sprite;
@@ -146,15 +147,15 @@ package
 			
 			scene = new Scene3D();
 			
-			camera = new HoverCamera3D();
-			camera.panAngle = 45;
-			camera.tiltAngle = 10;
-			camera.hover(true);
+			camera = new Camera3D();
 			
 			view = new View3D();
 			view.antiAlias = 4;
 			view.scene = scene;
 			view.camera = camera;
+			
+			//setup controller to be used on the camera
+			cameraController = new HoverController(camera, null, 45, 10, 800);
 			
 			//view.addSourceURL("srcview/index.html");
 			addChild(view);
@@ -247,11 +248,9 @@ package
 		private function onEnterFrame(event:Event):void
 		{
 			if (move) {
-				camera.panAngle = 0.3 * (stage.mouseX - lastMouseX) + lastPanAngle;
-				camera.tiltAngle = 0.3 * (stage.mouseY - lastMouseY) + lastTiltAngle;
+				cameraController.panAngle = 0.3 * (stage.mouseX - lastMouseX) + lastPanAngle;
+				cameraController.tiltAngle = 0.3 * (stage.mouseY - lastMouseY) + lastTiltAngle;
 			}
-			
-			camera.hover();
 			
 			light.x = Math.sin(getTimer()/10000) * 150000;
 			light.y = 1000;
@@ -281,8 +280,8 @@ package
 		 */
 		private function onMouseDown(event:MouseEvent):void
 		{
-			lastPanAngle = camera.panAngle;
-			lastTiltAngle = camera.tiltAngle;
+			lastPanAngle = cameraController.panAngle;
+			lastTiltAngle = cameraController.tiltAngle;
 			lastMouseX = stage.mouseX;
 			lastMouseY = stage.mouseY;
 			move = true;

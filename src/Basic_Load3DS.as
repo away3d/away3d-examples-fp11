@@ -40,6 +40,7 @@ package
 {
 	import away3d.cameras.*;
 	import away3d.containers.*;
+	import away3d.controllers.HoverController;
 	import away3d.core.base.*;
 	import away3d.debug.*;
 	import away3d.entities.Mesh;
@@ -84,8 +85,9 @@ package
 		
 		//engine variables
 		private var scene:Scene3D;
-		private var camera:HoverCamera3D;
+		private var camera:Camera3D;
 		private var view:View3D;
+		private var cameraController:HoverController;
 		
 		//signature variables
 		private var Signature:Sprite;
@@ -135,16 +137,16 @@ package
 			
 			scene = new Scene3D();
 			
-			camera = new HoverCamera3D();
-			camera.lens.far = 2000;
-			camera.panAngle = 45;
-			camera.tiltAngle = 20;
-			camera.minTiltAngle = 10;
-			camera.hover(true);
+			//setup camera for optimal shadow rendering
+			camera = new Camera3D();
+			camera.lens.far = 2100;
 			
 			view = new View3D();
 			view.scene = scene;
 			view.camera = camera;
+			
+			//setup controller to be used on the camera
+			cameraController = new HoverController(camera, null, 45, 20, 1000, 10);
 			
 			//view.addSourceURL("srcview/index.html");
 			addChild(view);
@@ -208,11 +210,9 @@ package
 		private function onEnterFrame(event:Event):void
 		{
 			if (move) {
-				camera.panAngle = 0.3 * (stage.mouseX - lastMouseX) + lastPanAngle;
-				camera.tiltAngle = 0.3 * (stage.mouseY - lastMouseY) + lastTiltAngle;
+				cameraController.panAngle = 0.3 * (stage.mouseX - lastMouseX) + lastPanAngle;
+				cameraController.tiltAngle = 0.3 * (stage.mouseY - lastMouseY) + lastTiltAngle;
 			}
-			
-			camera.hover();
 			
 			direction.x = -Math.sin(getTimer()/4000);
 			direction.z = -Math.cos(getTimer()/4000);
@@ -245,8 +245,8 @@ package
 		 */
 		private function onMouseDown(event:MouseEvent):void
 		{
-			lastPanAngle = camera.panAngle;
-			lastTiltAngle = camera.tiltAngle;
+			lastPanAngle = cameraController.panAngle;
+			lastTiltAngle = cameraController.tiltAngle;
 			lastMouseX = stage.mouseX;
 			lastMouseY = stage.mouseY;
 			move = true;
