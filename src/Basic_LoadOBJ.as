@@ -226,7 +226,7 @@ package
 			Parsers.enableAllBundled()
 			
 			AssetLibrary.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetComplete);
-			AssetLibrary.parse(new HeadModel());
+			AssetLibrary.loadData(new HeadModel());
 		}
 		
 		/**
