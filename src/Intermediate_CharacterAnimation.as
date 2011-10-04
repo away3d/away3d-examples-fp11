@@ -130,6 +130,8 @@ package
 		private var walkSequence:SkeletonAnimationSequence;
 		private var runSequence:SkeletonAnimationSequence;
 		private var isRunning:Boolean;
+		private var isMoving:Boolean;
+		private var movementDirection:Number;
 		private var currentAnim:String;
 		private var currentRotation:Number = 0;
 		
@@ -149,9 +151,10 @@ package
 		
 		//light objects
 		private var sunLight:DirectionalLight;
-		private var skyLight:DirectionalLight;
+		private var skyLight:PointLight;
 		private var nearShadowMethod:NearShadowMapMethod;
-		
+		private var filteredShadowMapMethod:FilteredShadowMapMethod
+		private var fogMethod:FogMethod
 		//material objects
 		private var bearMaterial:BitmapMaterial;
 		private var groundMaterial:BitmapMaterial;
@@ -193,8 +196,9 @@ package
 			
 			camera = new Camera3D();
 			camera.lens.far = 5000;
-			camera.lens.near = 5;
+			camera.lens.near = 20;
 			camera.y = 500;
+			camera.z = 0;
 			
 			view = new View3D();
 			view.scene = scene;
@@ -221,27 +225,24 @@ package
 		{
 			//create a light for shadows that mimics the sun's position in the skybox
 			sunLight = new DirectionalLight(-1, -0.4, 1);
-			sunLight.color = 0xffff81;
+			sunLight.color = 0xFFFFFF;
 			sunLight.castsShadows = true;
 			sunLight.diffuse = 1;
 			sunLight.specular = 1;
 			scene.addChild(sunLight);
 			
 			//create a light for ambient effect that mimics the sky
-			skyLight = new DirectionalLight(0, -1, 0);
-			skyLight.color = 0x89a8c7;
-			skyLight.diffuse = 10;
+			skyLight = new PointLight();
+			skyLight.y = 500;
+			skyLight.color = 0xFFFFFF;
+			skyLight.diffuse = 10000;
+			skyLight.specular = 0.5;
+			skyLight.radius = 1500;
+			skyLight.fallOff = 2000;
 			scene.addChild(skyLight);
 			
-			//create a distance-based shadow mapper
-			var shadowRatio:Number = 0.0020;
-			var shadowFadeLength:Number = 350;
-			sunLight.shadowMapper = new PartialDirectionalShadowMapper(sunLight, shadowRatio);
-			var baseShadowMethod:ShadowMapMethodBase = new TripleFilteredShadowMapMethod(sunLight);
-			baseShadowMethod.epsilon = 0.0005;
-			var shadowFar:Number = view.camera.lens.near + (view.camera.lens.far - view.camera.lens.near) * shadowRatio;
-			var shadowNear:Number = shadowFar - shadowFadeLength;
-			nearShadowMethod = new NearShadowMapMethod(baseShadowMethod, shadowFar, shadowNear);
+			filteredShadowMapMethod = new FilteredShadowMapMethod(sunLight);
+			fogMethod = new FogMethod(2000, 0x5f5e6e);
 		}
 		
 		/**
@@ -257,11 +258,11 @@ package
 			
 			//create a snowy ground plane
 			groundMaterial = new BitmapMaterial((new SnowColor()).bitmapData, true, true, true);
-			groundMaterial.lights = [skyLight, sunLight];
+			groundMaterial.lights = [sunLight, skyLight];
 			groundMaterial.specularMap = new SnowSpecular().bitmapData;
 			groundMaterial.normalMap = new SnowNormal().bitmapData;
-			groundMaterial.shadowMethod = new FilteredShadowMapMethod(sunLight);
-			groundMaterial.addMethod(new FogMethod(5000, 0x5f5e6e));
+			groundMaterial.shadowMethod = filteredShadowMapMethod;
+			groundMaterial.addMethod(fogMethod);
 			ground = new Plane(groundMaterial, 50000, 50000);
 			ground.geometry.scaleUV(50);
 			ground.castsShadows = true;
@@ -313,10 +314,10 @@ package
 			{
 				//create material object and assign it to our mesh
 				bearMaterial = new BitmapMaterial(new BearColor().bitmapData);
-				bearMaterial.shadowMethod = nearShadowMethod;
+				bearMaterial.shadowMethod = filteredShadowMapMethod;
 				bearMaterial.normalMap = new BearNormal().bitmapData;
 				bearMaterial.specularMap = new BearSpecular().bitmapData;
-				bearMaterial.addMethod(new FogMethod(5000, 0x5f5e6e));
+				bearMaterial.addMethod(fogMethod);
 				bearMaterial.lights = [sunLight, skyLight];
 				bearMaterial.gloss = 50;
 				bearMaterial.specular = 0.5;
@@ -329,7 +330,8 @@ package
 				mesh.material = bearMaterial;
 				mesh.castsShadows = true;
 				mesh.scale(50);
-				mesh.rotationY = 180;
+				mesh.z = 1000;
+				mesh.rotationY = -45;
 				scene.addChild(mesh);
 				
 				//wrap our mesh animation state in an animator object and add our sequence objects
@@ -364,12 +366,14 @@ package
 			switch (event.keyCode) {
 				case Keyboard.SHIFT:
 					isRunning = true;
+					if (isMoving)
+						updateMovement(movementDirection);
 					break;
 				case Keyboard.UP:
-					updateMovement(1);
+					updateMovement(movementDirection = 1);
 					break;
 				case Keyboard.DOWN:
-					updateMovement(-1);
+					updateMovement(movementDirection = -1);
 					break;
 				case Keyboard.LEFT:
 					currentRotation = -ROTATION_SPEED;
@@ -399,6 +403,8 @@ package
 		
 		private function updateMovement(dir:Number) : void
 		{
+			isMoving = true;
+			
 			//update animator speed
 			animator.timeScale = dir*(isRunning? RUN_SPEED : WALK_SPEED);
 			
@@ -414,6 +420,8 @@ package
 		
 		private function stop() : void
 		{
+			isMoving = false;
+			
 			//update animator speed
 			animator.timeScale = BREATHE_SPEED;
 			
