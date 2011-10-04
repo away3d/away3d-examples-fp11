@@ -153,7 +153,7 @@ package
 		private var sunLight:DirectionalLight;
 		private var skyLight:PointLight;
 		private var nearShadowMethod:NearShadowMapMethod;
-		private var filteredShadowMapMethod:FilteredShadowMapMethod
+		private var filteredShadowMapMethod:TripleFilteredShadowMapMethod
 		private var fogMethod:FogMethod
 		//material objects
 		private var bearMaterial:BitmapMaterial;
@@ -199,7 +199,8 @@ package
 			camera.lens.near = 20;
 			camera.y = 500;
 			camera.z = 0;
-			
+			camera.lookAt(new Vector3D(0, 0, 1000));
+				
 			view = new View3D();
 			view.scene = scene;
 			view.camera = camera;
@@ -235,14 +236,14 @@ package
 			skyLight = new PointLight();
 			skyLight.y = 500;
 			skyLight.color = 0xFFFFFF;
-			skyLight.diffuse = 10000;
+			skyLight.diffuse = 1;
 			skyLight.specular = 0.5;
-			skyLight.radius = 1500;
-			skyLight.fallOff = 2000;
+			skyLight.radius = 2000;
+			skyLight.fallOff = 2500;
 			scene.addChild(skyLight);
 			
-			filteredShadowMapMethod = new FilteredShadowMapMethod(sunLight);
-			fogMethod = new FogMethod(2000, 0x5f5e6e);
+			filteredShadowMapMethod = new TripleFilteredShadowMapMethod(sunLight);
+			fogMethod = new FogMethod(500, 0x5f5e6e);
 		}
 		
 		/**
@@ -321,7 +322,7 @@ package
 				bearMaterial.lights = [sunLight, skyLight];
 				bearMaterial.gloss = 50;
 				bearMaterial.specular = 0.5;
-				bearMaterial.ambientColor = 0x303040;
+				bearMaterial.ambientColor = 0xAAAAAA;
 				bearMaterial.ambient = 1;
 				
 				//create mesh object and assign our animation object and material object
@@ -389,6 +390,8 @@ package
 			switch (event.keyCode) {
 				case Keyboard.SHIFT:
 					isRunning = false;
+					if (isMoving)
+						updateMovement(movementDirection);
 					break;
 				case Keyboard.UP:
 				case Keyboard.DOWN:
