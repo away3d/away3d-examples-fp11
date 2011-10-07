@@ -51,7 +51,6 @@ package
 	import away3d.library.*;
 	import away3d.library.assets.*;
 	import away3d.lights.*;
-	import away3d.lights.shadowmaps.PartialDirectionalShadowMapper;
 	import away3d.loaders.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
@@ -98,10 +97,6 @@ package
 		//snow specular map
 		[Embed(source="/../embeds/PolarBear_specular.jpg")]
 		private var BearSpecular:Class;
-		
-		//ground texture
-		[Embed(source="/../embeds/CoarseRedSand.jpg")]
-		private var SandTexture:Class;
 		
 		//skybox textures
 		[Embed(source="/../embeds/skybox/sky_posX.jpg")]
@@ -242,7 +237,10 @@ package
 			skyLight.fallOff = 2500;
 			scene.addChild(skyLight);
 			
+			//create a global shadow method
 			filteredShadowMapMethod = new TripleFilteredShadowMapMethod(sunLight);
+			
+			//create a global fog method
 			fogMethod = new FogMethod(500, 0x5f5e6e);
 		}
 		
