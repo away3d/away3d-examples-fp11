@@ -147,7 +147,6 @@ package
 		//light objects
 		private var sunLight:DirectionalLight;
 		private var skyLight:PointLight;
-		private var nearShadowMethod:NearShadowMapMethod;
 		private var filteredShadowMapMethod:TripleFilteredShadowMapMethod
 		private var fogMethod:FogMethod
 		//material objects
@@ -263,7 +262,7 @@ package
 			groundMaterial.shadowMethod = filteredShadowMapMethod;
 			groundMaterial.addMethod(fogMethod);
 			ground = new Plane(groundMaterial, 50000, 50000);
-			ground.geometry.scaleUV(50);
+			ground.geometry.scaleUV(50, 50);
 			ground.castsShadows = true;
 			scene.addChild(ground);
 			
