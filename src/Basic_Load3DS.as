@@ -176,11 +176,13 @@ package
 			var assetLoaderContext:AssetLoaderContext = new AssetLoaderContext();
 			assetLoaderContext.mapUrlToData("texture.jpg", new AntTexture());
 			
+			Parsers.enableAllBundled();
+			
 			loader = new Loader3D();
 			loader.scale(300);
 			loader.z = 200;
 			loader.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetComplete);
-			loader.loadData(new AntModel(), new Max3DSParser(), assetLoaderContext);
+			loader.loadData(new AntModel(), assetLoaderContext);
 			
 			scene.addChild(loader);
 			
