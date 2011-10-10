@@ -61,7 +61,6 @@ package
 	import flash.display.*;
 	import flash.events.*;
 	import flash.geom.Vector3D;
-	import flash.text.AntiAliasType;
 	import flash.utils.getTimer;
 	
 	[SWF(backgroundColor="#000000", frameRate="60", quality="LOW")]
