@@ -179,8 +179,6 @@ package
 			var assetLoaderContext:AssetLoaderContext = new AssetLoaderContext();
 			assetLoaderContext.mapUrlToData("texture.jpg", new AntTexture());
 			
-			Parsers.enableAllBundled();
-			
 			loader = new Loader3D();
 			loader.scale(300);
 			loader.z = -200;
