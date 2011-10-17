@@ -148,6 +148,9 @@ package
 			//setup controller to be used on the camera
 			cameraController = new HoverController(camera, null, 45, 20, 1000, 10);
 			
+			//setup parser to be used on loader3D
+			Parsers.enableAllBundled();
+			
 			//view.addSourceURL("srcview/index.html");
 			addChild(view);
 			
@@ -180,7 +183,7 @@ package
 			
 			loader = new Loader3D();
 			loader.scale(300);
-			loader.z = 200;
+			loader.z = -200;
 			loader.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetComplete);
 			loader.loadData(new AntModel(), assetLoaderContext);
 			
