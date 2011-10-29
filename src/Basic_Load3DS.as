@@ -49,6 +49,7 @@ package {
 	import away3d.loaders.misc.AssetLoaderContext;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.TextureMaterial;
+	import away3d.materials.lightpickers.StaticLightPicker;
 	import away3d.materials.methods.FilteredShadowMapMethod;
 	import away3d.primitives.Plane;
 	import away3d.textures.BitmapTexture;
@@ -183,7 +184,7 @@ package {
 			sandTexture = new BitmapTexture(new SandTextureAsset().bitmapData);
 
 			groundMaterial = new TextureMaterial(sandTexture);
-			groundMaterial.lights = [light];
+			groundMaterial.lightPicker = new StaticLightPicker([light]);
 			groundMaterial.specular = 0;
 			groundMaterial.shadowMethod = new FilteredShadowMapMethod(light);
 			ground = new Plane(groundMaterial, 1000, 1000, 1, 1, true);
@@ -227,7 +228,7 @@ package {
 			} else if (event.asset.assetType == AssetType.MATERIAL) {
 				var material : TextureMaterial = event.asset as TextureMaterial;
 				material.shadowMethod = new FilteredShadowMapMethod(light);
-				material.lights = [light];
+				material.lightPicker = new StaticLightPicker([light]);
 				material.gloss = 30;
 				material.specular = 1;
 				material.ambientColor = 0x303040;

@@ -52,6 +52,7 @@ package {
 	import away3d.lights.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
+	import away3d.materials.lightpickers.StaticLightPicker;
 	import away3d.materials.methods.*;
 	import away3d.textures.BitmapTexture;
 	import away3d.textures.SpecularBitmapTexture;
@@ -194,7 +195,7 @@ package {
 			headMaterial = new TextureMaterial(diffuseTexture);
 			headMaterial.normalMap = normalMapTexture;
 			headMaterial.specularMap = specularMapTexture;
-			headMaterial.lights = [light];
+			headMaterial.lightPicker = new StaticLightPicker([light]);
 			headMaterial.gloss = 10;
 			headMaterial.specular = 3;
 			headMaterial.ambientColor = 0x303040;
