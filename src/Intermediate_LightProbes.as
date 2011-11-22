@@ -56,6 +56,7 @@ package
 	import away3d.materials.lightpickers.StaticLightPicker;
 	import away3d.materials.methods.HardShadowMapMethod;
 	import away3d.materials.methods.ShadowMapMethodBase;
+	import away3d.materials.methods.SubsurfaceScatteringDiffuseMethod;
 	import away3d.textures.BitmapTexture;
 
 	import cornell.CornellDiffuseEnvMapFL;
