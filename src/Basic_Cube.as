@@ -4,8 +4,9 @@ package
     import away3d.containers.ObjectContainer3D;
     import away3d.containers.Scene3D;
     import away3d.containers.View3D;
+    import away3d.entities.Mesh;
     import away3d.materials.ColorMaterial;
-    import away3d.primitives.Cube;
+    import away3d.primitives.CubeGeometry;
 
     import flash.display.Sprite;
     import flash.events.Event;
@@ -72,14 +73,10 @@ package
 		
 		protected function createGeo(color:uint=0x888888):ObjectContainer3D
 		{
-			var group:ObjectContainer3D = new ObjectContainer3D();
+			var geometry:CubeGeometry = new CubeGeometry(75, 50, 25);
 			var material:ColorMaterial = new ColorMaterial(color);
-			var geometry:Cube = new Cube(material);
-			geometry.scaleX = .75;
-			geometry.scaleY = .50;
-			geometry.scaleZ = .25;
-			group.addChild(geometry);
-			return group;
+			var mesh:Mesh = new Mesh(geometry, material);
+			return mesh;
 		}
 		
 		protected function get userTransform():Matrix3D
