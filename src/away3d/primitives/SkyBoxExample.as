@@ -30,6 +30,8 @@ package away3d.primitives
 		
 		public function SkyBoxExample()
 		{
+			super();
+			
 			// create a viewport and add geometry to its scene
 			view = new View3D();
 			view.scene.addChild(createGeo());

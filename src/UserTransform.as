@@ -12,10 +12,12 @@ package
 		protected var keysDown:Vector.<Boolean> = new <Boolean>[false, false, false, false];
 		protected var yaw:Matrix3D = new Matrix3D(); // looking left / right
 		protected var pitch:Matrix3D = new Matrix3D(); // looking up / down
+		protected var start:Matrix3D; // initial value
 		protected var xform:Matrix3D = new Matrix3D(); // composite result
 		
-		public function UserTransform(stage:Stage, spinRate:Number=.625)
+		public function UserTransform(stage:Stage, initialValue:Matrix3D=null, spinRate:Number=.942)
 		{
+			start = initialValue ? initialValue.clone() : new Matrix3D();
 			_spinRate = spinRate;
 			
 			yaw.identity();
@@ -36,8 +38,9 @@ package
 		public function get value():Matrix3D
 		{
 			xform.identity();
+			xform.prepend(start);
 			xform.prepend(pitch);
-			xform.append(yaw);
+			xform.prepend(yaw);
 			return xform;
 		}
 		
