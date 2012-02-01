@@ -1,7 +1,7 @@
-/target/
-/build.xml
-/tools/
-/.settings/
-/bin-debug/
 /.actionScriptProperties
 /.project
+/.settings/
+/bin-debug/
+/build.xml
+/target/
+/tools/
