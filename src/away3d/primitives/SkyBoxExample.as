@@ -6,27 +6,28 @@ package away3d.primitives
 	
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.utils.getTimer;
 	
 	[SWF(width="800", height="600", frameRate="60", backgroundColor="#000000")]
 	public class SkyBoxExample extends Sprite
 	{
 		
-		[Embed(source="/../embeds/skybox/sky_negX.jpg")]
+		[Embed(source="/../embeds/skybox/grid-negX.png")]
 		protected const SkyNegX:Class;
-		[Embed(source="/../embeds/skybox/sky_negY.jpg")]
+		[Embed(source="/../embeds/skybox/grid-negY.png")]
 		protected const SkyNegY:Class;
-		[Embed(source="/../embeds/skybox/sky_negZ.jpg")]
+		[Embed(source="/../embeds/skybox/grid-negZ.png")]
 		protected const SkyNegZ:Class;
 		
-		[Embed(source="/../embeds/skybox/sky_posX.jpg")]
+		[Embed(source="/../embeds/skybox/grid-posX.png")]
 		protected const SkyPosX:Class;
-		[Embed(source="/../embeds/skybox/sky_posY.jpg")]
+		[Embed(source="/../embeds/skybox/grid-posY.png")]
 		protected const SkyPosY:Class;
-		[Embed(source="/../embeds/skybox/sky_posZ.jpg")]
+		[Embed(source="/../embeds/skybox/grid-posZ.png")]
 		protected const SkyPosZ:Class;
 		
 		protected var view:View3D;
-		protected var userTransform:UserTransform;
+		protected var lastTime:int;
 		
 		public function SkyBoxExample()
 		{
@@ -37,21 +38,25 @@ package away3d.primitives
 			view.scene.addChild(createGeo());
 			addChild(view);
 			
-			// let user manipulate camera orientation
-			userTransform = new UserTransform(stage);
-			
 			// listen for enterframe to to render updates
-			addEventListener(Event.ENTER_FRAME,update);
+			addEventListener(Event.ENTER_FRAME, update);
 		}
 		
 		protected function update(e:Event):void
 		{
-			// apply current user rotations
-			userTransform.update();
-			view.camera.transform = userTransform.value;
+			// apply rotations and render
+			view.camera.rotationX = 75 * Math.sin(2*view.camera.rotationY*Math.PI/180); // neck bob
+			view.camera.rotationY += 12 * elapsed; // degrees per second
 			
-			// render the view
 			view.render();
+		}
+		
+		protected function get elapsed():Number
+		{
+			var now:int = getTimer();
+			var value:Number = (lastTime ? (now - lastTime) : now) * .001; // seconds elapsed
+			lastTime = now;
+			return value;
 		}
 		
 		protected function createGeo():ObjectContainer3D
@@ -64,6 +69,7 @@ package away3d.primitives
 					new SkyPosZ().bitmapData, new SkyNegZ().bitmapData
 				);
 			var geometry:SkyBox = new SkyBox(material);
+			
 			return geometry;
 		}
 		

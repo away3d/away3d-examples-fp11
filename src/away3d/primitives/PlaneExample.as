@@ -12,14 +12,14 @@ package away3d.primitives
 	import flash.events.Event;
 	import flash.utils.getTimer;
 	
-	public class CubeExample extends Sprite
+	public class PlaneExample extends Sprite
 	{
 		
 		protected var view:View3D;
 		protected var geo:Mesh;
 		protected var lastTime:int;
 		
-		public function CubeExample()
+		public function PlaneExample()
 		{
 			super();
 			
@@ -43,9 +43,10 @@ package away3d.primitives
 			// set the camera and object for a good view
 			var cam:Camera3D = view.camera;
 			cam.y = 60;
-			cam.z = -200;
+			cam.z = -180;
 			cam.lookAt(geo.position);
-			geo.rotationY = -15;
+			geo.rotationX = 10;
+			geo.rotationY = 15;
 			
 			// listen for enterframe to to render updates
 			addEventListener(Event.ENTER_FRAME,update);
@@ -72,7 +73,7 @@ package away3d.primitives
 		
 		protected function createGeo():Mesh
 		{
-			var geometry:CubeGeometry = new CubeGeometry();
+			var geometry:PlaneGeometry = new PlaneGeometry();
 			var material:ColorMaterial = new ColorMaterial(0xee7722);
 			var mesh:Mesh = new Mesh(geometry, material);
 			return mesh;
