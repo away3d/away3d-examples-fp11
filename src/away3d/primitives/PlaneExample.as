@@ -25,7 +25,7 @@ package away3d.primitives
 			
 			// create a viewport and add it to the stage
 			view = new View3D();
-			view.backgroundColor = 0x333333;
+			view.backgroundColor = 0x2a2a2a;
 			addChild(view);
 			
 			// add geometry to the scene
@@ -42,7 +42,6 @@ package away3d.primitives
 			
 			// set the camera and object for a good view
 			var cam:Camera3D = view.camera;
-			cam.y = 60;
 			cam.z = -180;
 			cam.lookAt(geo.position);
 			geo.rotationX = 10;
@@ -57,8 +56,9 @@ package away3d.primitives
 			var s:Number = elapsed;
 			
 			// apply rotations and render
-			geo.rotationX += 7 * s; // degrees per second
-			geo.rotationY += 12 * s; // degrees per second
+			geo.rotationX = 65 * Math.sin(2*geo.rotationZ*Math.PI/180); // wobble forward and back
+			geo.rotationY = 15 * Math.sin(2*geo.rotationZ*Math.PI/180); // wobble left and right
+			geo.rotationZ += 12 * s; // degrees per second
 			
 			view.render();
 		}
@@ -74,16 +74,18 @@ package away3d.primitives
 		protected function createGeo():Mesh
 		{
 			var geometry:PlaneGeometry = new PlaneGeometry();
-			var material:ColorMaterial = new ColorMaterial(0xee7722);
+			var material:ColorMaterial = new ColorMaterial();
 			var mesh:Mesh = new Mesh(geometry, material);
 			return mesh;
 		}
 		
 		protected function createLight():LightBase
 		{
-			var light:DirectionalLight = new DirectionalLight(1, -1, 1);
+			var light:DirectionalLight = new DirectionalLight(0, 0, 1);
 			light.color = 0xffffff;
-			light.diffuse = .8;
+			light.ambient = 0;
+			light.diffuse = .75;
+			light.specular = .4;
 			
 			return light;
 		}

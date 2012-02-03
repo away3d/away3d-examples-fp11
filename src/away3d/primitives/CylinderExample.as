@@ -6,7 +6,7 @@ package away3d.primitives
 	import away3d.lights.DirectionalLight;
 	import away3d.lights.LightBase;
 	import away3d.materials.ColorMaterial;
-	import away3d.materials.lightpickers.StaticLightPicker;
+	import away3d.tools.LightsHelper;
 	
 	import flash.display.Sprite;
 	import flash.events.Event;
@@ -25,7 +25,7 @@ package away3d.primitives
 			
 			// create a viewport and add it to the stage
 			view = new View3D();
-			view.backgroundColor = 0x333333;
+			view.backgroundColor = 0x2a2a2a;
 			addChild(view);
 			
 			// add geometry to the scene
@@ -33,12 +33,11 @@ package away3d.primitives
 			view.scene.addChild(geo);
 			
 			// add lighting to the scene
-			var light:LightBase = createLight();
-			view.scene.addChild(light);
+			var lights:Vector.<LightBase> = createLights();
+			for (var i:uint = 0; i < lights.length; i++) view.scene.addChild(lights[i]);
 			
 			// apply lighting to geometry
-			geo.material.lightPicker = new StaticLightPicker([light]);
-			// LightsHelper.addStaticLightToMaterials(geo, light); // <-- this is another alternative
+			LightsHelper.addStaticLightsToMaterials(geo, lights);
 			
 			// set the camera and object for a good view
 			var cam:Camera3D = view.camera;
@@ -73,19 +72,29 @@ package away3d.primitives
 		protected function createGeo():Mesh
 		{
 			var geometry:CylinderGeometry = new CylinderGeometry();
-			var material:ColorMaterial = new ColorMaterial(0xee7722);
+			var material:ColorMaterial = new ColorMaterial();
 			var mesh:Mesh = new Mesh(geometry, material);
 			
 			return mesh;
 		}
 		
-		protected function createLight():LightBase
+		protected function createLights():Vector.<LightBase>
 		{
-			var light:DirectionalLight = new DirectionalLight(1, -1, 1);
-			light.color = 0xffffff;
-			light.diffuse = .8;
+			// simple two-point light setup: key, fill
+			var key:DirectionalLight = new DirectionalLight(.5, -1, .75);
+			key.color = 0xffffff;
+			key.ambient = 0;
+			key.diffuse = .75;
+			key.specular = .4;
 			
-			return light;
+			var fill:DirectionalLight = new DirectionalLight(-1, .5, .75);
+			fill.color = 0xffffff;
+			fill.ambient = 0;
+			fill.diffuse = .25;
+			fill.specular = 0;
+			
+			var lights:Vector.<LightBase> = new <LightBase>[key, fill];
+			return lights;
 		}
 	}
 }
