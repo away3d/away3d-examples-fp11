@@ -25,15 +25,15 @@ package shallowwater
 		private var _wantedWaveSpeed:Number;
 		private var _viscosity:Number;
 
-		[Embed("/shallowwater/pb/WaveDisplacement.pbj", mimeType="application/octet-stream")]
+		[Embed("/../embeds/pb/WaveDisplacement.pbj", mimeType="application/octet-stream")]
 		private var DisplacementShaderClass:Class;
 		private var _displacementShader:Shader;
 
-		[Embed("/shallowwater/pb/WaveNormals.pbj", mimeType="application/octet-stream")]
+		[Embed("/../embeds/pb/WaveNormals.pbj", mimeType="application/octet-stream")]
 		private var NormalsShaderClass:Class;
 		private var _normalsShader:Shader;
 
-		[Embed("/shallowwater/pb/WaveTangents.pbj", mimeType="application/octet-stream")]
+		[Embed("/../embeds/pb/WaveTangents.pbj", mimeType="application/octet-stream")]
 		private var TangentsShaderClass:Class;
 		private var _tangentsShader:Shader;
 
