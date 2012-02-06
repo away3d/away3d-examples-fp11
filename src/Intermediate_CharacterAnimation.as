@@ -1,12 +1,13 @@
 ﻿/*
 
-3ds file loading example in Away3d
+Bones animation loading and interaction example in Away3d
 
 Demonstrates:
 
-How to use the Loader3D object to load an embedded internal 3ds model.
-How to map an external asset reference inside a file to an internal embedded asset
-How to extract material data and use it to set custom material properties on a model.
+How to load an AWD file with bones animation.
+How to map animation data after loading in order to playback an animation sequence.
+How to control the movement of a game character using the mouse.
+How to use a skybox with a fog method to create a seamless play area.
 
 Code by Rob Bateman
 rob@infiniteturtles.co.uk
