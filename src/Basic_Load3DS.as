@@ -40,28 +40,28 @@ package
 {
 	import away3d.cameras.*;
 	import away3d.containers.*;
-	import away3d.controllers.HoverController;
+	import away3d.controllers.*;
 	import away3d.core.base.*;
 	import away3d.debug.*;
-	import away3d.entities.Mesh;
+	import away3d.entities.*;
 	import away3d.events.*;
-	import away3d.library.AssetLibrary;
-	import away3d.library.assets.AssetType;
-	import away3d.lights.DirectionalLight;
-	import away3d.lights.PointLight;
+	import away3d.library.*;
+	import away3d.library.assets.*;
+	import away3d.lights.*;
 	import away3d.loaders.*;
-	import away3d.loaders.misc.AssetLoaderContext;
+	import away3d.loaders.misc.*;
 	import away3d.loaders.parsers.*;
-	import away3d.materials.BitmapMaterial;
-	import away3d.materials.ColorMaterial;
-	import away3d.materials.methods.FilteredShadowMapMethod;
-	import away3d.primitives.Plane;
+	import away3d.materials.*;
+	import away3d.materials.lightpickers.StaticLightPicker;
+	import away3d.materials.methods.*;
+	import away3d.primitives.*;
+	import away3d.textures.*;
 	
 	import flash.display.*;
 	import flash.events.*;
-	import flash.geom.Vector3D;
-	import flash.text.AntiAliasType;
-	import flash.utils.getTimer;
+	import flash.geom.*;
+	import flash.text.*;
+	import flash.utils.*;
 	
 	[SWF(backgroundColor="#000000", frameRate="60", quality="LOW")]
 	
@@ -94,13 +94,14 @@ package
 		private var SignatureBitmap:Bitmap;
 		
 		//material objects
-		private var groundMaterial:BitmapMaterial;
+		private var groundMaterial:TextureMaterial;
 		
 		//scene objects
 		private var light:DirectionalLight;
+		private var lightPicker:StaticLightPicker;
 		private var direction:Vector3D;
 		private var loader:Loader3D;
-		private var ground:Plane;
+		private var ground:Mesh;
 		
 		//navigation variables
 		private var move:Boolean = false;
@@ -173,6 +174,7 @@ package
 			
 			light = new DirectionalLight(-1, -1, 1);
 			direction = new Vector3D(-1, -1, 1);
+			lightPicker = new StaticLightPicker([light]);
 			
 			scene.addChild(light);
 			
@@ -187,11 +189,11 @@ package
 			
 			scene.addChild(loader);
 			
-			groundMaterial = new BitmapMaterial((new SandTexture()).bitmapData);
-			groundMaterial.lights = [light];
-			groundMaterial.specular = 0;
+			groundMaterial = new TextureMaterial(new BitmapTexture((new SandTexture()).bitmapData));
 			groundMaterial.shadowMethod = new FilteredShadowMapMethod(light);
-			ground = new Plane(groundMaterial, 1000, 1000);
+			groundMaterial.lightPicker = lightPicker;
+			groundMaterial.specular = 0;
+			ground = new Mesh(new PlaneGeometry(1000, 1000), groundMaterial);
 			scene.addChild(ground);
 		}
 		
@@ -233,9 +235,9 @@ package
 				var mesh:Mesh = event.asset as Mesh;
 				mesh.castsShadows = true;
 			} else if (event.asset.assetType == AssetType.MATERIAL) {
-				var material:BitmapMaterial = event.asset as BitmapMaterial;
+				var material:TextureMaterial = event.asset as TextureMaterial;
 				material.shadowMethod = new FilteredShadowMapMethod(light);
-				material.lights = [light];
+				material.lightPicker = lightPicker;
 				material.gloss = 30;
 				material.specular = 1;
 				material.ambientColor = 0x303040;

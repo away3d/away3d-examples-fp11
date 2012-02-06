@@ -51,12 +51,14 @@ package
 	import away3d.library.*;
 	import away3d.library.assets.*;
 	import away3d.lights.*;
+	import away3d.lights.shadowmaps.CubeMapShadowMapper;
 	import away3d.loaders.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
+	import away3d.materials.lightpickers.StaticLightPicker;
 	import away3d.materials.methods.*;
-	import away3d.materials.utils.CubeMap;
 	import away3d.primitives.*;
+	import away3d.textures.*;
 	
 	import flash.display.*;
 	import flash.events.*;
@@ -147,16 +149,17 @@ package
 		//light objects
 		private var sunLight:DirectionalLight;
 		private var skyLight:PointLight;
+		private var lightPicker:StaticLightPicker;
 		private var filteredShadowMapMethod:TripleFilteredShadowMapMethod
 		private var fogMethod:FogMethod
 		//material objects
-		private var bearMaterial:BitmapMaterial;
-		private var groundMaterial:BitmapMaterial;
-		private var cubeMap:CubeMap;
+		private var bearMaterial:TextureMaterial;
+		private var groundMaterial:TextureMaterial;
+		private var cubeTexture:BitmapCubeTexture;
 		
 		//scene objects
 		private var mesh:Mesh;
-		private var ground:Plane;
+		private var ground:Mesh;
 		private var skyBox:SkyBox;
 		
 		/**
@@ -236,11 +239,13 @@ package
 			skyLight.fallOff = 2500;
 			scene.addChild(skyLight);
 			
+			lightPicker = new StaticLightPicker([sunLight, skyLight]);
+			
 			//create a global shadow method
 			filteredShadowMapMethod = new TripleFilteredShadowMapMethod(sunLight);
 			
 			//create a global fog method
-			fogMethod = new FogMethod(500, 0x5f5e6e);
+			fogMethod = new FogMethod(5000, 0x5f5e6e);
 		}
 		
 		/**
@@ -255,20 +260,20 @@ package
 			AssetLibrary.load(new URLRequest("assets/PolarBear.awd"));
 			
 			//create a snowy ground plane
-			groundMaterial = new BitmapMaterial((new SnowColor()).bitmapData, true, true, true);
-			groundMaterial.lights = [sunLight, skyLight];
-			groundMaterial.specularMap = new SnowSpecular().bitmapData;
-			groundMaterial.normalMap = new SnowNormal().bitmapData;
+			groundMaterial = new TextureMaterial(new BitmapTexture((new SnowColor()).bitmapData), true, true, true);
+			groundMaterial.lightPicker = lightPicker;
+			groundMaterial.specularMap = new BitmapTexture(new SnowSpecular().bitmapData);
+			groundMaterial.normalMap = new BitmapTexture(new SnowNormal().bitmapData);
 			groundMaterial.shadowMethod = filteredShadowMapMethod;
 			groundMaterial.addMethod(fogMethod);
-			ground = new Plane(groundMaterial, 50000, 50000);
+			ground = new Mesh(new PlaneGeometry(50000, 50000), groundMaterial);
 			ground.geometry.scaleUV(50, 50);
 			ground.castsShadows = true;
 			scene.addChild(ground);
 			
 			//create a skybox
-			cubeMap = new CubeMap(new PosX().bitmapData, new NegX().bitmapData, new PosY().bitmapData, new NegY().bitmapData, new PosZ().bitmapData, new NegZ().bitmapData);
-			skyBox = new SkyBox(cubeMap);
+			cubeTexture = new BitmapCubeTexture(new PosX().bitmapData, new NegX().bitmapData, new PosY().bitmapData, new NegY().bitmapData, new PosZ().bitmapData, new NegZ().bitmapData);
+			skyBox = new SkyBox(cubeTexture);
 			scene.addChild(skyBox);
 		}
 		
@@ -311,12 +316,12 @@ package
 			else if (event.asset.assetType == AssetType.MESH)
 			{
 				//create material object and assign it to our mesh
-				bearMaterial = new BitmapMaterial(new BearColor().bitmapData);
+				bearMaterial = new TextureMaterial(new BitmapTexture(new BearColor().bitmapData));
 				bearMaterial.shadowMethod = filteredShadowMapMethod;
-				bearMaterial.normalMap = new BearNormal().bitmapData;
-				bearMaterial.specularMap = new BearSpecular().bitmapData;
+				bearMaterial.normalMap = new BitmapTexture(new BearNormal().bitmapData);
+				bearMaterial.specularMap = new BitmapTexture(new BearSpecular().bitmapData);
 				bearMaterial.addMethod(fogMethod);
-				bearMaterial.lights = [sunLight, skyLight];
+				bearMaterial.lightPicker = lightPicker;
 				bearMaterial.gloss = 50;
 				bearMaterial.specular = 0.5;
 				bearMaterial.ambientColor = 0xAAAAAA;

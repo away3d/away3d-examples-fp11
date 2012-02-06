@@ -56,7 +56,9 @@ package
 	import away3d.loaders.misc.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
+	import away3d.materials.lightpickers.StaticLightPicker;
 	import away3d.materials.methods.*;
+	import away3d.textures.BitmapTexture;
 	
 	import flash.display.*;
 	import flash.events.*;
@@ -98,7 +100,7 @@ package
 		private var SignatureBitmap:Bitmap;
 		
 		//material objects
-		private var headMaterial:BitmapMaterial;
+		private var headMaterial:TextureMaterial;
 		private var subsurfaceMethod:SubsurfaceScatteringDiffuseMethod;
 		private var fresnelMethod:FresnelSpecularMethod;
 		private var diffuseMethod:BasicDiffuseMethod;
@@ -107,7 +109,9 @@ package
 		//scene objects
 		private var light:PointLight;
 		private var direction:Vector3D;
+		private var lightPicker:StaticLightPicker;
 		private var headModel:Mesh;
+		private var advancedMethod:Boolean = true;
 		
 		//navigation variables
 		private var move:Boolean = false;
@@ -179,6 +183,7 @@ package
 			light.x = 15000;
 			light.z = 15000;
 			light.color = 0xffddbb;
+			lightPicker = new StaticLightPicker([light]);
 			
 			scene.addChild(light);
 		}
@@ -189,10 +194,10 @@ package
 		private function initMaterials():void
 		{
 			//setup custom bitmap material
-			headMaterial = new BitmapMaterial(new Diffuse().bitmapData);
-			headMaterial.normalMap = new Normal().bitmapData;
-			headMaterial.specularMap = new Specular().bitmapData;
-			headMaterial.lights = [light];
+			headMaterial = new TextureMaterial(new BitmapTexture(new Diffuse().bitmapData));
+			headMaterial.normalMap = new BitmapTexture(new Normal().bitmapData);
+			headMaterial.specularMap = new BitmapTexture(new Specular().bitmapData);
+			headMaterial.lightPicker = lightPicker;
 			headMaterial.gloss = 10;
 			headMaterial.specular = 3;
 			headMaterial.ambientColor = 0x303040;
@@ -301,10 +306,12 @@ package
 		 */
 		private function onKeyUp(event : KeyboardEvent) : void
 		{
-			headMaterial.gloss = (headMaterial.diffuseMethod == diffuseMethod)? 10 : 50;
-			headMaterial.specular = (headMaterial.diffuseMethod == diffuseMethod)? 3 : 1;
-			headMaterial.diffuseMethod = (headMaterial.diffuseMethod == diffuseMethod)? subsurfaceMethod : diffuseMethod;
-			headMaterial.specularMethod = (headMaterial.specularMethod == specularMethod)? fresnelMethod : specularMethod;
+			advancedMethod = !advancedMethod;
+			
+			headMaterial.gloss = (advancedMethod)? 10 : 50;
+			headMaterial.specular = (advancedMethod)? 3 : 1;
+			headMaterial.diffuseMethod = (advancedMethod)? subsurfaceMethod : diffuseMethod;
+			headMaterial.specularMethod = (advancedMethod)? fresnelMethod : specularMethod;
 		}
 		
 		/**
