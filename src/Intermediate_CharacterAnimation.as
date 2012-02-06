@@ -151,8 +151,9 @@ package
 		private var sunLight:DirectionalLight;
 		private var skyLight:PointLight;
 		private var lightPicker:StaticLightPicker;
-		private var filteredShadowMapMethod:TripleFilteredShadowMapMethod
-		private var fogMethod:FogMethod
+		private var filteredShadowMapMethod:TripleFilteredShadowMapMethod;
+		private var fogMethod:FogMethod;
+		
 		//material objects
 		private var bearMaterial:TextureMaterial;
 		private var groundMaterial:TextureMaterial;
@@ -220,6 +221,9 @@ package
 			addChild(new AwayStats(view));
 		}
 		
+		/**
+		 * Initialise the lights
+		 */
 		private function initLights():void
 		{
 			//create a light for shadows that mimics the sun's position in the skybox
