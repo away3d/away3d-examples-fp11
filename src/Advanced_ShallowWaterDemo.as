@@ -136,6 +136,10 @@ package
 		private var lastMouseX:Number;
 		private var lastMouseY:Number;
 		
+		private var planeDisturb:Boolean = false;
+		private var planeX:Number;
+		private var planeY:Number;
+		
 		/**
 		 * Constructor
 		 */
@@ -171,7 +175,7 @@ package
 			camera = view.camera;
 			
 			//setup controller to be used on the camera
-			cameraController = new HoverController(camera, null, 45, 20, 320, 5);
+			cameraController = new HoverController(camera, null, 180, 20, 320, 5);
 			
 			//view.addSourceURL("srcview/index.html");
 			addChild(view);
@@ -247,9 +251,11 @@ package
 			var planeSegments:uint = (gridDimension - 1);
 			planeSize = planeSegments*gridSpacing;
 			_plane = new Mesh(new PlaneGeometry(planeSize, planeSize, planeSegments, planeSegments), _liquidMaterial);
+			_plane.rotationX = 90;
+			_plane.x -= planeSize/2;
+			_plane.z -= planeSize/2;
 			_plane.mouseEnabled = true;
 			_plane.mouseHitMethod = MouseHitMethod.BOUNDS_ONLY;
-			_plane.addEventListener( MouseEvent3D.MOUSE_MOVE, planeMouseMoveHandler );
 			_plane.geometry.subGeometries[0].autoDeriveVertexNormals = false;
 			_plane.geometry.subGeometries[0].autoDeriveVertexTangents = false;
 			scene.addChild(_plane);
@@ -366,11 +372,20 @@ package
 		 */
 		private function initListeners():void
 		{
+			_plane.addEventListener(MouseEvent3D.MOUSE_MOVE, onPlaneMouseMove);
+			_plane.addEventListener(MouseEvent3D.MOUSE_DOWN, onPlaneMouseDown);
+			
 			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 			stage.addEventListener(Event.RESIZE, onResize);
 			onResize();
+		}
+		
+		private function updatePlaneCoords(x:Number, y:Number):void
+		{
+			planeX = x/planeSize;
+			planeY = y/planeSize;
 		}
 		
 		/**
@@ -389,7 +404,13 @@ package
 			_plane.geometry.subGeometries[0].updateVertexNormalData(fluid.normals);
 			_plane.geometry.subGeometries[0].updateVertexTangentData(fluid.tangents);
 
-			if (move) {
+			
+			if (planeDisturb) {
+				if (mouseBrushLife == 0)
+					_fluidDisturb.disturbBitmapInstant(planeX, planeY, -mouseBrushStrength, _mouseBrush.bitmapData);
+				else
+					_fluidDisturb.disturbBitmapMemory(planeX, planeY, -5*mouseBrushStrength, _mouseBrush.bitmapData, mouseBrushLife, 0.2);
+			} else if (move) {
 				cameraController.panAngle = 0.3 * (stage.mouseX - lastMouseX) + lastPanAngle;
 				cameraController.tiltAngle = 0.3 * (stage.mouseY - lastMouseY) + lastTiltAngle;
 			}
@@ -403,27 +424,31 @@ package
 		/**
 		 * mesh listener for fluid interaction with the mouse
 		 */
-		private function planeMouseMoveHandler(event:MouseEvent3D):void
+		private function onPlaneMouseMove(event:MouseEvent3D):void
 		{
-			var x:Number = event.localX/planeSize;
-			var y:Number = event.localY/planeSize;
-			
-			if (mouseBrushLife == 0)
-				_fluidDisturb.disturbBitmapInstant( x, y, -mouseBrushStrength, _mouseBrush.bitmapData );
-			else
-				_fluidDisturb.disturbBitmapMemory( x, y, -5*mouseBrushStrength, _mouseBrush.bitmapData, mouseBrushLife, 0.2);
+			if (planeDisturb)
+				updatePlaneCoords(event.localX, event.localY);
 		}
-
+		
+		/**
+		 * mesh listener for fluid interaction with the mouse
+		 */
+		private function onPlaneMouseDown(event:MouseEvent3D):void
+		{
+				planeDisturb = true;
+				updatePlaneCoords(event.localX, event.localY);
+		}
+		
 		/**
 		 * Mouse down listener for navigation
 		 */
 		private function onMouseDown(event:MouseEvent):void
 		{
+			move = true;
 			lastPanAngle = cameraController.panAngle;
 			lastTiltAngle = cameraController.tiltAngle;
 			lastMouseX = stage.mouseX;
 			lastMouseY = stage.mouseY;
-			move = true;
 			stage.addEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
 		}
 		
@@ -433,6 +458,7 @@ package
 		private function onMouseUp(event:MouseEvent):void
 		{
 			move = false;
+			planeDisturb = false;
 			stage.removeEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
 		}
 		
@@ -442,6 +468,7 @@ package
 		private function onStageMouseLeave(event:Event):void
 		{
 			move = false;
+			planeDisturb = false;
 			stage.removeEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
 		}
 		
