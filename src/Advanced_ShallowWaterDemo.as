@@ -19,6 +19,7 @@ package
 	import flash.events.*;
 	import flash.geom.*;
 	import flash.net.*;
+	import flash.ui.Keyboard;
 	import flash.utils.*;
 	
 	import shallowwater.*;
@@ -74,6 +75,7 @@ package
 		private var scene:Scene3D;
 		private var camera:Camera3D;
 		private var view:View3D;
+		private var awayStats:AwayStats;
 		private var cameraController:HoverController;
 		
 		//signature variables
@@ -86,6 +88,8 @@ package
 		private var fogMethod:FogMethod;
 		
 		//material objects
+		private var _colorMaterial : ColorMaterial;
+		private var _liquidMaterial : ColorMaterial;
 		private var poolMaterial:TextureMaterial;
 		private var cubeTexture:BitmapCubeTexture;
 		
@@ -94,40 +98,33 @@ package
 		private var gridSpacing:uint = 2;
 		private var planeSize:Number;
 		
-		public var mouseBrushStrength : Number = 5;
-		public var rainBrushStrength : Number = 10;
-		public var mouseBrushLife : uint = 0;
 		
 		//scene objects
-		public var fluid : ShallowFluid;
-		private var _plane : Mesh;
-		private var _pressing : Boolean;
-		private var _dropTmr : Timer;
-		private var _fluidDisturb : FluidDisturb;
-		public var brushClip1 : Sprite;
-		public var brushClip2 : Sprite;
-		public var brushClip3 : Sprite;
-		public var brushClip4 : Sprite;
-		public var brushClip5 : Sprite;
-		public var brushClip6 : Sprite;
-		public var brushClips : Array;
-		private var _activeMouseBrushClip : Sprite;
-		private var _rainBrush : DisturbanceBrush;
-		private var _imageBrush : DisturbanceBrush;
-		private var _mouseBrush : DisturbanceBrush;
-		private var _liquidShading : Boolean = true;
-		private var _showingLiquidImage : Boolean;
-		private var _showingLiquidImage1 : Boolean;
-		private var _showingLiquidImage2 : Boolean;
-		private var _gui : SimpleGUI;
+		public var fluid:ShallowFluid;
+		private var _plane:Mesh;
+		private var _fluidDisturb:FluidDisturb;
+		private var _gui:SimpleGUI;
+		
+		//gui variables
+		public var mouseBrushStrength:Number = 5;
+		public var rainBrushStrength:Number = 10;
+		public var mouseBrushLife:uint = 0;
+		private var _rainBrush:DisturbanceBrush;
+		private var _imageBrush:DisturbanceBrush;
+		private var _mouseBrush:DisturbanceBrush;
+		private var _showingLiquidImage:Boolean;
+		private var _showingLiquidImage1:Boolean;
+		private var _showingLiquidImage2:Boolean;
+		private var _activeMouseBrushClip:Sprite;
+		
+		
+		//interaction variables
+		private var _dropTmr:Timer;
 		private var _rain : Boolean;
-		private var _inverse : Matrix3D = new Matrix3D();
-		private var _projX : Number, _projY : Number;
-		public var hx : Number, hy : Number, hz : Number;
-		private var _min : Number;
-		private var _max : Number;
-		private var _colorMaterial : ColorMaterial;
-		private var _liquidMaterial : ColorMaterial;
+		private var _liquidShading : Boolean = true;
+		private var planeDisturb:Boolean = false;
+		private var planeX:Number;
+		private var planeY:Number;
 		
 		//navigation variables
 		private var move:Boolean = false;
@@ -135,10 +132,12 @@ package
 		private var lastTiltAngle:Number;
 		private var lastMouseX:Number;
 		private var lastMouseY:Number;
-		
-		private var planeDisturb:Boolean = false;
-		private var planeX:Number;
-		private var planeY:Number;
+		private var tiltSpeed:Number = 2;
+		private var panSpeed:Number = 2;
+		private var distanceSpeed:Number = 2;
+		private var tiltIncrement:Number = 0;
+		private var panIncrement:Number = 0;
+		private var distanceIncrement:Number = 0;
 		
 		/**
 		 * Constructor
@@ -188,7 +187,8 @@ package
 			stage.quality = StageQuality.LOW;
 			addChild(SignatureBitmap);
 			
-			addChild(new AwayStats(view));
+			awayStats = new AwayStats(view);
+			addChild(awayStats);
 		}
 		
 		/**
@@ -301,26 +301,30 @@ package
 			// Disturbance util.
 			_fluidDisturb = new FluidDisturb(fluid);
 
+		}
+		
+		/**
+		 * Initialise the GUI
+		 */
+		private function initGUI() : void
+		{
 			// Init brush clips.
-			brushClip1 = new Brush1() as Sprite;
-			brushClip2 = new Brush2() as Sprite;
-			brushClip3 = new Brush3() as Sprite;
-			brushClip4 = new Brush4() as Sprite;
-			brushClip5 = new Brush5() as Sprite;
-			brushClip6 = new Brush6() as Sprite;
-			brushClips = [
-				{label:"drop", data:brushClip3},
-				{label:"star", data:brushClip1},
-				{label:"box", data:brushClip2},
-				{label:"triangle", data:brushClip4},
-				{label:"stamp", data:brushClip5},
-				{label:"butter", data:brushClip6}
+			var drop:Sprite = new Brush3() as Sprite;
+			
+			var brushClips:Array = [
+				{label:"drop", data:drop},
+				{label:"star", data:new Brush1()},
+				{label:"box", data:new Brush2()},
+				{label:"triangle", data:new Brush4()},
+				{label:"stamp", data:new Brush5()},
+				{label:"butter", data:new Brush6()}
 			];
-			_activeMouseBrushClip = brushClip3;
+			
+			_activeMouseBrushClip = drop;
 
 			// Init brushes.
 			_rainBrush = new DisturbanceBrush();
-			_rainBrush.fromSprite(brushClip3);
+			_rainBrush.fromSprite(drop);
 			_mouseBrush = new DisturbanceBrush();
 			_mouseBrush.fromSprite(_activeMouseBrushClip);
 			_imageBrush = new DisturbanceBrush();
@@ -329,13 +333,7 @@ package
 			// Rain.
 			_dropTmr = new Timer(50);
 			_dropTmr.addEventListener(TimerEvent.TIMER, _dropTmr_timerHandler);
-		}
-		
-		/**
-		 * Initialise the GUI
-		 */
-		private function initGUI() : void
-		{
+			
 			_gui = new SimpleGUI(this, "");
 
 			_gui.addColumn("Simulation");
@@ -376,9 +374,11 @@ package
 			_plane.addEventListener(MouseEvent3D.MOUSE_DOWN, onPlaneMouseDown);
 			
 			addEventListener(Event.ENTER_FRAME, onEnterFrame);
-			stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-			stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+			view.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+			view.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 			stage.addEventListener(Event.RESIZE, onResize);
+			stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+			stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
 			onResize();
 		}
 		
@@ -415,10 +415,70 @@ package
 				cameraController.tiltAngle = 0.3 * (stage.mouseY - lastMouseY) + lastTiltAngle;
 			}
 			
+			cameraController.panAngle += panIncrement;
+			cameraController.tiltAngle += tiltIncrement;
+			cameraController.distance += distanceIncrement;
+			
 			// Update light.
 			skyLight.transform = camera.transform.clone();
 			
 			view.render();
+		}
+		
+		/**
+		 * Key down listener for camera control
+		 */
+		private function onKeyDown(event : KeyboardEvent) : void
+		{
+			switch (event.keyCode) {
+				case Keyboard.UP:
+				case Keyboard.W:
+					tiltIncrement = tiltSpeed;
+					break;
+				case Keyboard.DOWN:
+				case Keyboard.S:
+					tiltIncrement = -tiltSpeed;
+					break;
+				case Keyboard.LEFT:
+				case Keyboard.A:
+					panIncrement = panSpeed;
+					break;
+				case Keyboard.RIGHT:
+				case Keyboard.D:
+					panIncrement = -panSpeed;
+					break;
+				case Keyboard.Z:
+					distanceIncrement = distanceSpeed;
+					break;
+				case Keyboard.X:
+					distanceIncrement = -distanceSpeed;
+					break;
+			}
+		}
+		
+		/**
+		 * Key up listener for camera control
+		 */
+		private function onKeyUp(event : KeyboardEvent) : void
+		{
+			switch (event.keyCode) {
+				case Keyboard.UP:
+				case Keyboard.W:
+				case Keyboard.DOWN:
+				case Keyboard.S:
+					tiltIncrement = 0;
+					break;
+				case Keyboard.LEFT:
+				case Keyboard.A:
+				case Keyboard.RIGHT:
+				case Keyboard.D:
+					panIncrement = 0;
+					break;
+				case Keyboard.Z:
+				case Keyboard.X:
+					distanceIncrement = 0;
+					break;
+			}
 		}
 		
 		/**
@@ -480,6 +540,7 @@ package
 			view.width = stage.stageWidth;
 			view.height = stage.stageHeight;
 			SignatureBitmap.y = stage.stageHeight - Signature.height;
+			awayStats.x = stage.stageWidth - awayStats.width;
 		}
 		
 		public function set activeMouseBrushClip(value : Sprite) : void
