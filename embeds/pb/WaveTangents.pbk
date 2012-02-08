@@ -1,0 +1,30 @@
+<languageVersion : 1.0;>
+
+kernel WaveTangents
+<   namespace : "";
+    vendor : "Li";
+    version : 1;
+    description : "Calculates tangent values for a 2D wave equation.";
+>
+{
+    input image3 currentBuffer;
+    output pixel3 dst;
+
+    parameter float dd
+    <
+        defaultValue : float(0.0);
+    >;
+
+    void
+    evaluatePixel()
+    {
+		float2 coord = outCoord();
+				        
+		pixel3 right = sampleNearest(currentBuffer, coord + float2(1.0, 0.0));
+		pixel3 left = sampleNearest(currentBuffer, coord + float2(-1.0, 0.0));
+
+		dst.x = dd;
+		dst.y = 0.0;
+		dst.z = left.z - right.z;
+    }
+}

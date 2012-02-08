@@ -1,0 +1,32 @@
+<languageVersion : 1.0;>
+
+kernel WaveNormals
+<   namespace : "";
+    vendor : "Li";
+    version : 1;
+    description : "Calculates normal values for a 2D wave equation.";
+>
+{
+    input image3 currentBuffer;
+    output pixel3 dst;
+
+    parameter float dd
+    <
+        defaultValue : float(0.0);
+    >;
+
+    void
+    evaluatePixel()
+    {
+		float2 coord = outCoord();
+				        
+		pixel3 right = sampleNearest(currentBuffer, coord + float2(1.0, 0.0));
+		pixel3 left = sampleNearest(currentBuffer, coord + float2(-1.0, 0.0));
+		pixel3 top = sampleNearest(currentBuffer, coord + float2(0.0, -1.0));
+		pixel3 bottom = sampleNearest(currentBuffer, coord + float2(0.0, 1.0));
+	
+		dst.x = right.z - left.z;
+		dst.y = bottom.z - top.z;
+		dst.z = dd;
+    }
+}

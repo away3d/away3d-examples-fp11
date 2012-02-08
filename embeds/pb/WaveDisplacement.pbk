@@ -1,0 +1,58 @@
+<languageVersion : 1.0;>
+
+kernel WaveDisplacement
+<   namespace : "";
+    vendor : "Li";
+    version : 1;
+    description : "Calculates displacement values for a 2D wave equation.";
+>
+{
+    input image3 currentBuffer;
+    input image3 previousBuffer;
+    output pixel3 dst;
+
+    parameter float k1
+    <
+        defaultValue : float(0.0);
+    >;
+
+    parameter float k2
+    <
+        defaultValue : float(0.0);
+    >;
+
+    parameter float k3
+    <
+        defaultValue : float(0.0);
+    >;
+
+    parameter float2 dims
+    <
+        defaultValue : float2(0.0, 0.0);
+    >;
+
+    void
+    evaluatePixel()
+    {
+		float2 coord = outCoord();
+		float3 point = sampleNearest(currentBuffer, coord);
+
+		if(coord.x > 1.0 && coord.y > 1.0 && coord.x < dims.x && coord.y < dims.y)
+		{
+            float3 prev = sampleNearest(previousBuffer, coord);
+            float3 right = sampleNearest(currentBuffer, coord + float2(1.0, 0.0));
+            float3 left = sampleNearest(currentBuffer, coord + float2(-1.0, 0.0));
+            float3 top = sampleNearest(currentBuffer, coord + float2(0.0, -1.0));
+            float3 bottom = sampleNearest(currentBuffer, coord + float2(0.0, 1.0));
+
+            dst.z = k1*point.z + k2*prev.z + k3*(right.z + left.z + top.z + bottom.z);
+        }
+        else
+        {
+            dst.z = 0.0;
+        }
+
+		dst.x = point.x;
+		dst.y = point.y;
+    }
+}
