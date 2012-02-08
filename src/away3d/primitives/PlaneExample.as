@@ -42,10 +42,11 @@ package away3d.primitives
 			
 			// set the camera and object for a good view
 			var cam:Camera3D = view.camera;
+			cam.y = 60;
 			cam.z = -180;
 			cam.lookAt(geo.position);
-			geo.rotationX = 10;
-			geo.rotationY = 15;
+			geo.rotationX = -15;
+			geo.rotationY = 10;
 			
 			// listen for enterframe to to render updates
 			addEventListener(Event.ENTER_FRAME,update);
@@ -54,11 +55,10 @@ package away3d.primitives
 		protected function update(e:Event):void
 		{
 			var s:Number = elapsed;
-			
+
 			// apply rotations and render
-			geo.rotationX = 65 * Math.sin(2*geo.rotationZ*Math.PI/180); // wobble forward and back
-			geo.rotationY = 15 * Math.sin(2*geo.rotationZ*Math.PI/180); // wobble left and right
-			geo.rotationZ += 12 * s; // degrees per second
+			geo.rotationX = -30 + 30 * Math.sin(1*geo.rotationY*Math.PI/180 - Math.PI*.33); // sit up and lay down
+			geo.rotationY += 18 * s; // degrees per second
 			
 			view.render();
 		}
@@ -73,7 +73,7 @@ package away3d.primitives
 		
 		protected function createGeo():Mesh
 		{
-			var geometry:PlaneGeometry = new PlaneGeometry();
+			var geometry:PlaneGeometry = new PlaneGeometry(); // default yUp means horizontal plane (normal is +y)
 			var material:ColorMaterial = new ColorMaterial();
 			var mesh:Mesh = new Mesh(geometry, material);
 			return mesh;
@@ -81,7 +81,7 @@ package away3d.primitives
 		
 		protected function createLight():LightBase
 		{
-			var light:DirectionalLight = new DirectionalLight(0, 0, 1);
+			var light:DirectionalLight = new DirectionalLight(0, -1, 1);
 			light.color = 0xffffff;
 			light.ambient = 0;
 			light.diffuse = .75;
