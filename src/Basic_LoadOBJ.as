@@ -65,7 +65,7 @@ package
 	import flash.geom.Vector3D;
 	import flash.utils.getTimer;
 	
-	[SWF(backgroundColor="#000000", frameRate="60", quality="LOW")]
+	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
 	
 	public class Basic_LoadOBJ extends Sprite
 	{
@@ -183,6 +183,7 @@ package
 			light.x = 15000;
 			light.z = 15000;
 			light.color = 0xffddbb;
+			light.ambient = 1;
 			lightPicker = new StaticLightPicker([light]);
 			
 			scene.addChild(light);
@@ -252,13 +253,13 @@ package
 		private function onEnterFrame(event:Event):void
 		{
 			if (move) {
-				cameraController.panAngle = 0.3 * (stage.mouseX - lastMouseX) + lastPanAngle;
-				cameraController.tiltAngle = 0.3 * (stage.mouseY - lastMouseY) + lastTiltAngle;
+				cameraController.panAngle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
+				cameraController.tiltAngle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;
 			}
 			
-			light.x = Math.sin(getTimer()/10000) * 150000;
+			light.x = Math.sin(getTimer()/10000)*150000;
 			light.y = 1000;
-			light.z = Math.cos(getTimer()/10000) * 150000;
+			light.z = Math.cos(getTimer()/10000)*150000;
 			
 			view.render();
 		}

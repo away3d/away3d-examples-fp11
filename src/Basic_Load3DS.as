@@ -63,7 +63,7 @@ package
 	import flash.text.*;
 	import flash.utils.*;
 	
-	[SWF(backgroundColor="#000000", frameRate="60", quality="LOW")]
+	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
 	
 	public class Basic_Load3DS extends Sprite
 	{
@@ -215,8 +215,8 @@ package
 		private function onEnterFrame(event:Event):void
 		{
 			if (move) {
-				cameraController.panAngle = 0.3 * (stage.mouseX - lastMouseX) + lastPanAngle;
-				cameraController.tiltAngle = 0.3 * (stage.mouseY - lastMouseY) + lastTiltAngle;
+				cameraController.panAngle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
+				cameraController.tiltAngle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;
 			}
 			
 			direction.x = -Math.sin(getTimer()/4000);
