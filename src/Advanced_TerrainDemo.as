@@ -18,7 +18,7 @@
 	import flash.events.*;
 	import flash.ui.*;
 	
-	[SWF(backgroundColor="#000000", frameRate="60", quality="LOW")]
+	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
 	
 	public class Advanced_TerrainDemo extends Sprite
 	{
@@ -185,7 +185,7 @@
 			lightPicker = new StaticLightPicker([sunLight]);
 			
 			//create a global fog method
-			fogMethod = new FogMethod(4000, 0xcfd9de);
+			fogMethod = new FogMethod(0, 8000, 0xcfd9de);
 		}
 		
 		/**
@@ -214,7 +214,7 @@
 			waterMaterial.alphaBlending = true;
 			waterMaterial.lightPicker = lightPicker;
 			waterMaterial.repeat = true;
-			waterMaterial.normalMethod = waterMethod;
+			waterMaterial.normalMethod = waterMethod
 			waterMaterial.addMethod(new EnvMapMethod(cubeTexture));
 			waterMaterial.specularMethod = fresnelMethod;
 			waterMaterial.gloss = 100;

@@ -69,7 +69,7 @@ package
 	import flash.ui.Keyboard;
 	import flash.utils.getTimer;
 	
-	[SWF(backgroundColor="#000000", frameRate="60", quality="LOW")]
+	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
 	
 	public class Intermediate_CharacterAnimation extends Sprite
 	{
@@ -230,6 +230,7 @@ package
 			sunLight = new DirectionalLight(-1, -0.4, 1);
 			sunLight.color = 0xFFFFFF;
 			sunLight.castsShadows = true;
+			sunLight.ambient = 1;
 			sunLight.diffuse = 1;
 			sunLight.specular = 1;
 			scene.addChild(sunLight);
@@ -250,7 +251,7 @@ package
 			filteredShadowMapMethod = new TripleFilteredShadowMapMethod(sunLight);
 			
 			//create a global fog method
-			fogMethod = new FogMethod(5000, 0x5f5e6e);
+			fogMethod = new FogMethod(0, 3000, 0x5f5e6e);
 		}
 		
 		/**
@@ -271,6 +272,7 @@ package
 			groundMaterial.normalMap = new BitmapTexture(new SnowNormal().bitmapData);
 			groundMaterial.shadowMethod = filteredShadowMapMethod;
 			groundMaterial.addMethod(fogMethod);
+			groundMaterial.ambient = 0.5;
 			ground = new Mesh(new PlaneGeometry(50000, 50000), groundMaterial);
 			ground.geometry.scaleUV(50, 50);
 			ground.castsShadows = true;
@@ -330,7 +332,7 @@ package
 				bearMaterial.gloss = 50;
 				bearMaterial.specular = 0.5;
 				bearMaterial.ambientColor = 0xAAAAAA;
-				bearMaterial.ambient = 1;
+				bearMaterial.ambient = 0.5;
 				
 				//create mesh object and assign our animation object and material object
 				mesh = event.asset as Mesh;

@@ -27,7 +27,7 @@ package
 	import uk.co.soulwire.gui.*;
 
 	
-	[SWF(backgroundColor="#000000", frameRate="60", quality="LOW")]
+	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
 	
 	public class Advanced_ShallowWaterDemo extends Sprite
 	{
@@ -205,7 +205,7 @@ package
 			lightPicker = new StaticLightPicker([skyLight]);
 			
 			//create a global fog method
-			fogMethod = new FogMethod(2500, 0x000000);
+			fogMethod = new FogMethod(0, 2500, 0x000000);
 		}
 		
 		/**
@@ -411,8 +411,8 @@ package
 				else
 					_fluidDisturb.disturbBitmapMemory(planeX, planeY, -5*mouseBrushStrength, _mouseBrush.bitmapData, mouseBrushLife, 0.2);
 			} else if (move) {
-				cameraController.panAngle = 0.3 * (stage.mouseX - lastMouseX) + lastPanAngle;
-				cameraController.tiltAngle = 0.3 * (stage.mouseY - lastMouseY) + lastTiltAngle;
+				cameraController.panAngle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
+				cameraController.tiltAngle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;
 			}
 			
 			cameraController.panAngle += panIncrement;
