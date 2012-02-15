@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="demo" default="-usage" basedir=".">
+
+<description>
+Builds the Away3D 4.0 examples.
+</description>
+	
+	<property name="dir.root" location="${basedir}"/>
+	<import file="${dir.root}/tools/ant/init.xml"/>
+	
+	<property name="dir.config" location="${dir.root}/tools/mxmlc"/>
+	<property name="dir.source" location="${basedir}/src"/>
+	<property name="dir.libs.away3d" location="${dir.root}/tools/away3d"/>
+	<property name="dir.target" location="${basedir}/target"/>
+	<property name="dir.release" location="${basedir}/release"/>
+	<property name="exe.flashplayer" location="${dir.root}/tools/flashplayer/debug/flashplayer${exe}"/>
+		
+	
+	<target name="all" description="&gt; ant -Dfile=SkyBoxExample -Dpath=away3d/primitives all (clean, compile, release, run)" depends="clean, compile, release, run" />
+	
+	<target name="clean" description="remove the contents of ${dir.target} and ${dir.release}">
+		<delete failonerror="true" includeemptydirs="true">
+			<fileset dir="${dir.target}" includes="*"/>
+		</delete>
+	</target>
+	
+	<macrodef name="compile-demo">
+		<attribute name="name" default="UNKNOWN"/>
+		<sequential>
+			<local name="filename"/>   <property name="filename" value="@{name}"/>
+			<local name="filepath"/>   <property name="filepath" value="${dir.source}/${path}"/>
+			<local name="source-path"/><property name="source-path" value="-source-path=${dir.source}"/>
+			<local name="library-path"/><property name="library-path" value="-library-path+=${dir.libs.away3d}"/>
+			<local name="link-report"/> <property name="link-report" value="-link-report=${dir.target}/@{name}-linkage.xml"/>
+			<local name="size-report"/> <property name="size-report" value="-size-report=${dir.target}/@{name}-sizes.xml"/>
+			<local name="output"/>     <property name="output" value="-output=${dir.target}/@{name}.swf"/>
+			<mxmlc 
+				file="${filepath}/${filename}.as" 
+				config="${dir.config}/mxmlc-config.xml" 
+				options="${source-path} ${library-path} ${link-report} ${size-report} ${output}"
+				/>
+		</sequential>
+	</macrodef>
+	
+	<macrodef name="run-demo">
+		<attribute name="name" default="UNKNOWN"/>
+		<sequential>
+			<open file="${dir.release}/@{name}.swf" exe="${exe.flashplayer}" />
+		</sequential>
+	</macrodef>
+	
+    <target name="compile" depends="clean" description="compiles demo swfs into target folder">
+    	<compile-demo name="${file}"/>
+	</target>
+	
+	<target name="release" depends="compile" description="copies build artifacts from target to release folder">
+		<copy file="${dir.target}/${file}.swf" todir="${dir.release}"/>
+	</target>
+	
+	<target name="run" description="launches build artifact from release folder">
+    	<run-demo name="${file}"/>
+	</target>
+	
+	
+	<target name="compile-release" depends="compile, release" />
+	
+	<target name="examples" description="compile and release all the examples" depends="clean">
+		<antcall target="compile-release">
+			<param name="file" value="CapsuleExample"/>
+			<param name="path" value="away3d/primitives"/>
+		</antcall>
+		<antcall target="compile-release">
+			<param name="file" value="ConeExample"/>
+			<param name="path" value="away3d/primitives"/>
+		</antcall>
+		<antcall target="compile-release">
+			<param name="file" value="CubeExample"/>
+			<param name="path" value="away3d/primitives"/>
+		</antcall>
+		<antcall target="compile-release">
+			<param name="file" value="CylinderExample"/>
+			<param name="path" value="away3d/primitives"/>
+		</antcall>
+		<antcall target="compile-release">
+			<param name="file" value="PlaneExample"/>
+			<param name="path" value="away3d/primitives"/>
+		</antcall>
+		<antcall target="compile-release">
+			<param name="file" value="SkyBoxExample"/>
+			<param name="path" value="away3d/primitives"/>
+		</antcall>
+		<antcall target="compile-release">
+			<param name="file" value="SphereExample"/>
+			<param name="path" value="away3d/primitives"/>
+		</antcall>
+		<antcall target="compile-release">
+			<param name="file" value="WireframeCubeExample"/>
+			<param name="path" value="away3d/primitives"/>
+		</antcall>
+		<antcall target="compile-release">
+			<param name="file" value="WireframePlaneExample"/>
+			<param name="path" value="away3d/primitives"/>
+		</antcall>
+		<antcall target="compile-release">
+			<param name="file" value="WireframeSphereExample"/>
+			<param name="path" value="away3d/primitives"/>
+		</antcall>
+	</target>
+				
+</project>
+

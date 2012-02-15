@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="ant.includes.flex" default="-usage" basedir=".">
+
+<description>
+Initialization of flex tools.
+Requires FLEX_HOME property, sets $${flex.lib} and $${flex.frameworks}
+Defines mxmlc and compc macros.
+</description>
+	
+	<!-- Fail when FLEX_HOME isn't set -->
+	<fail unless="FLEX_HOME">${NL}
+Please set the FLEX_HOME property to a valid path for the Flex SDK on your machine.
+${msg.props}
+	</fail>
+	
+	<property name="flex.lib" location="${FLEX_HOME}/lib" />
+	<property name="flex.frameworks" location="${FLEX_HOME}/frameworks" />
+	
+	<macrodef name="mxmlc">
+		<attribute name="file"/>
+		<attribute name="options" default=""/>
+		<attribute name="config"/>
+		<attribute name="configop" default="+="/>
+		<sequential>
+			<echo message="- - mxmlc macro - -"/>
+			<echo message="compiling '@{file}'"/>
+			
+			<java 
+				jar="${flex.lib}/mxmlc.jar"
+				dir="${flex.frameworks}"
+				fork="true"
+				failonerror="true"
+				>
+				<arg line="@{file} -load-config@{configop}@{config}"/>
+				<arg line="@{options}"/>
+			</java>
+		</sequential>
+	</macrodef>
+	
+	<macrodef name="compc">
+		<attribute name="file"/>
+		<attribute name="options" default=""/>
+		<attribute name="config"/>
+		<attribute name="configop" default="+="/>
+		<sequential>
+			<echo message="- - compc macro - -"/>
+			<echo message="creating '@{file}'"/>
+			
+			<java 
+				jar="${flex.lib}/compc.jar"
+				dir="${flex.frameworks}"
+				fork="true"
+				failonerror="true"
+				>
+				<arg line="@{options} -load-config@{configop}@{config}"/>
+				<arg value="-output=@{file}"/>
+			</java>
+		</sequential>
+	</macrodef>
+
+</project>

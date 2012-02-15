@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="ant.includes.macros" default="-usage" basedir=".">
+
+<description>
+Reusable macros
+</description>
+	
+	<macrodef name="dynamic-property">
+		<attribute name="name"/>
+		<attribute name="value"/>
+		<sequential>
+			<property name="@{name}" value="@{value}"/>
+		</sequential>
+	</macrodef>
+	
+	<macrodef name="increment-build">
+		<attribute name="file" default="build.number"/>
+		<sequential>
+			<propertyfile file="@{file}" comment="${semver.build} auto-incremented by Ant.">
+				<entry key="semver.build" type="int" operation="+" default="0"/>
+			</propertyfile>
+		</sequential>
+	</macrodef>
+	
+	<macrodef name="semver" description="sets project-based property for semantic versioning (http://semver.org/)">
+		<attribute name="project" default="default"/>
+		<attribute name="file" default="semver"/>
+		
+		<sequential>
+			<property file="@{file}"/>
+			<dynamic-property name="semver.@{project}" value="${semver.major}.${semver.minor}.${semver.build}"/>
+			<echo message="semver.@{project} is set to '${semver.major}.${semver.minor}.${semver.build}'"/>
+		</sequential>
+	</macrodef>
+	
+	<macrodef name="open" description="opens file with exe">
+		<attribute name="exe" default=""/>
+		<attribute name="file" default=""/>
+		<sequential>
+			<echo message="- - open macro - -"/>
+			<echo message="opening '@{file}' with '@{exe}'"/>
+			
+			<exec osfamily="windows" spawn="true" executable="cmd">
+				<arg line='/c start "" "@{exe}" @{file}'/>
+			</exec>
+			
+			<exec osfamily="mac" spawn="true" executable="open">
+				<arg line="-n -a @{exe} @{file}"/>
+			</exec>
+		</sequential>
+	</macrodef>
+
+</project>

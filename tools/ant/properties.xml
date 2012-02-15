@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="ant.includes.properties" default="-usage" basedir=".">
+
+<description>
+Shared properties
+</description>
+	
+	<!-- this may be overridden by defining prior to import file -->
+	<property name="dir.root" location="${basedir}"/>
+	
+	<!--
+	Look for override .properties files in some convenient locations.
+	First definition wins, so start local and move to global
+	-->
+	<property name="props.loc01" location="${basedir}/build.properties"/>
+	<property name="props.loc02" location="${dir.root}/config/${user.name}.properties"/>
+	<property name="props.loc03" location="${dir.root}/build.properties"/>
+	<property name="props.loc04" location="${user.home}/${ant.project.name}.properties"/>
+	<property name="props.loc05" location="${user.home}/build.properties"/>
+	
+	<property file="${props.loc01}"/>
+	<property file="${props.loc02}"/>
+	<property file="${props.loc03}"/>
+	<property file="${props.loc04}"/>
+	<property file="${props.loc05}"/>
+	
+	<property name="NL" value="${line.separator}" />
+	<property name="msg.props.01" value="${NL}Property files can be defined in any of these places (and are checked in this order):" />
+	<property name="msg.props.02" value="	1 subproject   ${props.loc01}" />
+	<property name="msg.props.03" value="	2 main config  ${props.loc02}" />
+	<property name="msg.props.04" value="	3 main root    ${props.loc03}" />
+	<property name="msg.props.05" value="	4 user project ${props.loc04}" />
+	<property name="msg.props.06" value="	5 user general ${props.loc05}" />
+	<property name="msg.props.07" value="${NL}Properties are defined in those files by using lines like the following:" />
+	<property name="msg.props.08" value="${NL}e.g. Windows:${NL}FLEX_HOME=C:/Program Files/flex" />
+	<property name="msg.props.09" value="${NL}e.g. OS X / Linux:${NL}FLEX_HOME=/usr/local/share/flexsdk" />
+	<property name="msg.props.10" value="${NL}Paths in properties files should always use forward slashs (/), even on Windows." />
+	<property name="msg.props" value="${msg.props.01}${NL}${msg.props.02}${NL}${msg.props.03}${NL}${msg.props.04}${NL}${msg.props.05}${NL}${msg.props.06}${NL}${msg.props.07}${NL}${msg.props.08}${NL}${msg.props.09}${NL}${msg.props.10}${NL}" />
+
+	<!-- Set convenience suffixes for command line tools across platforms. -->
+	<condition property="cli" value=".exe">
+		<os family="windows"/>
+	</condition>
+	<condition property="cli" value="">
+		<and>
+			<os family="unix"/>
+			<os family="mac"/>
+		</and>
+	</condition>
+	<condition property="cli" value="">
+		<and>
+			<os family="unix"/>
+			<not><os family="mac"/></not>
+		</and>
+	</condition>
+	
+	<!-- Set convenience suffixes for application executables across platforms. -->
+	<condition property="exe" value=".exe">
+		<os family="windows"/>
+	</condition>
+	<condition property="exe" value=".app">
+		<and>
+			<os family="unix"/>
+			<os family="mac"/>
+		</and>
+	</condition>
+	<condition property="exe" value="">
+		<and>
+			<os family="unix"/>
+			<not><os family="mac"/></not>
+		</and>
+	</condition>
+
+</project>
