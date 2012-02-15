@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<flex-config>
+	
+	<main-title>Away3D 4.0 Examples</main-title>
+	<left-frameset-width>300</left-frameset-width>
+	
+	<!-- templates-path: folder to find custom style sheets for doc generation-->
+	<!-- !! relative to the directory asdoc is invoked from
+	<templates-path>tools/asdocTemplates</templates-path>-->
+	
+	<metadata>
+		<!-- metadata.title: The default title to store in the SWF metadata-->
+		<title>Away3D 4.0 Examples</title>
+		
+		<!-- metadata.language: The language to store in the SWF metadata (i.e. EN, FR)-->
+		<language>EN</language>
+		
+		<!-- metadata.description: The default description to store in the SWF metadata-->
+		<description>http://www.away3d.com/</description>
+		
+		<!-- metadata.creator: A creator's name to store in the SWF metadata-->
+		<creator>the Away3D team</creator>
+		
+		<!-- metadata.publisher: A publisher's name to store in the SWF metadata-->
+		<publisher>http://www.away3d.com/</publisher>
+	</metadata>
+
+	<!-- benchmark: output performance benchmark-->
+	<benchmark>true</benchmark>
+	
+	<!-- version: display the build version of the program-->
+	<version>true</version>
+	
+	<!-- warnings: toggle the display of warnings-->
+	<warnings>true</warnings>
+	
+	<compiler>
+		<!-- compiler.verbose-stacktraces: save callstack information to the SWF for debugging-->
+		<verbose-stacktraces>false</verbose-stacktraces>
+	</compiler>
+	
+</flex-config>
+

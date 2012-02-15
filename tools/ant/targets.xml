@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="ant.includes.targets" default="-usage" basedir=".">
+
+<description>
+Shared targets
+</description>
+	
+	<target name="-usage"> <!-- not providing description to avoid showing up in -projecthelp -->
+		<echo message="${ant.project.name}" />
+		<java classname="org.apache.tools.ant.Main">
+			<arg value="-projecthelp" />
+		</java>
+	</target>
+	
+	<target name="help" description="prints usage info" depends="-usage">
+		<echo message="user.name : ${user.name}" />
+		<echo message="user.home : ${user.home}" />
+		<echo message="${msg.props}" />
+	</target>
+
+	<target name="versions" description="prints runtime versions of project tools">
+		<echo message="OS     : ${os.name} ${os.version} (${os.arch})" />
+		
+		<echo message="Ant    : ${ant.version}" />
+		
+		<echo message="Java   : Version ${java.version} " />
+	</target>
+
+</project>

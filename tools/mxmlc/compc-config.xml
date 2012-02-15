@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<flex-config>
+	
+	<!-- static-link-runtime-shared-libraries: statically link the libraries specified by the -runtime-shared-libraries-path option.-->
+	<static-link-runtime-shared-libraries>true</static-link-runtime-shared-libraries>
+	
+	<metadata>
+		<!-- metadata.title: The default title to store in the SWF metadata-->
+		<title>Away3D 4.0 Examples</title>
+		
+		<!-- metadata.language: The language to store in the SWF metadata (i.e. EN, FR)-->
+		<language>EN</language>
+		
+		<!-- metadata.description: The default description to store in the SWF metadata-->
+		<description>http://www.away3d.com/</description>
+		
+		<!-- metadata.creator: A creator's name to store in the SWF metadata-->
+		<creator>the Away3D team</creator>
+		
+		<!-- metadata.publisher: A publisher's name to store in the SWF metadata-->
+		<publisher>http://www.away3d.com/</publisher>
+	</metadata>
+	
+	<!-- use-network: toggle whether the SWF is flagged for access to network resources-->
+	<use-network>true</use-network>
+
+	<!-- benchmark: output performance benchmark-->
+	<benchmark>true</benchmark>
+	
+	<!-- version: display the build version of the program-->
+	<version>true</version>
+	
+	<!-- warnings: toggle the display of warnings-->
+	<warnings>true</warnings>
+	
+	<compiler>
+		<!-- compiler.debug: generates a movie that is suitable for debugging-->
+		<debug>false</debug>
+	
+		<!-- compiler.verbose-stacktraces: save callstack information to the SWF for debugging-->
+		<verbose-stacktraces>false</verbose-stacktraces>
+		
+		<!-- compiler.optimize: Enable post-link SWF optimization-->
+		<optimize>true</optimize>
+	</compiler>
+	
+</flex-config>
+
