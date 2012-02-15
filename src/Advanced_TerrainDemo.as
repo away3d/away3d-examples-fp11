@@ -1,4 +1,45 @@
-﻿package
+﻿/*
+
+Terrain creation using height maps and splat maps
+
+Demonstrates:
+
+How to create a 3D terrain out of a hieght map
+How to enhance the detail of a material close-up by applying splat maps.
+How to create a realistic lake effect.
+How to create first-person camera motion using the FirstPersonController.
+
+Code by Rob Bateman & David Lenaerts
+rob@infiniteturtles.co.uk
+http://www.infiniteturtles.co.uk
+david.lenaerts@gmail.com
+http://www.derschmale.com
+
+This code is distributed under the MIT License
+
+Copyright (c)  
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the “Software”), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+*/
+
+package
 {
 	import away3d.cameras.*;
 	import away3d.containers.*;
@@ -16,6 +57,8 @@
 	
 	import flash.display.*;
 	import flash.events.*;
+	import flash.filters.*;
+	import flash.text.*;
 	import flash.ui.*;
 	
 	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
@@ -42,34 +85,38 @@
 		
 		//water normal map
 		[Embed(source="/../embeds/w_normalmap.jpg")]
-		private var WaterNormals : Class;
+		private var WaterNormals:Class;
 		
+		// terrain height map
 		[Embed(source="/../embeds/terrain/Heightmap.jpg")]
-		private var HeightMap : Class;
-
+		private var HeightMap:Class;
+		
+		// terrain texture map
 		[Embed(source="/../embeds/terrain/terrain_tex.jpg")]
-		private var Albedo : Class;
-
+		private var Albedo:Class;
+		
+		// terrain normal map
 		[Embed(source="/../embeds/terrain/terrain_norms.jpg")]
-		private var Normals : Class;
-
+		private var Normals:Class;
+		
+		//splat texture maps
 		[Embed(source="/../embeds/terrain/grass.jpg")]
-		private var Grass : Class;
-
+		private var Grass:Class;
 		[Embed(source="/../embeds/terrain/rock.jpg")]
-		private var Rock : Class;
-
+		private var Rock:Class;
 		[Embed(source="/../embeds/terrain/beach.jpg")]
-		private var Beach : Class;
-
+		private var Beach:Class;
+		
+		//splat blend map
 		[Embed(source="/../embeds/terrain/terrainBlend.png")]
-		private var Blend : Class;
+		private var Blend:Class;
 		
 		//engine variables
 		private var scene:Scene3D;
 		private var camera:Camera3D;
 		private var view:View3D;
 		private var cameraController:FirstPersonController;
+		private var awayStats:AwayStats;
 		
 		//signature variables
 		private var Signature:Sprite;
@@ -89,14 +136,9 @@
 		private var cubeTexture:BitmapCubeTexture;
 		
 		//scene objects
-		private var _terrain : Elevation;
-		private var _plane:Mesh;
-		private var _stickToFloor : Boolean = true;
-		private var _motionBlur : MotionBlurFilter3D;
-
-		private var _prevX : Number = 0;
-		private var _prevY : Number = 0;
-		private var _strength : Number = 0;
+		private var text:TextField;
+		private var terrain:Elevation;
+		private var plane:Mesh;
 		
 		//rotation variables
 		private var move:Boolean = false;
@@ -128,6 +170,7 @@
 		private function init():void
 		{
 			initEngine();
+			initText();
 			initLights();
 			initMaterials();
 			initObjects();
@@ -150,11 +193,6 @@
 			camera.lens.near = .05;
 			camera.y = 300;
 			
-			_motionBlur = new MotionBlurFilter3D();
-			//view.filters3d = [ new BloomFilter3D(40, 40, .75, 1, 3) ];
-			//view.filters3d = [ new DepthOfFieldFilter3D(10, 10) ];
-			view.antiAlias = 4;
-			
 			//setup controller to be used on the camera
 			cameraController = new FirstPersonController(camera, 180, 0, -80, 80);
 			
@@ -169,7 +207,27 @@
 			stage.quality = StageQuality.LOW;
 			addChild(SignatureBitmap);
 			
-			addChild(new AwayStats(view));
+			awayStats = new AwayStats(view)
+			addChild(awayStats);
+		}
+		
+		/**
+		 * Create an instructions overlay
+		 */
+		private function initText():void
+		{
+			text = new TextField();
+			text.defaultTextFormat = new TextFormat("Verdana", 11, 0xFFFFFF);
+			text.width = 240;
+			text.height = 100;
+			text.selectable = false;
+			text.mouseEnabled = false;
+			text.text = "Mouse click and drag - rotate\n" + 
+				"Cursor keys / WSAD - move\n";
+			
+			text.filters = [new DropShadowFilter(1, 45, 0x0, 1, 0, 0)];
+			
+			addChild(text);
 		}
 		
 		/**
@@ -231,14 +289,14 @@
 			scene.addChild(new SkyBox(cubeTexture));
 			
 			//create mountain like terrain
-			_terrain = new Elevation(terrainMaterial, new HeightMap().bitmapData, 5000, 1300, 5000, 250, 250);
-			scene.addChild(_terrain);
+			terrain = new Elevation(terrainMaterial, new HeightMap().bitmapData, 5000, 1300, 5000, 250, 250);
+			scene.addChild(terrain);
 			
 			//create water
-			_plane = new Mesh(new PlaneGeometry(5000, 5000), waterMaterial);
-			_plane.geometry.scaleUV(50, 50);
-			_plane.y = 285;
-			scene.addChild(_plane);
+			plane = new Mesh(new PlaneGeometry(5000, 5000), waterMaterial);
+			plane.geometry.scaleUV(50, 50);
+			plane.y = 285;
+			scene.addChild(plane);
 		}
 		
 		/**
@@ -260,21 +318,12 @@
 		 */
 		private function onEnterFrame(event:Event):void
 		{
-			var mx : Number = mouseX, my : Number = mouseY;
-			var dx : Number = mx - _prevX, dy : Number = my - _prevY;
-			var dist : Number = .4 + (dx * dx + dy * dy) / 300;
-			if (dist > .9) dist = .9;
-			_strength += (dist - _strength) * .05;
-			//			_motionBlur.strength = _strength;
-			_prevX = mx;
-			_prevY = my;
-			
-			var h : Number = _terrain.getHeightAt(view.camera.x, view.camera.z) + 20;
-			if (_stickToFloor || h > view.camera.y) view.camera.y += (h - view.camera.y) * .2;
+			//set the camera height based on the terrain (with smoothing)
+			camera.y += 0.2*(terrain.getHeightAt(camera.x, camera.z) + 20 - camera.y);
 			
 			if (move) {
-				cameraController.panAngle = 0.3 * (stage.mouseX - lastMouseX) + lastPanAngle;
-				cameraController.tiltAngle = 0.3 * (stage.mouseY - lastMouseY) + lastTiltAngle;
+				cameraController.panAngle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
+				cameraController.tiltAngle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;
 				
 			}
 			
@@ -292,6 +341,7 @@
 				cameraController.incrementStrafe(strafeSpeed);
 			}
 			
+			//animate our lake material
 			waterMethod.water1OffsetX += .001;
 			waterMethod.water1OffsetY += .001;
 			waterMethod.water2OffsetX += .0007;
@@ -343,10 +393,6 @@
 				case Keyboard.D:
 					strafeAcceleration = 0;
 					break;
-				case Keyboard.SPACE:
-					_stickToFloor = !_stickToFloor;
-					
-					break;
 			}
 		}
 		
@@ -389,6 +435,7 @@
 			view.width = stage.stageWidth;
 			view.height = stage.stageHeight;
 			SignatureBitmap.y = stage.stageHeight - Signature.height;
+			awayStats.x = stage.stageWidth - awayStats.width;
 		}
 	}
 }
