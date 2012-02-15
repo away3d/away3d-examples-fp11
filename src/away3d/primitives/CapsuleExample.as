@@ -6,12 +6,13 @@ package away3d.primitives
 	import away3d.lights.DirectionalLight;
 	import away3d.lights.LightBase;
 	import away3d.materials.ColorMaterial;
-	import away3d.tools.LightsHelper;
+	import away3d.tools.helpers.LightsHelper;
 	
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.utils.getTimer;
 	
+	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
 	public class CapsuleExample extends Sprite
 	{
 		

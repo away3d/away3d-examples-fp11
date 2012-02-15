@@ -8,7 +8,7 @@ package away3d.primitives
 	import flash.events.Event;
 	import flash.utils.getTimer;
 	
-	[SWF(width="800", height="600", frameRate="60", backgroundColor="#000000")]
+	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
 	public class SkyBoxExample extends Sprite
 	{
 		

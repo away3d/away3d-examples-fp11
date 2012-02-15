@@ -12,6 +12,7 @@ package away3d.primitives
 	import flash.events.Event;
 	import flash.utils.getTimer;
 	
+	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
 	public class RegularPolygonExample extends Sprite
 	{
 		
