@@ -5,7 +5,7 @@ package
 	import away3d.containers.*;
 	import away3d.controllers.*;
 	import away3d.core.base.*;
-	import away3d.core.raytracing.picking.*;
+	import away3d.core.raycast.*;
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.events.*;

@@ -116,8 +116,12 @@ package
 		private var EnvNegY:Class;
 		[Embed(source="/../embeds/skybox/grimnight_negZ.png")]
 		private var EnvNegZ:Class;
+		
+		//billboard texture for red light
 		[Embed(source="/../embeds/redlight.png")]
 		private var RedLight:Class;
+		
+		//billboard texture for blue light
 		[Embed(source="/../embeds/bluelight.png")]
 		private var BlueLight:Class;
 		

@@ -4,7 +4,7 @@ Bones animation loading and interaction example in Away3d
 
 Demonstrates:
 
-How to load an AWD file with bones animation.
+How to load an AWD file with bones animation frmo external resources.
 How to map animation data after loading in order to playback an animation sequence.
 How to control the movement of a game character using the mouse.
 How to use a skybox with a fog method to create a seamless play area.
