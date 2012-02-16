@@ -78,27 +78,27 @@ package
 		public var SignatureSwf:Class;
 		
 		//polar bear color map
-		[Embed(source="/../embeds/snow-colour.png")]
-		private var SnowColor:Class;
+		[Embed(source="/../embeds/snow_diffuse.png")]
+		private var SnowDiffuse:Class;
 		
 		//polar bear normal map
-		[Embed(source="/../embeds/snow-normal-tangent.png")]
+		[Embed(source="/../embeds/snow_normals.png")]
 		private var SnowNormal:Class;
 		
 		//polar bear specular map
-		[Embed(source="/../embeds/snow-specular.png")]
+		[Embed(source="/../embeds/snow_specular.png")]
 		private var SnowSpecular:Class;
 		
 		//snow color map
-		[Embed(source="/../embeds/PolarBear_colour.jpg")]
-		private var BearColor:Class;
+		[Embed(source="/../embeds/polarbear_diffuse.jpg")]
+		private var BearDiffuse:Class;
 		
 		//snow normal map
-		[Embed(source="/../embeds/PolarBear_normal.jpg")]
+		[Embed(source="/../embeds/polarbear_normals.jpg")]
 		private var BearNormal:Class;
 		
 		//snow specular map
-		[Embed(source="/../embeds/PolarBear_specular.jpg")]
+		[Embed(source="/../embeds/polarbear_specular.jpg")]
 		private var BearSpecular:Class;
 		
 		//skybox textures
@@ -238,8 +238,8 @@ package
 			text.height = 100;
 			text.selectable = false;
 			text.mouseEnabled = false;
-			text.text = "Cursor keys / WSAD - move\n" + 
-				"SHIFT - hold down to run\n";
+			text.text = "Cursor keys / WSAD - move\n"; 
+			text.appendText("SHIFT - hold down to run\n");
 			
 			text.filters = [new DropShadowFilter(1, 45, 0x0, 1, 0, 0)];
 			
@@ -292,7 +292,7 @@ package
 			AssetLibrary.load(new URLRequest("assets/PolarBear.awd"));
 			
 			//create a snowy ground plane
-			groundMaterial = new TextureMaterial(new BitmapTexture((new SnowColor()).bitmapData), true, true, true);
+			groundMaterial = new TextureMaterial(new BitmapTexture((new SnowDiffuse()).bitmapData), true, true, true);
 			groundMaterial.lightPicker = lightPicker;
 			groundMaterial.specularMap = new BitmapTexture(new SnowSpecular().bitmapData);
 			groundMaterial.normalMap = new BitmapTexture(new SnowNormal().bitmapData);
@@ -350,7 +350,7 @@ package
 					runSequence = event.asset as SkeletonAnimationSequence;
 			} else if (event.asset.assetType == AssetType.MESH) {
 				//create material object and assign it to our mesh
-				bearMaterial = new TextureMaterial(new BitmapTexture(new BearColor().bitmapData));
+				bearMaterial = new TextureMaterial(new BitmapTexture(new BearDiffuse().bitmapData));
 				bearMaterial.shadowMethod = filteredShadowMapMethod;
 				bearMaterial.normalMap = new BitmapTexture(new BearNormal().bitmapData);
 				bearMaterial.specularMap = new BitmapTexture(new BearSpecular().bitmapData);
@@ -401,15 +401,19 @@ package
 						updateMovement(movementDirection);
 					break;
 				case Keyboard.UP:
+				case Keyboard.W:
 					updateMovement(movementDirection = 1);
 					break;
 				case Keyboard.DOWN:
+				case Keyboard.S:
 					updateMovement(movementDirection = -1);
 					break;
 				case Keyboard.LEFT:
+				case Keyboard.A:
 					currentRotationInc = -ROTATION_SPEED;
 					break;
 				case Keyboard.RIGHT:
+				case Keyboard.D:
 					currentRotationInc = ROTATION_SPEED;
 					break;
 			}
@@ -424,11 +428,15 @@ package
 						updateMovement(movementDirection);
 					break;
 				case Keyboard.UP:
+				case Keyboard.W:
 				case Keyboard.DOWN:
+				case Keyboard.S:
 					stop();
 					break;
 				case Keyboard.LEFT:
+				case Keyboard.A:
 				case Keyboard.RIGHT:
+				case Keyboard.D:
 					currentRotationInc = 0;
 					break;
 			}

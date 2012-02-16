@@ -75,19 +75,19 @@ package
 		
 		//Infinite, 3D head model
 		[Embed(source="/../embeds/head.obj", mimeType="application/octet-stream")]
-		private var HeadModel : Class;
+		private var HeadModel:Class;
 		
 		//Diffuse map texture
-		[Embed(source="/../embeds/head-diffuse.jpg")]
-		private var Diffuse : Class;
+		[Embed(source="/../embeds/head_diffuse.jpg")]
+		private var Diffuse:Class;
 		
 		//Specular map texture
-		[Embed(source="/../embeds/head-specular.jpg")]
-		private var Specular : Class;
+		[Embed(source="/../embeds/head_specular.jpg")]
+		private var Specular:Class;
 		
 		//Normal map texture
-		[Embed(source="/../embeds/head-normal-tangent.jpg")]
-		private var Normal : Class;
+		[Embed(source="/../embeds/head_normals.jpg")]
+		private var Normal:Class;
 		
 		//engine variables
 		private var scene:Scene3D;

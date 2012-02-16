@@ -84,19 +84,19 @@ package
 		private var EnvNegZ:Class;
 		
 		//water normal map
-		[Embed(source="/../embeds/w_normalmap.jpg")]
+		[Embed(source="/../embeds/water_normals.jpg")]
 		private var WaterNormals:Class;
 		
 		// terrain height map
-		[Embed(source="/../embeds/terrain/Heightmap.jpg")]
+		[Embed(source="/../embeds/terrain/terrain_heights.jpg")]
 		private var HeightMap:Class;
 		
 		// terrain texture map
-		[Embed(source="/../embeds/terrain/terrain_tex.jpg")]
+		[Embed(source="/../embeds/terrain/terrain_diffuse.jpg")]
 		private var Albedo:Class;
 		
 		// terrain normal map
-		[Embed(source="/../embeds/terrain/terrain_norms.jpg")]
+		[Embed(source="/../embeds/terrain/terrain_normals.jpg")]
 		private var Normals:Class;
 		
 		//splat texture maps
@@ -108,7 +108,7 @@ package
 		private var Beach:Class;
 		
 		//splat blend map
-		[Embed(source="/../embeds/terrain/terrainBlend.png")]
+		[Embed(source="/../embeds/terrain/terrain_splats.png")]
 		private var Blend:Class;
 		
 		//engine variables
