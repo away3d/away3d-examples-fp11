@@ -63,11 +63,11 @@ package
 	
 	import flash.display.*;
 	import flash.events.*;
-	import flash.geom.Vector3D;
-	import flash.net.URLRequest;
-	import flash.text.AntiAliasType;
-	import flash.ui.Keyboard;
-	import flash.utils.getTimer;
+	import flash.filters.*;
+	import flash.geom.*;
+	import flash.net.*;
+	import flash.text.*;
+	import flash.ui.*;
 	
 	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
 	
@@ -120,6 +120,7 @@ package
 		private var camera:Camera3D;
 		private var view:View3D;
 		private var cameraController:LookAtController;
+		private var awayStats:AwayStats;
 		
 		//animation variables
 		private var animation:SkeletonAnimation;
@@ -131,7 +132,7 @@ package
 		private var isMoving:Boolean;
 		private var movementDirection:Number;
 		private var currentAnim:String;
-		private var currentRotation:Number = 0;
+		private var currentRotationInc:Number = 0;
 		
 		//animation constants
 		private const ANIM_BREATHE:String = "Breathe";
@@ -160,6 +161,7 @@ package
 		private var cubeTexture:BitmapCubeTexture;
 		
 		//scene objects
+		private var text:TextField;
 		private var mesh:Mesh;
 		private var ground:Mesh;
 		private var skyBox:SkyBox;
@@ -178,6 +180,7 @@ package
 		private function init():void
 		{
 			initEngine();
+			initText();
 			initLights();
 			initObjects();
 			initListeners();
@@ -205,7 +208,9 @@ package
 			view.camera = camera;
 			
 			//setup controller to be used on the camera
-			cameraController = new LookAtController(camera);
+			var placeHolder:ObjectContainer3D = new ObjectContainer3D();
+			placeHolder.z = 1000;
+			cameraController = new LookAtController(camera, placeHolder);
 			
 			//view.addSourceURL("srcview/index.html");
 			addChild(view);
@@ -218,7 +223,27 @@ package
 			stage.quality = StageQuality.LOW;
 			addChild(SignatureBitmap);
 			
-			addChild(new AwayStats(view));
+			awayStats = new AwayStats(view)
+			addChild(awayStats);
+		}
+		
+		/**
+		 * Create an instructions overlay
+		 */
+		private function initText():void
+		{
+			text = new TextField();
+			text.defaultTextFormat = new TextFormat("Verdana", 11, 0xFFFFFF);
+			text.width = 240;
+			text.height = 100;
+			text.selectable = false;
+			text.mouseEnabled = false;
+			text.text = "Cursor keys / WSAD - move\n" + 
+				"SHIFT - hold down to run\n";
+			
+			text.filters = [new DropShadowFilter(1, 45, 0x0, 1, 0, 0)];
+			
+			addChild(text);
 		}
 		
 		/**
@@ -249,6 +274,7 @@ package
 			
 			//create a global shadow method
 			filteredShadowMapMethod = new TripleFilteredShadowMapMethod(sunLight);
+			//filteredShadowMapMethod.epsilon = 0.1;
 			
 			//create a global fog method
 			fogMethod = new FogMethod(0, 3000, 0x5f5e6e);
@@ -290,8 +316,6 @@ package
 		private function initListeners():void
 		{
 			addEventListener(Event.ENTER_FRAME, onEnterFrame);
-			stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
-			stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 			stage.addEventListener(Event.RESIZE, onResize);
 			onResize();
 		}
@@ -302,10 +326,8 @@ package
 		private function onEnterFrame(event:Event):void
 		{
 			//update character animation
-			if (mesh) {
-				mesh.rotationY += currentRotation;
-				
-			}
+			if (mesh)
+				mesh.rotationY += currentRotationInc;
 			
 			view.render();
 		}
@@ -315,13 +337,18 @@ package
 		 */
 		private function onAssetComplete(event:AssetEvent):void
 		{
-			if (event.asset.assetType == AssetType.SKELETON)
-			{
+			if (event.asset.assetType == AssetType.SKELETON) {
 				//create an animation object
 				animation = new SkeletonAnimation(event.asset as Skeleton, 3, true);
-			}
-			else if (event.asset.assetType == AssetType.MESH)
-			{
+			} else if (event.asset.assetType == AssetType.ANIMATION) {
+				//create sequence objects for each animation sequence encountered
+				if (event.asset.name == ANIM_BREATHE)
+					breatheSequence = event.asset as SkeletonAnimationSequence;
+				else if (event.asset.name == ANIM_WALK)
+					walkSequence = event.asset as SkeletonAnimationSequence;
+				else if (event.asset.name == ANIM_RUN)
+					runSequence = event.asset as SkeletonAnimationSequence;
+			} else if (event.asset.assetType == AssetType.MESH) {
 				//create material object and assign it to our mesh
 				bearMaterial = new TextureMaterial(new BitmapTexture(new BearColor().bitmapData));
 				bearMaterial.shadowMethod = filteredShadowMapMethod;
@@ -355,16 +382,10 @@ package
 				
 				//default to breathe sequence
 				stop();
-			}
-			else if (event.asset.assetType == AssetType.ANIMATION)
-			{
-				//create sequence objects for each animation sequence encountered
-				if (event.asset.name == ANIM_BREATHE)
-					breatheSequence = event.asset as SkeletonAnimationSequence;
-				else if (event.asset.name == ANIM_WALK)
-					walkSequence = event.asset as SkeletonAnimationSequence;
-				else if (event.asset.name == ANIM_RUN)
-					runSequence = event.asset as SkeletonAnimationSequence;
+				
+				//add key listeners
+				stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+				stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 			}
 		}
 		
@@ -386,10 +407,10 @@ package
 					updateMovement(movementDirection = -1);
 					break;
 				case Keyboard.LEFT:
-					currentRotation = -ROTATION_SPEED;
+					currentRotationInc = -ROTATION_SPEED;
 					break;
 				case Keyboard.RIGHT:
-					currentRotation = ROTATION_SPEED;
+					currentRotationInc = ROTATION_SPEED;
 					break;
 			}
 		}
@@ -408,7 +429,7 @@ package
 					break;
 				case Keyboard.LEFT:
 				case Keyboard.RIGHT:
-					currentRotation = 0;
+					currentRotationInc = 0;
 					break;
 			}
 		}
@@ -454,6 +475,7 @@ package
 			view.width = stage.stageWidth;
 			view.height = stage.stageHeight;
 			SignatureBitmap.y = stage.stageHeight - Signature.height;
+			awayStats.x = stage.stageWidth - awayStats.width;
 		}
 	}
 }
