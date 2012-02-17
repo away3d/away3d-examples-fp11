@@ -351,7 +351,7 @@ package
 			//setup controller to be used on the camera
 			cameraController = new HoverController(camera, null, 180, 20, 320, 5);
 			
-			//view.addSourceURL("srcview/index.html");
+			view.addSourceURL("srcview/index.html");
 			addChild(view);
 			
 			//add signature

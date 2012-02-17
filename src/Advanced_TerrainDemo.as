@@ -196,7 +196,7 @@ package
 			//setup controller to be used on the camera
 			cameraController = new FirstPersonController(camera, 180, 0, -80, 80);
 			
-			//view.addSourceURL("srcview/index.html");
+			view.addSourceURL("srcview/index.html");
 			addChild(view);
 			
 			//add signature

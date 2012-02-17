@@ -258,7 +258,7 @@ package
 			placeHolder.y = 50;
 			cameraController = new LookAtController(camera, placeHolder);
 			
-			//view.addSourceURL("srcview/index.html");
+			view.addSourceURL("srcview/index.html");
 			addChild(view);
 			
 			//add signature

@@ -152,7 +152,7 @@ package
 			//setup parser to be used on loader3D
 			Parsers.enableAllBundled();
 			
-			//view.addSourceURL("srcview/index.html");
+			view.addSourceURL("srcview/index.html");
 			addChild(view);
 			
 			//add signature
