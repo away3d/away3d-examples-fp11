@@ -353,7 +353,7 @@ package
 		/**
 		 * Key down listener for camera control
 		 */
-		private function onKeyDown(event : KeyboardEvent) : void
+		private function onKeyDown(event:KeyboardEvent):void
 		{
 			switch (event.keyCode) {
 				case Keyboard.UP:
@@ -378,7 +378,7 @@ package
 		/**
 		 * Key up listener for camera control
 		 */
-		private function onKeyUp(event : KeyboardEvent) : void
+		private function onKeyUp(event:KeyboardEvent):void
 		{
 			switch (event.keyCode) {
 				case Keyboard.UP:

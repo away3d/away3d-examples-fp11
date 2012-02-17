@@ -93,15 +93,15 @@ package
 		
 		//body diffuse map
 		[Embed(source="/../embeds/hellknight/hellknight_diffuse.jpg")]
-		private var BodyDiffuse : Class;
+		private var BodyDiffuse:Class;
 		
 		//body normal map
 		[Embed(source="/../embeds/hellknight/hellknight_normals.png")]
-		private var BodyNormals : Class;
+		private var BodyNormals:Class;
 		
 		//bidy specular map
 		[Embed(source="/../embeds/hellknight/hellknight_specular.png")]
-		private var BodySpecular : Class;
+		private var BodySpecular:Class;
 		
 		//skybox
 		[Embed(source="/../embeds/skybox/grimnight_posX.png")]
@@ -177,17 +177,17 @@ package
 		private var action:uint;
 		
 		//animation constants
-		private const MESH_NAME : String = "hellknight";
-		private const IDLE_NAME : String = "idle2";
-		private const WALK_NAME : String = "walk7";
-		private const ANIM_NAMES : Array = [IDLE_NAME, WALK_NAME, "attack3", "turret_attack", "attack2", "chest", "roar1", "leftslash", "headpain", "pain1", "pain_luparm", "range_attack2"];
-		private const ANIM_CLASSES : Array = [HellKnight_Idle2, HellKnight_Walk7, HellKnight_Attack3, HellKnight_TurretAttack, HellKnight_Attack2, HellKnight_Chest, HellKnight_Roar1, HellKnight_LeftSlash, HellKnight_HeadPain, HellKnight_Pain1, HellKnight_PainLUPArm, HellKnight_RangeAttack2];
+		private const MESH_NAME:String = "hellknight";
+		private const IDLE_NAME:String = "idle2";
+		private const WALK_NAME:String = "walk7";
+		private const ANIM_NAMES:Array = [IDLE_NAME, WALK_NAME, "attack3", "turret_attack", "attack2", "chest", "roar1", "leftslash", "headpain", "pain1", "pain_luparm", "range_attack2"];
+		private const ANIM_CLASSES:Array = [HellKnight_Idle2, HellKnight_Walk7, HellKnight_Attack3, HellKnight_TurretAttack, HellKnight_Attack2, HellKnight_Chest, HellKnight_Roar1, HellKnight_LeftSlash, HellKnight_HeadPain, HellKnight_Pain1, HellKnight_PainLUPArm, HellKnight_RangeAttack2];
 		private const XFADE_TIME:Number = 0.5;
-		private const ROTATION_SPEED : Number = 3;
-		private const RUN_SPEED : Number = 2;
-		private const WALK_SPEED : Number = 1;
-		private const IDLE_SPEED : Number = 1;
-		private const ACTION_SPEED : Number = 1;
+		private const ROTATION_SPEED:Number = 3;
+		private const RUN_SPEED:Number = 2;
+		private const WALK_SPEED:Number = 1;
+		private const IDLE_SPEED:Number = 1;
+		private const ACTION_SPEED:Number = 1;
 		
 		//signature variables
 		private var Signature:Sprite;
@@ -411,7 +411,7 @@ package
 		{
 			animator = new SmoothSkeletonAnimator(mesh.animationState as SkeletonAnimationState);
 			
-			for (var i : uint = 0; i < ANIM_NAMES.length; ++i)
+			for (var i:uint = 0; i < ANIM_NAMES.length; ++i)
 				AssetLibrary.loadData(new ANIM_CLASSES[i](), null, ANIM_NAMES[i], new MD5AnimParser());
 			
 		}
@@ -487,7 +487,7 @@ package
 			}
 		}
 		
-		private function onSequenceDone(event : AnimatorEvent) : void
+		private function onSequenceDone(event:AnimatorEvent):void
 		{
 			onceAnim = null;
 			animator.play(currentAnim, XFADE_TIME);
@@ -505,7 +505,7 @@ package
 		/**
 		 * Key down listener for animation
 		 */
-		private function onKeyDown(event:KeyboardEvent) : void
+		private function onKeyDown(event:KeyboardEvent):void
 		{
 			switch (event.keyCode) {
 				case Keyboard.SHIFT:
@@ -559,7 +559,7 @@ package
 			}
 		}
 		
-		private function onKeyUp(event:KeyboardEvent) : void
+		private function onKeyUp(event:KeyboardEvent):void
 		{
 			switch (event.keyCode) {
 				case Keyboard.SHIFT:
@@ -582,7 +582,7 @@ package
 			}
 		}
 		
-		private function updateMovement(dir:Number) : void
+		private function updateMovement(dir:Number):void
 		{
 			isMoving = true;
 			animator.timeScale = dir*(isRunning? RUN_SPEED : WALK_SPEED);
@@ -599,7 +599,7 @@ package
 			animator.play(currentAnim, XFADE_TIME);
 		}
 		
-		private function stop() : void
+		private function stop():void
 		{
 			isMoving = false;
 			

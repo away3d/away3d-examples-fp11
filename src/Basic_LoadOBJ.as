@@ -305,7 +305,7 @@ package
 		/**
 		 * Key up listener for swapping between standard diffuse & specular shading, and sub-surface diffuse shading with fresnel specular shading
 		 */
-		private function onKeyUp(event : KeyboardEvent) : void
+		private function onKeyUp(event:KeyboardEvent):void
 		{
 			advancedMethod = !advancedMethod;
 			

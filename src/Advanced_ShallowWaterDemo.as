@@ -47,10 +47,10 @@ package
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
-	import away3d.core.raycast.MouseHitMethod;
+	import away3d.core.raycast.*;
 	import away3d.debug.*;
 	import away3d.entities.*;
-	import away3d.events.MouseEvent3D;
+	import away3d.events.*;
 	import away3d.lights.*;
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.*;
@@ -62,7 +62,7 @@ package
 	import flash.events.*;
 	import flash.geom.*;
 	import flash.net.*;
-	import flash.ui.Keyboard;
+	import flash.ui.*;
 	import flash.utils.*;
 	
 	import shallowwater.*;
@@ -80,39 +80,39 @@ package
 		
 		// Environment map.
 		[Embed(source="../embeds/skybox/snow_positive_x.jpg")]
-		private var EnvPosX : Class;
+		private var EnvPosX:Class;
 		[Embed(source="../embeds/skybox/snow_positive_y.jpg")]
-		private var EnvPosY : Class;
+		private var EnvPosY:Class;
 		[Embed(source="../embeds/skybox/snow_positive_z.jpg")]
-		private var EnvPosZ : Class;
+		private var EnvPosZ:Class;
 		[Embed(source="../embeds/skybox/snow_negative_x.jpg")]
-		private var EnvNegX : Class;
+		private var EnvNegX:Class;
 		[Embed(source="../embeds/skybox/snow_negative_y.jpg")]
-		private var EnvNegY : Class;
+		private var EnvNegY:Class;
 		[Embed(source="../embeds/skybox/snow_negative_z.jpg")]
-		private var EnvNegZ : Class;
+		private var EnvNegZ:Class;
 
 		// Liquid image assets.
 		[Embed(source="../embeds/assets.swf", symbol="ImageClip")]
-		private var ImageClip : Class;
+		private var ImageClip:Class;
 		[Embed(source="../embeds/assets.swf", symbol="ImageClip1")]
-		private var ImageClip1 : Class;
+		private var ImageClip1:Class;
 		[Embed(source="../embeds/assets.swf", symbol="ImageClip2")]
-		private var ImageClip2 : Class;
+		private var ImageClip2:Class;
 
 		// Disturbance brushes.
 		[Embed(source="../embeds/assets.swf", symbol="Brush1")]
-		private var Brush1 : Class;
+		private var Brush1:Class;
 		[Embed(source="../embeds/assets.swf", symbol="Brush2")]
-		private var Brush2 : Class;
+		private var Brush2:Class;
 		[Embed(source="../embeds/assets.swf", symbol="Brush3")]
-		private var Brush3 : Class;
+		private var Brush3:Class;
 		[Embed(source="../embeds/assets.swf", symbol="Brush4")]
-		private var Brush4 : Class;
+		private var Brush4:Class;
 		[Embed(source="../embeds/assets.swf", symbol="Brush5")]
-		private var Brush5 : Class;
+		private var Brush5:Class;
 		[Embed(source="../embeds/assets.swf", symbol="Brush6")]
-		private var Brush6 : Class;
+		private var Brush6:Class;
 		
 		//engine variables
 		private var scene:Scene3D;
@@ -131,8 +131,8 @@ package
 		private var fogMethod:FogMethod;
 		
 		//material objects
-		private var colorMaterial : ColorMaterial;
-		private var liquidMaterial : ColorMaterial;
+		private var colorMaterial:ColorMaterial;
+		private var liquidMaterial:ColorMaterial;
 		private var poolMaterial:TextureMaterial;
 		private var cubeTexture:BitmapCubeTexture;
 		
@@ -161,8 +161,8 @@ package
 		
 		//interaction variables
 		private var dropTmr:Timer;
-		private var rain : Boolean;
-		private var liquidShading : Boolean = true;
+		private var rain:Boolean;
+		private var liquidShading:Boolean = true;
 		private var planeDisturb:Boolean = false;
 		private var planeX:Number;
 		private var planeY:Number;
@@ -198,7 +198,7 @@ package
 		/**
 		 * GUI property for controlling the active displacement brush on the mouse
 		 */		
-		public function set activeMouseBrushClip(value:Sprite) : void
+		public function set activeMouseBrushClip(value:Sprite):void
 		{
 			aMouseBrushClip = value;
 			mouseBrush.fromSprite(aMouseBrushClip, 2);
@@ -253,7 +253,7 @@ package
 				fluidDisturb.releaseMemoryDisturbances();
 		}
 		
-		public function get toggleLiquidImage() : Boolean
+		public function get toggleLiquidImage():Boolean
 		{
 			return showingLiquidImage;
 		}
@@ -309,7 +309,7 @@ package
 				dropTmr.stop();
 		}
 		
-		public function get toggleRain() : Boolean
+		public function get toggleRain():Boolean
 		{
 			return rain;
 		}
@@ -481,7 +481,7 @@ package
 		/**
 		 * Initialise the GUI
 		 */
-		private function initGUI() : void
+		private function initGUI():void
 		{
 			// Init brush clips.
 			var drop:Sprite = new Brush3() as Sprite;
@@ -512,7 +512,7 @@ package
 			gui = new SimpleGUI(this, "");
 			
 			gui.addColumn("Instructions");
-			var instr : String = "Click and drag on the stage to rotate camera.\n";
+			var instr:String = "Click and drag on the stage to rotate camera.\n";
 			instr += "Click on the fluid to disturb it.\n";
 			instr += "Keyboard arrows and WASD also rotate camera.\n";
 			instr += "Keyboard Z and X zoom camera.\n";
@@ -604,7 +604,7 @@ package
 		/**
 		 * Key down listener for camera control
 		 */
-		private function onKeyDown(event : KeyboardEvent) : void
+		private function onKeyDown(event:KeyboardEvent):void
 		{
 			switch (event.keyCode) {
 				case Keyboard.UP:
@@ -635,7 +635,7 @@ package
 		/**
 		 * Key up listener for camera control
 		 */
-		private function onKeyUp(event : KeyboardEvent) : void
+		private function onKeyUp(event:KeyboardEvent):void
 		{
 			switch (event.keyCode) {
 				case Keyboard.UP:

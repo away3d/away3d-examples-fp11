@@ -139,10 +139,10 @@ package
 		private const ANIM_WALK:String = "Walk";
 		private const ANIM_RUN:String = "Run";
 		private const XFADE_TIME:Number = 0.5;
-		private const ROTATION_SPEED : Number = 3;
-		private const RUN_SPEED : Number = 2;
-		private const WALK_SPEED : Number = 1;
-		private const BREATHE_SPEED : Number = 1;
+		private const ROTATION_SPEED:Number = 3;
+		private const RUN_SPEED:Number = 2;
+		private const WALK_SPEED:Number = 1;
+		private const BREATHE_SPEED:Number = 1;
 		
 		//signature variables
 		private var Signature:Sprite;
@@ -392,7 +392,7 @@ package
 		/**
 		 * Key down listener for animation
 		 */
-		private function onKeyDown(event : KeyboardEvent) : void
+		private function onKeyDown(event:KeyboardEvent):void
 		{
 			switch (event.keyCode) {
 				case Keyboard.SHIFT:
@@ -419,7 +419,7 @@ package
 			}
 		}
 		
-		private function onKeyUp(event : KeyboardEvent) : void
+		private function onKeyUp(event:KeyboardEvent):void
 		{
 			switch (event.keyCode) {
 				case Keyboard.SHIFT:
@@ -442,7 +442,7 @@ package
 			}
 		}
 		
-		private function updateMovement(dir:Number) : void
+		private function updateMovement(dir:Number):void
 		{
 			isMoving = true;
 			
@@ -459,7 +459,7 @@ package
 			animator.play(currentAnim, XFADE_TIME);
 		}
 		
-		private function stop() : void
+		private function stop():void
 		{
 			isMoving = false;
 			
