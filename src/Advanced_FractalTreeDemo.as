@@ -1,19 +1,16 @@
 /*
 
-Interactive pool using the Shallow Water Equations
+Dynamic tree generation and placement in a night-time scene
 
 Demonstrates:
 
-How to create and deform a surface 
-How to apply an enviroment map to a material.
-How to use 3D mouse events to return the local coordinate of a surface.
-How to use the Shallow Water Equations to produce a convincing water effect.
+How to create a height map and splat map from scratch to use for realistic terrain
+How to use fratacl algorithms to create a custom tree-generating geometry primitive
+How to save GPU memory by cloning complex.
 
-Code by Rob Bateman, David Lenaerts & Alejadro Santander
+Code by Rob Bateman & Alejadro Santander
 rob@infiniteturtles.co.uk
 http://www.infiniteturtles.co.uk
-david.lenaerts@gmail.com
-http://www.derschmale.com
 Alejandro Santander
 http://www.lidev.com.ar/
 
