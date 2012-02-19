@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="ant.includes.properties" default="-usage" basedir=".">
+<project name="ant.includes.properties" basedir=".">
 
 <description>
 Shared properties
