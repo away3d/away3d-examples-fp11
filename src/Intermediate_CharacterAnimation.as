@@ -4,7 +4,7 @@ Bones animation loading and interaction example in Away3d
 
 Demonstrates:
 
-How to load an AWD file with bones animation.
+How to load an AWD file with bones animation frmo external resources.
 How to map animation data after loading in order to playback an animation sequence.
 How to control the movement of a game character using the mouse.
 How to use a skybox with a fog method to create a seamless play area.
@@ -63,11 +63,11 @@ package
 	
 	import flash.display.*;
 	import flash.events.*;
-	import flash.geom.Vector3D;
-	import flash.net.URLRequest;
-	import flash.text.AntiAliasType;
-	import flash.ui.Keyboard;
-	import flash.utils.getTimer;
+	import flash.filters.*;
+	import flash.geom.*;
+	import flash.net.*;
+	import flash.text.*;
+	import flash.ui.*;
 	
 	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
 	
@@ -78,27 +78,27 @@ package
 		public var SignatureSwf:Class;
 		
 		//polar bear color map
-		[Embed(source="/../embeds/snow-colour.png")]
-		private var SnowColor:Class;
+		[Embed(source="/../embeds/snow_diffuse.png")]
+		private var SnowDiffuse:Class;
 		
 		//polar bear normal map
-		[Embed(source="/../embeds/snow-normal-tangent.png")]
+		[Embed(source="/../embeds/snow_normals.png")]
 		private var SnowNormal:Class;
 		
 		//polar bear specular map
-		[Embed(source="/../embeds/snow-specular.png")]
+		[Embed(source="/../embeds/snow_specular.png")]
 		private var SnowSpecular:Class;
 		
 		//snow color map
-		[Embed(source="/../embeds/PolarBear_colour.jpg")]
-		private var BearColor:Class;
+		[Embed(source="/../embeds/polarbear_diffuse.jpg")]
+		private var BearDiffuse:Class;
 		
 		//snow normal map
-		[Embed(source="/../embeds/PolarBear_normal.jpg")]
+		[Embed(source="/../embeds/polarbear_normals.jpg")]
 		private var BearNormal:Class;
 		
 		//snow specular map
-		[Embed(source="/../embeds/PolarBear_specular.jpg")]
+		[Embed(source="/../embeds/polarbear_specular.jpg")]
 		private var BearSpecular:Class;
 		
 		//skybox textures
@@ -120,6 +120,7 @@ package
 		private var camera:Camera3D;
 		private var view:View3D;
 		private var cameraController:LookAtController;
+		private var awayStats:AwayStats;
 		
 		//animation variables
 		private var animation:SkeletonAnimation;
@@ -131,17 +132,17 @@ package
 		private var isMoving:Boolean;
 		private var movementDirection:Number;
 		private var currentAnim:String;
-		private var currentRotation:Number = 0;
+		private var currentRotationInc:Number = 0;
 		
 		//animation constants
 		private const ANIM_BREATHE:String = "Breathe";
 		private const ANIM_WALK:String = "Walk";
 		private const ANIM_RUN:String = "Run";
 		private const XFADE_TIME:Number = 0.5;
-		private const ROTATION_SPEED : Number = 3;
-		private const RUN_SPEED : Number = 2;
-		private const WALK_SPEED : Number = 1;
-		private const BREATHE_SPEED : Number = 1;
+		private const ROTATION_SPEED:Number = 3;
+		private const RUN_SPEED:Number = 2;
+		private const WALK_SPEED:Number = 1;
+		private const BREATHE_SPEED:Number = 1;
 		
 		//signature variables
 		private var Signature:Sprite;
@@ -160,6 +161,7 @@ package
 		private var cubeTexture:BitmapCubeTexture;
 		
 		//scene objects
+		private var text:TextField;
 		private var mesh:Mesh;
 		private var ground:Mesh;
 		private var skyBox:SkyBox;
@@ -178,6 +180,7 @@ package
 		private function init():void
 		{
 			initEngine();
+			initText();
 			initLights();
 			initObjects();
 			initListeners();
@@ -205,9 +208,11 @@ package
 			view.camera = camera;
 			
 			//setup controller to be used on the camera
-			cameraController = new LookAtController(camera);
+			var placeHolder:ObjectContainer3D = new ObjectContainer3D();
+			placeHolder.z = 1000;
+			cameraController = new LookAtController(camera, placeHolder);
 			
-			//view.addSourceURL("srcview/index.html");
+			view.addSourceURL("srcview/index.html");
 			addChild(view);
 			
 			//add signature
@@ -218,7 +223,27 @@ package
 			stage.quality = StageQuality.LOW;
 			addChild(SignatureBitmap);
 			
-			addChild(new AwayStats(view));
+			awayStats = new AwayStats(view)
+			addChild(awayStats);
+		}
+		
+		/**
+		 * Create an instructions overlay
+		 */
+		private function initText():void
+		{
+			text = new TextField();
+			text.defaultTextFormat = new TextFormat("Verdana", 11, 0xFFFFFF);
+			text.width = 240;
+			text.height = 100;
+			text.selectable = false;
+			text.mouseEnabled = false;
+			text.text = "Cursor keys / WSAD - move\n"; 
+			text.appendText("SHIFT - hold down to run\n");
+			
+			text.filters = [new DropShadowFilter(1, 45, 0x0, 1, 0, 0)];
+			
+			addChild(text);
 		}
 		
 		/**
@@ -249,6 +274,7 @@ package
 			
 			//create a global shadow method
 			filteredShadowMapMethod = new TripleFilteredShadowMapMethod(sunLight);
+			//filteredShadowMapMethod.epsilon = 0.1;
 			
 			//create a global fog method
 			fogMethod = new FogMethod(0, 3000, 0x5f5e6e);
@@ -266,7 +292,7 @@ package
 			AssetLibrary.load(new URLRequest("assets/PolarBear.awd"));
 			
 			//create a snowy ground plane
-			groundMaterial = new TextureMaterial(new BitmapTexture((new SnowColor()).bitmapData), true, true, true);
+			groundMaterial = new TextureMaterial(new BitmapTexture((new SnowDiffuse()).bitmapData), true, true, true);
 			groundMaterial.lightPicker = lightPicker;
 			groundMaterial.specularMap = new BitmapTexture(new SnowSpecular().bitmapData);
 			groundMaterial.normalMap = new BitmapTexture(new SnowNormal().bitmapData);
@@ -290,8 +316,6 @@ package
 		private function initListeners():void
 		{
 			addEventListener(Event.ENTER_FRAME, onEnterFrame);
-			stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
-			stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 			stage.addEventListener(Event.RESIZE, onResize);
 			onResize();
 		}
@@ -302,10 +326,8 @@ package
 		private function onEnterFrame(event:Event):void
 		{
 			//update character animation
-			if (mesh) {
-				mesh.rotationY += currentRotation;
-				
-			}
+			if (mesh)
+				mesh.rotationY += currentRotationInc;
 			
 			view.render();
 		}
@@ -315,15 +337,20 @@ package
 		 */
 		private function onAssetComplete(event:AssetEvent):void
 		{
-			if (event.asset.assetType == AssetType.SKELETON)
-			{
+			if (event.asset.assetType == AssetType.SKELETON) {
 				//create an animation object
 				animation = new SkeletonAnimation(event.asset as Skeleton, 3, true);
-			}
-			else if (event.asset.assetType == AssetType.MESH)
-			{
+			} else if (event.asset.assetType == AssetType.ANIMATION) {
+				//create sequence objects for each animation sequence encountered
+				if (event.asset.name == ANIM_BREATHE)
+					breatheSequence = event.asset as SkeletonAnimationSequence;
+				else if (event.asset.name == ANIM_WALK)
+					walkSequence = event.asset as SkeletonAnimationSequence;
+				else if (event.asset.name == ANIM_RUN)
+					runSequence = event.asset as SkeletonAnimationSequence;
+			} else if (event.asset.assetType == AssetType.MESH) {
 				//create material object and assign it to our mesh
-				bearMaterial = new TextureMaterial(new BitmapTexture(new BearColor().bitmapData));
+				bearMaterial = new TextureMaterial(new BitmapTexture(new BearDiffuse().bitmapData));
 				bearMaterial.shadowMethod = filteredShadowMapMethod;
 				bearMaterial.normalMap = new BitmapTexture(new BearNormal().bitmapData);
 				bearMaterial.specularMap = new BitmapTexture(new BearSpecular().bitmapData);
@@ -355,23 +382,17 @@ package
 				
 				//default to breathe sequence
 				stop();
-			}
-			else if (event.asset.assetType == AssetType.ANIMATION)
-			{
-				//create sequence objects for each animation sequence encountered
-				if (event.asset.name == ANIM_BREATHE)
-					breatheSequence = event.asset as SkeletonAnimationSequence;
-				else if (event.asset.name == ANIM_WALK)
-					walkSequence = event.asset as SkeletonAnimationSequence;
-				else if (event.asset.name == ANIM_RUN)
-					runSequence = event.asset as SkeletonAnimationSequence;
+				
+				//add key listeners
+				stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+				stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 			}
 		}
 		
 		/**
 		 * Key down listener for animation
 		 */
-		private function onKeyDown(event : KeyboardEvent) : void
+		private function onKeyDown(event:KeyboardEvent):void
 		{
 			switch (event.keyCode) {
 				case Keyboard.SHIFT:
@@ -380,21 +401,25 @@ package
 						updateMovement(movementDirection);
 					break;
 				case Keyboard.UP:
+				case Keyboard.W:
 					updateMovement(movementDirection = 1);
 					break;
 				case Keyboard.DOWN:
+				case Keyboard.S:
 					updateMovement(movementDirection = -1);
 					break;
 				case Keyboard.LEFT:
-					currentRotation = -ROTATION_SPEED;
+				case Keyboard.A:
+					currentRotationInc = -ROTATION_SPEED;
 					break;
 				case Keyboard.RIGHT:
-					currentRotation = ROTATION_SPEED;
+				case Keyboard.D:
+					currentRotationInc = ROTATION_SPEED;
 					break;
 			}
 		}
 		
-		private function onKeyUp(event : KeyboardEvent) : void
+		private function onKeyUp(event:KeyboardEvent):void
 		{
 			switch (event.keyCode) {
 				case Keyboard.SHIFT:
@@ -403,17 +428,21 @@ package
 						updateMovement(movementDirection);
 					break;
 				case Keyboard.UP:
+				case Keyboard.W:
 				case Keyboard.DOWN:
+				case Keyboard.S:
 					stop();
 					break;
 				case Keyboard.LEFT:
+				case Keyboard.A:
 				case Keyboard.RIGHT:
-					currentRotation = 0;
+				case Keyboard.D:
+					currentRotationInc = 0;
 					break;
 			}
 		}
 		
-		private function updateMovement(dir:Number) : void
+		private function updateMovement(dir:Number):void
 		{
 			isMoving = true;
 			
@@ -430,7 +459,7 @@ package
 			animator.play(currentAnim, XFADE_TIME);
 		}
 		
-		private function stop() : void
+		private function stop():void
 		{
 			isMoving = false;
 			
@@ -454,6 +483,7 @@ package
 			view.width = stage.stageWidth;
 			view.height = stage.stageHeight;
 			SignatureBitmap.y = stage.stageHeight - Signature.height;
+			awayStats.x = stage.stageWidth - awayStats.width;
 		}
 	}
 }

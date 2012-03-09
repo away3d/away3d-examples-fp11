@@ -75,19 +75,19 @@ package
 		
 		//Infinite, 3D head model
 		[Embed(source="/../embeds/head.obj", mimeType="application/octet-stream")]
-		private var HeadModel : Class;
+		private var HeadModel:Class;
 		
 		//Diffuse map texture
-		[Embed(source="/../embeds/head-diffuse.jpg")]
-		private var Diffuse : Class;
+		[Embed(source="/../embeds/head_diffuse.jpg")]
+		private var Diffuse:Class;
 		
 		//Specular map texture
-		[Embed(source="/../embeds/head-specular.jpg")]
-		private var Specular : Class;
+		[Embed(source="/../embeds/head_specular.jpg")]
+		private var Specular:Class;
 		
 		//Normal map texture
-		[Embed(source="/../embeds/head-normal-tangent.jpg")]
-		private var Normal : Class;
+		[Embed(source="/../embeds/head_normals.jpg")]
+		private var Normal:Class;
 		
 		//engine variables
 		private var scene:Scene3D;
@@ -160,7 +160,7 @@ package
 			//setup controller to be used on the camera
 			cameraController = new HoverController(camera, null, 45, 10, 800);
 			
-			//view.addSourceURL("srcview/index.html");
+			view.addSourceURL("srcview/index.html");
 			addChild(view);
 			
 			//add signature
@@ -305,7 +305,7 @@ package
 		/**
 		 * Key up listener for swapping between standard diffuse & specular shading, and sub-surface diffuse shading with fresnel specular shading
 		 */
-		private function onKeyUp(event : KeyboardEvent) : void
+		private function onKeyUp(event:KeyboardEvent):void
 		{
 			advancedMethod = !advancedMethod;
 			
