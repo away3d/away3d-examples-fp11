@@ -177,6 +177,8 @@ package
 		private var lastTiltAngle:Number;
 		private var lastMouseX:Number;
 		private var lastMouseY:Number;
+		private var mouseLockX:Number = 0;
+		private var mouseLockY:Number = 0;
 		private var flareVisible:Boolean;
 		
 		/**
@@ -429,6 +431,7 @@ package
 		{
 			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+			stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 			stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 			stage.addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheel);
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
@@ -446,7 +449,10 @@ package
 			clouds.rotationY += 0.21;
 			orbitContainer.rotationY += 0.02;
 			
-			if (move) {
+			if (stage.mouseLock) {
+				cameraController.panAngle = 0.3*mouseLockX;
+				cameraController.tiltAngle = 0.3*mouseLockY;
+			} else if (move) {
 				cameraController.panAngle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
 				cameraController.tiltAngle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;
 			}
@@ -512,7 +518,24 @@ package
 			move = false;
 			stage.removeEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);    
 		}
-        
+		
+		/**
+		 * Mouse move listener for mouseLock
+		 */
+		private function onMouseMove(e:MouseEvent):void
+		{
+			if (stage.mouseLock) {
+				mouseLockX += e.movementX;
+				mouseLockY += e.movementY;
+				
+				if (mouseLockY > cameraController.maxTiltAngle/0.3)
+					mouseLockY = cameraController.maxTiltAngle/0.3;
+				if (mouseLockY < cameraController.minTiltAngle/0.3)
+					mouseLockY = cameraController.minTiltAngle/0.3;
+			}
+		}
+		
+		
 		/**
 		 * Mouse stage leave listener for navigation
 		 */
@@ -557,8 +580,12 @@ package
 		 */
 		private function onFullScreen(event:FullScreenEvent):void
 		{
-			if (event.fullScreen)
+			if (event.fullScreen) {
 				stage.mouseLock = true;
+				
+				mouseLockX = cameraController.panAngle/0.3;
+				mouseLockY = cameraController.tiltAngle/0.3;
+			}
 		}
 		
 		/**
