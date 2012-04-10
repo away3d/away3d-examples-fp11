@@ -285,7 +285,7 @@ package
 					break;
 			}
 			dataText.text = "Mouse mode: " + modeMsg + "\n";
-			dataText.appendText("Test time: " + view.mouse3DManager.testTime + "ms");
+			//dataText.appendText("Test time: " + view.mouse3DManager.testTime + "ms");
 			
 			view.render();
 		}
