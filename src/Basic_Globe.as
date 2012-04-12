@@ -64,7 +64,12 @@ package
 	
 	import flash.display.*;
 	import flash.events.*;
+	import flash.filters.DropShadowFilter;
 	import flash.geom.*;
+	import flash.text.AntiAliasType;
+	import flash.text.GridFitType;
+	import flash.text.TextField;
+	import flash.text.TextFormat;
 	import flash.ui.Keyboard;
 	
 	use namespace arcane;
@@ -137,12 +142,13 @@ package
     	//signature swf
     	[Embed(source="/../embeds/signature.swf", symbol="Signature")]
     	public var SignatureSwf:Class;
-    	
+		
 		//engine variables
 		private var scene:Scene3D;
 		private var camera:Camera3D;
 		private var view:View3D;
 		private var cameraController:HoverController;
+		private var awayStats:AwayStats;
 		
 		//signature variables
 		private var Signature:Sprite;
@@ -179,6 +185,7 @@ package
 		private var lastMouseY:Number;
 		private var mouseLockX:Number = 0;
 		private var mouseLockY:Number = 0;
+		private var mouseLocked:Boolean;
 		private var flareVisible:Boolean;
 		
 		/**
@@ -195,6 +202,7 @@ package
 		private function init():void
 		{
 			initEngine();
+			initText();
 			initLights();
 			initLensFlare();
 			initMaterials();
@@ -221,7 +229,8 @@ package
 			view.camera = camera;
 			
 			//setup controller to be used on the camera
-			cameraController = new HoverController(camera, null, 0, 0, 600, -90, 90, null, null, null, 1);
+			cameraController = new HoverController(camera, null, 0, 0, 600, -90, 90);
+			cameraController.yFactor = 1;
 			
 			//setup parser to be used on loader3D
 			Parsers.enableAllBundled();
@@ -237,9 +246,34 @@ package
 			stage.quality = StageQuality.LOW;
 			addChild(SignatureBitmap);
 			
-			addChild(new AwayStats(view));
+			addChild(awayStats = new AwayStats(view));
 			
 			stage.quality = StageQuality.BEST;
+		}
+		
+		/**
+		 * Create an instructions overlay
+		 */
+		private function initText():void
+		{
+			var text:TextField = new TextField();
+			text.defaultTextFormat = new TextFormat("Verdana", 11, 0xFFFFFF);
+			text.embedFonts = true;
+			text.antiAliasType = AntiAliasType.ADVANCED;
+			text.gridFitType = GridFitType.PIXEL;
+			text.width = 240;
+			text.height = 100;
+			text.selectable = false;
+			text.mouseEnabled = false;
+			text.text = "MOUSE:\n" +
+				"\t windowed: click and drag - rotate\n" + 
+				"\t fullscreen: mouse move - rotate\n" + 
+				"SCROLL_WHEEL - zoom\n" + 
+				"SPACE - enables fullscreen mode";
+			
+			text.filters = [new DropShadowFilter(1, 45, 0x0, 1, 0, 0)];
+			
+			addChild(text);
 		}
 		
 		/**
@@ -436,7 +470,6 @@ package
 			stage.addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheel);
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 			stage.addEventListener(Event.RESIZE, onResize);
-			stage.addEventListener(FullScreenEvent.FULL_SCREEN, onFullScreen);
 			onResize();
 		}
 		
@@ -524,13 +557,30 @@ package
 		 */
 		private function onMouseMove(e:MouseEvent):void
 		{
-			if (stage.mouseLock) {
+			if (stage.displayState == StageDisplayState.FULL_SCREEN) {
+				
+				if (mouseLocked && (lastMouseX != 0 || lastMouseY != 0)) {
+					e.movementX += lastMouseX;
+					e.movementY += lastMouseY;
+					lastMouseX = 0;
+					lastMouseY = 0;
+				}
+				
 				mouseLockX += e.movementX;
 				mouseLockY += e.movementY;
 				
+				if (!stage.mouseLock) {
+					stage.mouseLock = true;
+					lastMouseX = stage.mouseX - stage.stageWidth/2;
+					lastMouseY = stage.mouseY - stage.stageHeight/2;
+				} else if (!mouseLocked) {
+					mouseLocked = true;
+				}
+				
+				//ensure bounds for tiltAngle are not eceeded
 				if (mouseLockY > cameraController.maxTiltAngle/0.3)
 					mouseLockY = cameraController.maxTiltAngle/0.3;
-				if (mouseLockY < cameraController.minTiltAngle/0.3)
+				else if (mouseLockY < cameraController.minTiltAngle/0.3)
 					mouseLockY = cameraController.minTiltAngle/0.3;
 			}
 		}
@@ -565,26 +615,17 @@ package
 		{
 			switch (event.keyCode)
 			{
-				case Keyboard.ENTER:
+				case Keyboard.SPACE:
 					if (stage.displayState == StageDisplayState.FULL_SCREEN) {
 						stage.displayState = StageDisplayState.NORMAL;
 					} else {
 						stage.displayState = StageDisplayState.FULL_SCREEN;
+						
+						mouseLocked = false;
+						mouseLockX = cameraController.panAngle/0.3;
+						mouseLockY = cameraController.tiltAngle/0.3;
 					}
 					break;
-			}
-		}
-		
-		/**
-		 * fullscreen listener
-		 */
-		private function onFullScreen(event:FullScreenEvent):void
-		{
-			if (event.fullScreen) {
-				stage.mouseLock = true;
-				
-				mouseLockX = cameraController.panAngle/0.3;
-				mouseLockY = cameraController.tiltAngle/0.3;
 			}
 		}
 		
@@ -596,6 +637,7 @@ package
 			view.width = stage.stageWidth;
 			view.height = stage.stageHeight;
             SignatureBitmap.y = stage.stageHeight - Signature.height;
+			awayStats.x = stage.stageWidth - awayStats.width;
 		}
 	}	
 }
