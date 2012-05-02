@@ -1,10 +1,11 @@
 /*
 
-Phong material example in Away3d using PhongBitmapMaterial
+Shadind example in Away3d
 
 Demonstrates:
 
-How to use the PhongBitmapMaterial with multiple lights.
+How to create multiple lightsources in a scene.
+How to apply specular maps, normals maps and diffuse texture maps to a material.
 
 Code by Rob Bateman
 rob@infiniteturtles.co.uk
@@ -54,7 +55,7 @@ package
 	import flash.utils.*;
 	
 	[SWF(backgroundColor="#000000", frameRate="60", quality="LOW")]
-	public class Basic_Phong extends Sprite
+	public class Basic_Shading extends Sprite
 	{
 		//signature swf
     	[Embed(source="/../embeds/signature.swf", symbol="Signature")]
@@ -125,7 +126,7 @@ package
 		/**
 		 * Constructor
 		 */
-		public function Basic_Phong()
+		public function Basic_Shading()
 		{
 			init();
 		}
@@ -191,7 +192,6 @@ package
 			planeMaterial.normalMap = Cast.bitmapTexture(FloorNormals);
 			planeMaterial.lightPicker = lightPicker;
 			planeMaterial.repeat = true;
-			planeMaterial.mipmap = false;
 			
 			sphereMaterial = new TextureMaterial(Cast.bitmapTexture(BeachBallDiffuse));
 			sphereMaterial.specularMap = Cast.bitmapTexture(BeachBallSpecular);
@@ -201,7 +201,6 @@ package
 			cubeMaterial.specularMap = Cast.bitmapTexture(TrinketSpecular);
 			cubeMaterial.normalMap = Cast.bitmapTexture(TrinketNormals);
 			cubeMaterial.lightPicker = lightPicker;
-			cubeMaterial.mipmap = false;
 			
 			var weaveDiffuseTexture:BitmapTexture = Cast.bitmapTexture(WeaveDiffuse);
 			torusMaterial = new TextureMaterial(weaveDiffuseTexture);

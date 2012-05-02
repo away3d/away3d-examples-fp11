@@ -75,7 +75,7 @@ package
 	use namespace arcane;
 	
 	[SWF(backgroundColor="#000000", frameRate="30", quality="BEST")]
-	public class Basic_Globe extends Sprite
+	public class Intermediate_Globe extends Sprite
 	{
 		//night map for globe
 		[Embed(source="/../embeds/globe/land_lights_16384.jpg")]
@@ -191,7 +191,7 @@ package
 		/**
 		 * Constructor
 		 */
-		public function Basic_Globe() 
+		public function Intermediate_Globe() 
 		{
 			init();
 		}
