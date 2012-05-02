@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- myWrapperBuild.xml -->
+<project name="post_compile" basedir="." default="build">
+	
+    <property name="APP_ROOT" value="src"/>
+	<property name="DEPLOY_DIR" value="bin"/>
+	
+	<!-- Grab application name from launcher output -->
+	<loadfile property="APP_NAME" srcFile="${basedir}/launch/output.txt">
+		<filterchain>
+			<linecontains>
+				<contains value=".swf"/>
+			</linecontains>
+			<deletecharacters chars="\t\r\n"/>
+			<tokenfilter>
+			    <replaceregex pattern=".*${basedir}/${DEPLOY_DIR}/(.*)\.swf.*" replace="\1"/>
+			</tokenfilter>
+		</filterchain>
+	</loadfile>
+	
+	<!-- Inspect application as file for SWF properties -->
+	<loadproperties srcFile="${basedir}/${APP_ROOT}/${APP_NAME}.as">
+		<filterchain>
+			<linecontainsregexp>
+			  <regexp pattern=".*\[SWF\((.*)\)\].*"/>
+			</linecontainsregexp>
+			<deletecharacters chars="\t\r\n"/>
+			<tokenfilter>
+			    <replaceregex pattern=".*\[SWF\((.*)\)\].*" replace="\1"/>
+			</tokenfilter>
+			<tokenfilter>
+				<stringtokenizer/>
+				<replaceregex pattern='([^=,].*)="([^"].*|[^,"].*)".*' replace="\1=\2${line.separator}" flags="g"/>
+			</tokenfilter>
+		</filterchain>
+	</loadproperties>
+	
+	<!-- Ensure deploy directory exists -->
+	<available file="${DEPLOY_DIR}" type="dir" property="deploy.present"/>
+	<condition property="APP_WIDTH" value="${width}" else="100%">
+		<isset property="width" />
+	</condition>
+	<condition property="APP_HEIGHT" value="${height}" else="100%">
+		<isset property="height" />
+	</condition>
+	<condition property="APP_BGCOLOR" value="${backgroundColor}" else="#FFFFFF">
+		<isset property="backgroundColor" />
+	</condition>
+	<property name="APP_VERSION_MAJOR" value="10"/>
+	<property name="APP_VERSION_MINOR" value="0"/>
+	<property name="APP_VERSION_REVISION" value="0"/>
+	
+	<target name="build" description="build">
+		<antcall target="createdeploydir"/>
+    	<antcall target="clean"/>
+        <antcall target="wrapper"/>
+		<antcall target="copyassetfiles"/>
+    </target>
+	
+	<!-- create the deploy folder -->
+	<target name="createdeploydir" unless="${deploy.present}">
+		<echo>Creating Deploy Dir...</echo>
+        <mkdir dir="${DEPLOY_DIR}"/>
+    </target>
+	
+	<!-- delete old copies of assets in deploy folder -->
+    <target name="clean">
+    	<echo>Cleaning...</echo>
+    	
+        <delete includeemptydirs="true">
+    		<fileset dir="${DEPLOY_DIR}">
+    			<exclude name="**/*.html"/>
+    			<exclude name="**/*.swf"/>
+    		</fileset>
+        </delete>
+    </target>
+	
+	<!-- create html wrapper from html-template contents -->
+    <target name="wrapper">
+        <echo>Creating Wrapper...</echo>
+        <property name="wrapper.html" value="${DEPLOY_DIR}/${APP_NAME}.html"/>
+    	
+        <copy overwrite="true" file="html-template/index.template.html" tofile="${wrapper.html}" preservelastmodified="true"/>
+    	
+        <replace file="${wrapper.html}" token="$${title}" value="${APP_NAME}"/>
+    	<replace file="${wrapper.html}" token="$${application}" value="${APP_NAME}"/>
+        <replace file="${wrapper.html}" token="$${swf}" value="${APP_NAME}"/>
+        <replace file="${wrapper.html}" token="$${width}" value="${APP_WIDTH}"/>
+        <replace file="${wrapper.html}" token="$${height}" value="${APP_HEIGHT}"/>
+        <replace file="${wrapper.html}" token="$${bgcolor}" value="${APP_BGCOLOR}"/>
+        <replace file="${wrapper.html}" token="$${version_major}" value="${APP_VERSION_MAJOR}"/>
+        <replace file="${wrapper.html}" token="$${version_minor}" value="${APP_VERSION_MINOR}"/>
+        <replace file="${wrapper.html}" token="$${version_revision}" value="${APP_VERSION_REVISION}"/>
+    </target>
+	
+	<!-- copy assets from source folder to deploy folder -->
+	<target name="copyassetfiles">
+		<echo>Copying Assets...</echo>
+		<copy overwrite="true" todir="${DEPLOY_DIR}" preservelastmodified="true" includeemptydirs="false">
+	        <fileset dir="${APP_ROOT}">
+	            <exclude name="**/*.as"/>
+	        	<exclude name="**/*.pbk"/>
+	        	<exclude name="**/*.pbj"/>
+	            <exclude name="**/.svn/**" />
+	        </fileset>
+	    </copy>
+		<copy overwrite="true" todir="${DEPLOY_DIR}" preservelastmodified="true">
+            <fileset dir="html-template">
+            	<exclude name="**/*.html" />
+                <exclude name="**/.svn/**" />
+            </fileset>
+        </copy>
+	</target>
+</project>
+
+

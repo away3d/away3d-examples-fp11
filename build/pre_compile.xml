@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- myWrapperBuild.xml -->
+<project name="pre_compile" basedir="." default="build">
+	
+	<available file="launch/output.txt" type="file" property="output.present"/>
+	
+	<target name="build" description="build">
+		<antcall target="createoutputfile"/>
+    </target>
+	
+	<!-- create the output file -->
+	<target name="createoutputfile" unless="${output.present}">
+		<echo>Creating Output file...</echo>
+		<touch file="launch/output.txt" /> 
+    </target>
+</project>
+
+
