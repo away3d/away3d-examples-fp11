@@ -45,25 +45,21 @@ package
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
-	import away3d.core.base.*;
 	import away3d.debug.*;
 	import away3d.entities.Mesh;
 	import away3d.events.*;
 	import away3d.library.*;
 	import away3d.library.assets.*;
 	import away3d.lights.*;
-	import away3d.loaders.*;
-	import away3d.loaders.misc.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
-	import away3d.materials.lightpickers.StaticLightPicker;
+	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
-	import away3d.textures.BitmapTexture;
+	import away3d.utils.*;
 	
 	import flash.display.*;
 	import flash.events.*;
-	import flash.geom.Vector3D;
-	import flash.utils.getTimer;
+	import flash.utils.*;
 	
 	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
 	
@@ -108,7 +104,6 @@ package
 		
 		//scene objects
 		private var light:PointLight;
-		private var direction:Vector3D;
 		private var lightPicker:StaticLightPicker;
 		private var headModel:Mesh;
 		private var advancedMethod:Boolean = true;
@@ -195,9 +190,9 @@ package
 		private function initMaterials():void
 		{
 			//setup custom bitmap material
-			headMaterial = new TextureMaterial(new BitmapTexture(new Diffuse().bitmapData));
-			headMaterial.normalMap = new BitmapTexture(new Normal().bitmapData);
-			headMaterial.specularMap = new BitmapTexture(new Specular().bitmapData);
+			headMaterial = new TextureMaterial(Cast.bitmapTexture(Diffuse));
+			headMaterial.normalMap = Cast.bitmapTexture(Normal);
+			headMaterial.specularMap = Cast.bitmapTexture(Specular);
 			headMaterial.lightPicker = lightPicker;
 			headMaterial.gloss = 10;
 			headMaterial.specular = 3;
@@ -228,7 +223,7 @@ package
 		private function initObjects():void
 		{
 			//default available parsers to all
-			Parsers.enableAllBundled()
+			Parsers.enableAllBundled();
 			
 			AssetLibrary.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetComplete);
 			AssetLibrary.loadData(new HeadModel());

@@ -336,15 +336,5 @@ package
 			view.height = stage.stageHeight;
 			SignatureBitmap.y = stage.stageHeight - Signature.height;
 		}
-	    
-	    /**
-	    * Updates every frame
-	    */
-        private function tick(time:int):void
-	    {
-	        cube.rotationY += 2;
-	        
-	    	light1.direction = new Vector3D(-Math.cos(time/2000), 0, -Math.sin(time/2000));
-	    }
 	}
 }

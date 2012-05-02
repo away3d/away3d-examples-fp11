@@ -38,14 +38,11 @@ THE SOFTWARE.
 
 package
 {
-	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
-	import away3d.core.base.*;
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.events.*;
-	import away3d.library.*;
 	import away3d.library.assets.*;
 	import away3d.lights.*;
 	import away3d.loaders.*;
@@ -55,12 +52,11 @@ package
 	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
 	import away3d.primitives.*;
-	import away3d.textures.*;
+	import away3d.utils.*;
 	
 	import flash.display.*;
 	import flash.events.*;
 	import flash.geom.*;
-	import flash.text.*;
 	import flash.utils.*;
 	
 	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
@@ -143,7 +139,7 @@ package
 			assetLoaderContext.mapUrlToData("texture.jpg", new AntTexture());
 			
 			//setup materials
-			_groundMaterial = new TextureMaterial(new BitmapTexture((new SandTexture()).bitmapData));
+			_groundMaterial = new TextureMaterial(Cast.bitmapTexture(SandTexture));
 			_groundMaterial.shadowMethod = new FilteredShadowMapMethod(_light);
 			_groundMaterial.lightPicker = _lightPicker;
 			_groundMaterial.specular = 0;

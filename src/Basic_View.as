@@ -39,14 +39,10 @@ THE SOFTWARE.
 package
 {
 	import away3d.containers.*;
-	import away3d.core.raycast.MouseHitMethod;
 	import away3d.entities.*;
-	import away3d.events.*;
 	import away3d.materials.*;
 	import away3d.primitives.*;
 	import away3d.utils.*;
-	
-	import caurina.transitions.Tweener;
 	
 	import flash.display.*;
 	import flash.events.*;
@@ -64,8 +60,7 @@ package
 		private var _view:View3D;
 		
 		//scene objects
-		private var _plane:Mesh; 
-		private var _cube:Mesh;
+		private var _plane:Mesh;
 		
 		/**
 		 * Constructor
@@ -86,7 +81,6 @@ package
 			
 			//setup the scene
 			_plane = new Mesh(new PlaneGeometry(700, 700), new TextureMaterial(Cast.bitmapTexture(FloorDiffuse)));
-			_plane.mouseHitMethod = MouseHitMethod.MESH_ANY_HIT;
 			_view.scene.addChild(_plane);
 			
 			//setup the render loop

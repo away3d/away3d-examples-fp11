@@ -48,29 +48,18 @@ package
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.*;
-	import away3d.materials.methods.BasicDiffuseMethod;
-	import away3d.materials.methods.BasicSpecularMethod;
-	import away3d.materials.methods.CompositeDiffuseMethod;
-	import away3d.materials.methods.CompositeSpecularMethod;
-	import away3d.materials.methods.FresnelSpecularMethod;
-	import away3d.materials.methods.LightMapDiffuseMethod;
-	import away3d.materials.methods.SpecularShadingModel;
-	import away3d.materials.methods.WrapDiffuseMethod;
-	import away3d.materials.utils.ShaderRegisterCache;
-	import away3d.materials.utils.ShaderRegisterElement;
+	import away3d.materials.methods.*;
+	import away3d.materials.utils.*;
 	import away3d.primitives.*;
-	import away3d.textures.BitmapCubeTexture;
-	import away3d.textures.BitmapTexture;
+	import away3d.textures.*;
+	import away3d.utils.*;
 	
 	import flash.display.*;
 	import flash.events.*;
-	import flash.filters.DropShadowFilter;
+	import flash.filters.*;
 	import flash.geom.*;
-	import flash.text.AntiAliasType;
-	import flash.text.GridFitType;
-	import flash.text.TextField;
-	import flash.text.TextFormat;
-	import flash.ui.Keyboard;
+	import flash.text.*;
+	import flash.ui.*;
 	
 	use namespace arcane;
 	
@@ -310,10 +299,10 @@ package
 		 */
 		private function initMaterials():void
 		{
-			cubeTexture = new BitmapCubeTexture(new PosX().bitmapData, new NegX().bitmapData, new PosY().bitmapData, new NegY().bitmapData, new PosZ().bitmapData, new NegZ().bitmapData);
+			cubeTexture = new BitmapCubeTexture(Cast.bitmapData(PosX), Cast.bitmapData(NegX), Cast.bitmapData(PosY), Cast.bitmapData(NegY), Cast.bitmapData(PosZ), Cast.bitmapData(NegZ));
 			
 			//adjust specular map
-			var specBitmap:BitmapData = new EarthSpecular().bitmapData; 
+			var specBitmap:BitmapData = Cast.bitmapData(EarthSpecular); 
 			specBitmap.colorTransform(specBitmap.rect, new ColorTransform(1, 1, 1, 1, 64, 64, 64));
 			
 			var specular:FresnelSpecularMethod = new FresnelSpecularMethod(true);
@@ -321,14 +310,14 @@ package
 			specular.normalReflectance = 0.1;
 			specular.shadingModel = SpecularShadingModel.PHONG;
 			
-			sunMaterial = new TextureMaterial(new BitmapTexture((new Flare10()).bitmapData));
+			sunMaterial = new TextureMaterial(Cast.bitmapTexture(Flare10));
 			sunMaterial.blendMode = BlendMode.ADD;
 			
-			groundMaterial = new TextureMaterial(new BitmapTexture((new EarthDiffuse()).bitmapData));
+			groundMaterial = new TextureMaterial(Cast.bitmapTexture(EarthDiffuse));
 			groundMaterial.specularMethod = specular;
 			groundMaterial.specularMap = new BitmapTexture(specBitmap);
-			groundMaterial.normalMap = new BitmapTexture(new EarthNormals().bitmapData);
-			groundMaterial.ambientTexture = new BitmapTexture((new EarthNight()).bitmapData)
+			groundMaterial.normalMap = Cast.bitmapTexture(EarthNormals);
+			groundMaterial.ambientTexture = Cast.bitmapTexture(EarthNight);
 			groundMaterial.lightPicker = lightPicker;
 			groundMaterial.gloss = 5;
 			groundMaterial.specular = 1;
@@ -336,7 +325,7 @@ package
 			groundMaterial.ambient = 1;
 			
 			var skyBitmap:BitmapData = new BitmapData(2048, 1024, true, 0xFFFFFFFF);
-			skyBitmap.copyChannel((new SkyDiffuse()).bitmapData, skyBitmap.rect, new Point(), BitmapDataChannel.RED, BitmapDataChannel.ALPHA);
+			skyBitmap.copyChannel(Cast.bitmapData(SkyDiffuse), skyBitmap.rect, new Point(), BitmapDataChannel.RED, BitmapDataChannel.ALPHA);
 			
 			cloudMaterial = new TextureMaterial(new BitmapTexture(skyBitmap));
 			cloudMaterial.alphaBlending = true;
@@ -385,42 +374,6 @@ package
 				regCache.removeFragmentTempUsage(temp);
 			
 			return code;
-		}
-		
-		private function normaliseMap(normalBitmap:BitmapData):BitmapData
-		{
-			var w:int = normalBitmap.width;
-			var h:int = normalBitmap.height;
-			
-			var i:int = h;
-			var j:int;
-			var pixelValue:int;
-			var rValue:Number;
-			var gValue:Number;
-			var bValue:Number;
-			var mod:Number;
-			
-			var normalisedBitmap:BitmapData = new BitmapData(normalBitmap.width, normalBitmap.height, true, 0);
-			
-			//normalise map
-			while (i--) {
-				j = w;
-				while (j--) {
-					//get values
-					pixelValue = normalBitmap.getPixel32(j, i);
-					rValue = ((pixelValue & 0x00FF0000) >> 16) - 127;
-					gValue = ((pixelValue & 0x0000FF00) >> 8) - 127;
-					bValue = ((pixelValue & 0x000000FF)) - 127;
-					
-					//calculate modulus
-					mod = Math.sqrt(rValue*rValue + gValue*gValue + bValue*bValue)*2;
-					
-					//set normalised values
-					normalisedBitmap.setPixel32(j, i, (0xFF << 24) + (int(0xFF*(rValue/mod + 0.5)) << 16) + (int(0xFF*(gValue/mod + 0.5)) << 8) + int(0xFF*(bValue/mod + 0.5)));
-				}
-			}
-			
-			return normalisedBitmap;
 		}
 		
 		/**

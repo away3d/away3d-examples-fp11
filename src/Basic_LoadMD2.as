@@ -39,38 +39,25 @@ THE SOFTWARE.
 package
 {
 	import away3d.animators.*;
-	import away3d.animators.data.AnimationStateBase;
-	import away3d.animators.data.VertexAnimation;
-	import away3d.animators.data.VertexAnimationSequence;
-	import away3d.animators.data.VertexAnimationState;
+	import away3d.animators.data.*;
 	import away3d.arcane;
-	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
-	import away3d.core.base.*;
-	import away3d.core.raycast.MouseHitMethod;
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.events.*;
 	import away3d.library.*;
 	import away3d.library.assets.*;
 	import away3d.lights.*;
-	import away3d.loaders.*;
 	import away3d.loaders.misc.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.*;
-	import away3d.materials.methods.*;
 	import away3d.primitives.*;
-	import away3d.textures.*;
 	import away3d.utils.Cast;
 	
 	import flash.display.*;
 	import flash.events.*;
-	import flash.geom.*;
-	import flash.net.URLRequest;
-	import flash.text.*;
-	import flash.utils.*;
 	
 	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
 	public class Basic_LoadMD2 extends Sprite
@@ -113,10 +100,8 @@ package
 		//light objects
 		private var _light:DirectionalLight;
 		private var _lightPicker:StaticLightPicker;
-		private var _direction:Vector3D;
 		
 		//material objects
-		private var _ogreMaterial:TextureMaterial;
 		private var _floorMaterial:TextureMaterial;
 		
 		//scene objects
@@ -124,8 +109,7 @@ package
 		private var _mesh:Mesh;
 		
 		//navigation variables
-		private var _jumpAnimationState:VertexAnimationState;
-		private var _controller:VertexAnimator
+		private var _controller:VertexAnimator;
 		private var _move:Boolean = false;
 		private var _lastPanAngle:Number;
 		private var _lastTiltAngle:Number;

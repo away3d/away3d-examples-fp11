@@ -42,32 +42,26 @@ package
 {
 	import away3d.animators.*;
 	import away3d.animators.data.*;
-	import away3d.animators.skeleton.*;
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
-	import away3d.core.base.*;
 	import away3d.debug.*;
-	import away3d.entities.Mesh;
-	import away3d.entities.Sprite3D;
+	import away3d.entities.*;
 	import away3d.events.*;
 	import away3d.library.*;
 	import away3d.library.assets.*;
 	import away3d.lights.*;
-	import away3d.lights.shadowmaps.CubeMapShadowMapper;
-	import away3d.loaders.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
-	import away3d.materials.lightpickers.StaticLightPicker;
+	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
 	import away3d.primitives.*;
 	import away3d.textures.*;
+	import away3d.utils.*;
 	
 	import flash.display.*;
 	import flash.events.*;
 	import flash.filters.*;
-	import flash.geom.*;
-	import flash.net.*;
 	import flash.text.*;
 	import flash.ui.*;
 	
@@ -163,21 +157,15 @@ package
 		private var awayStats:AwayStats;
 		
 		//animation variables
-		private var animation:SkeletonAnimation;
 		private var animator:SmoothSkeletonAnimator;
-		private var breatheSequence:SkeletonAnimationSequence;
-		private var walkSequence:SkeletonAnimationSequence;
-		private var runSequence:SkeletonAnimationSequence;
 		private var isRunning:Boolean;
 		private var isMoving:Boolean;
 		private var movementDirection:Number;
 		private var onceAnim:String;
 		private var currentAnim:String;
 		private var currentRotationInc:Number = 0;
-		private var action:uint;
 		
 		//animation constants
-		private const MESH_NAME:String = "hellknight";
 		private const IDLE_NAME:String = "idle2";
 		private const WALK_NAME:String = "walk7";
 		private const ANIM_NAMES:Array = [IDLE_NAME, WALK_NAME, "attack3", "turret_attack", "attack2", "chest", "roar1", "leftslash", "headpain", "pain1", "pain_luparm", "range_attack2"];
@@ -269,7 +257,7 @@ package
 			stage.quality = StageQuality.LOW;
 			addChild(SignatureBitmap);
 			
-			awayStats = new AwayStats(view)
+			awayStats = new AwayStats(view);
 			addChild(awayStats);
 		}
 		
@@ -333,36 +321,36 @@ package
 		private function initMaterials():void
 		{
 			//red light material
-			redLightMaterial = new TextureMaterial(new BitmapTexture(new RedLight().bitmapData));
+			redLightMaterial = new TextureMaterial(Cast.bitmapTexture(RedLight));
 			redLightMaterial.alphaBlending = true;
 			redLightMaterial.addMethod(fogMethod);
 			
 			//blue light material
-			blueLightMaterial = new TextureMaterial(new BitmapTexture(new BlueLight().bitmapData));
+			blueLightMaterial = new TextureMaterial(Cast.bitmapTexture(BlueLight));
 			blueLightMaterial.alphaBlending = true;
 			blueLightMaterial.addMethod(fogMethod);
 			
 			//ground material
-			groundMaterial = new TextureMaterial(new BitmapTexture(new FloorDiffuse().bitmapData));
+			groundMaterial = new TextureMaterial(Cast.bitmapTexture(FloorDiffuse));
 			groundMaterial.smooth = true;
 			groundMaterial.repeat = true;
 			groundMaterial.mipmap = true;
 			groundMaterial.lightPicker = lightPicker;
 			groundMaterial.ambientColor = 0x202030;
 			groundMaterial.ambient = 1;
-			groundMaterial.normalMap = new BitmapTexture(new FloorNormals().bitmapData);
-			groundMaterial.specularMap = new BitmapTexture(new FloorSpecular().bitmapData);
+			groundMaterial.normalMap = Cast.bitmapTexture(FloorNormals);
+			groundMaterial.specularMap = Cast.bitmapTexture(FloorSpecular);
 			groundMaterial.shadowMethod = filteredShadowMapMethod;
 			groundMaterial.addMethod(fogMethod);
 			
 			//body material
-			bodyMaterial = new TextureMaterial(new BitmapTexture(new BodyDiffuse().bitmapData));
+			bodyMaterial = new TextureMaterial(Cast.bitmapTexture(BodyDiffuse));
 			bodyMaterial.gloss = 20;
 			bodyMaterial.specular = 1.5;
 			bodyMaterial.ambientColor = 0x505060;
 			bodyMaterial.ambient = 1;
-			bodyMaterial.specularMap = new BitmapTexture(new BodySpecular().bitmapData);
-			bodyMaterial.normalMap = new BitmapTexture(new BodyNormals().bitmapData);
+			bodyMaterial.specularMap = Cast.bitmapTexture(BodySpecular);
+			bodyMaterial.normalMap = Cast.bitmapTexture(BodyNormals);
 			bodyMaterial.addMethod(fogMethod);
 			bodyMaterial.lightPicker = lightPicker;
 			bodyMaterial.shadowMethod = filteredShadowMapMethod;
@@ -375,7 +363,7 @@ package
 		{
 			//create light billboards
 			redLight.addChild(new Sprite3D(redLightMaterial, 200, 200));
-			blueLight.addChild(new Sprite3D(blueLightMaterial, 200, 200))
+			blueLight.addChild(new Sprite3D(blueLightMaterial, 200, 200));
 			
 			//AssetLibrary.enableParser(MD5MeshParser);
 			//AssetLibrary.enableParser(MD5AnimParser);
@@ -389,7 +377,7 @@ package
 			scene.addChild(ground);
 			
 			//create a skybox
-			cubeTexture = new BitmapCubeTexture(new EnvPosX().bitmapData, new EnvNegX().bitmapData, new EnvPosY().bitmapData, new EnvNegY().bitmapData, new EnvPosZ().bitmapData, new EnvNegZ().bitmapData);
+			cubeTexture = new BitmapCubeTexture(Cast.bitmapData(EnvPosX), Cast.bitmapData(EnvNegX), Cast.bitmapData(EnvPosY), Cast.bitmapData(EnvNegY), Cast.bitmapData(EnvPosZ), Cast.bitmapData(EnvNegZ));
 			skyBox = new SkyBox(cubeTexture);
 			scene.addChild(skyBox);
 		}

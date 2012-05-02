@@ -53,7 +53,6 @@ package shallowwater
 
 			// Fill buffers.
 			var a:uint, j:uint, i:uint;
-			var count:uint = n * m;
 			for( j = 0; j < m; j++ ) {
 				var y:Number = d * j;
 				for( i = 0; i < n; i++ ) {

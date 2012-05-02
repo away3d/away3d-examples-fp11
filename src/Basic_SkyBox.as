@@ -37,10 +37,9 @@ THE SOFTWARE.
 
 package
 {
-	import away3d.cameras.lenses.PerspectiveLens;
+	import away3d.cameras.lenses.*;
 	import away3d.containers.*;
 	import away3d.entities.*;
-	import away3d.events.*;
 	import away3d.materials.*;
 	import away3d.materials.methods.*;
 	import away3d.primitives.*;
@@ -95,7 +94,7 @@ package
 			_view.camera.lens = new PerspectiveLens(90);
 			
 			//setup the cube texture
-			var cubeTexture:BitmapCubeTexture = new BitmapCubeTexture(new EnvPosX().bitmapData, new EnvNegX().bitmapData, new EnvPosY().bitmapData, new EnvNegY().bitmapData, new EnvPosZ().bitmapData, new EnvNegZ().bitmapData);
+			var cubeTexture:BitmapCubeTexture = new BitmapCubeTexture(Cast.bitmapData(EnvPosX), Cast.bitmapData(EnvNegX), Cast.bitmapData(EnvPosY), Cast.bitmapData(EnvNegY), Cast.bitmapData(EnvPosZ), Cast.bitmapData(EnvNegZ));
 			
 			//setup the environment map material
 			var material:ColorMaterial = new ColorMaterial(0xFFFFFF, 1);

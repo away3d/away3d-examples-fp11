@@ -4,7 +4,6 @@ package
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
-	import away3d.core.base.*;
 	import away3d.core.raycast.*;
 	import away3d.debug.*;
 	import away3d.entities.*;
