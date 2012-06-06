@@ -1,5 +1,6 @@
 package away3d.primitives
 {
+	import flash.display.DisplayObject;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.utils.getTimer;
@@ -7,6 +8,7 @@ package away3d.primitives
 	import away3d.cameras.Camera3D;
 	import away3d.containers.ObjectContainer3D;
 	import away3d.containers.View3D;
+	import away3d.debug.AwayStats;
 
 
 	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
@@ -32,11 +34,16 @@ package away3d.primitives
 			view.scene.addChild(geo);
 
 			// set the camera and object for a good view
-			var cam:Camera3D = view.camera;
+			const cam:Camera3D = view.camera;
 			cam.y = 60;
 			cam.z = -200;
 			cam.lookAt(geo.position);
 			geo.rotationY = -15;
+
+			// add debug stats
+			const stats:DisplayObject = addChild(new AwayStats(view));
+			stats.x = stage.stageWidth - stats.width;
+			stats.y = 0;
 
 			// listen for enterframe to to render updates
 			addEventListener(Event.ENTER_FRAME, update);
@@ -44,21 +51,21 @@ package away3d.primitives
 
 		protected function createGeo():ObjectContainer3D
 		{
-			var geometry:WireframeCylinder = new WireframeCylinder();
+			const geometry:WireframeCylinder = new WireframeCylinder();
 			return geometry;
 		}
 
 		protected function get elapsed():Number
 		{
-			var now:int = getTimer();
-			var value:Number = (lastTime ? (now - lastTime) : now) * .001; // seconds elapsed
+			const now:int = getTimer();
+			const value:Number = (lastTime ? (now - lastTime) : now) * .001; // seconds elapsed
 			lastTime = now;
 			return value;
 		}
 
 		protected function update(e:Event):void
 		{
-			var s:Number = elapsed;
+			const s:Number = elapsed;
 
 			// apply rotations and render
 			geo.rotationX += 7 * s; // degrees per second
