@@ -4,7 +4,6 @@ package
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
-	import away3d.core.base.*;
 	import away3d.core.raycast.*;
 	import away3d.debug.*;
 	import away3d.entities.*;
@@ -285,7 +284,7 @@ package
 					break;
 			}
 			dataText.text = "Mouse mode: " + modeMsg + "\n";
-			dataText.appendText("Test time: " + view.mouse3DManager.testTime + "ms");
+			//dataText.appendText("Test time: " + view.mouse3DManager.testTime + "ms");
 			
 			view.render();
 		}

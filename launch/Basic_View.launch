@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="com.powerflasher.fdt.ui.MxmlcGroup">
+<stringAttribute key="ADL_ARGUMENTS" value=""/>
+<stringAttribute key="APP_ARGUMENTS" value=""/>
+<stringAttribute key="ARGUMENTS" value=""/>
+<booleanAttribute key="KILL_PREVIOUS_VIEWER" value="true"/>
+<stringAttribute key="LAUNCHER_DEPENDENCIES" value="[Self]"/>
+<stringAttribute key="MAIN_CLASS" value="src/Basic_View.as"/>
+<stringAttribute key="OUTPUT" value="bin/Basic_View.swf"/>
+<booleanAttribute key="PASS_CP" value="true"/>
+<booleanAttribute key="PASS_EXTERNS" value="true"/>
+<booleanAttribute key="PASS_MAIN_CLASS" value="true"/>
+<booleanAttribute key="PASS_RSLS" value="false"/>
+<booleanAttribute key="PASS_SWCS" value="true"/>
+<intAttribute key="PLAYER_HEIGHT" value="400"/>
+<intAttribute key="PLAYER_WIDTH" value="550"/>
+<stringAttribute key="POST_COMPILE_ANT" value="build/post_compile.xml"/>
+<stringAttribute key="PRE_COMPILE_ANT" value="build/pre_compile.xml"/>
+<stringAttribute key="PROJECT_NAME" value="away3d-examples-fp11"/>
+<booleanAttribute key="START_SWF_ENABLED" value="true"/>
+<stringAttribute key="START_SWF_LOCATION" value="bin/Basic_View.html"/>
+<stringAttribute key="START_SWF_WITH" value="Browser"/>
+<booleanAttribute key="USE_PROJECT_COMPILER_ARGUMENTS" value="true"/>
+<stringAttribute key="bad_container_name" value="/away3d-examples-fp11/launch"/>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/away3d-examples-fp11"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="4"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.debug.ui.ATTR_CAPTURE_IN_FILE" value="${workspace_loc:/away3d-examples-fp11/launch/output.txt}"/>
+</launchConfiguration>

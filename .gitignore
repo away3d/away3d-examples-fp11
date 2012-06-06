@@ -1,5 +1,9 @@
-/.actionScriptProperties
+/.flexLibProperties
+/bin
+/target
+/launch/output.txt
 /.project
-/.settings/
-/bin-debug/
-/target/
+/.settings
+/.actionScriptProperties
+*.iml
+out

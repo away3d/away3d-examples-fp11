@@ -45,21 +45,19 @@ package
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
-	import away3d.core.base.*;
 	import away3d.debug.*;
 	import away3d.entities.Mesh;
 	import away3d.events.*;
 	import away3d.library.*;
 	import away3d.library.assets.*;
 	import away3d.lights.*;
-	import away3d.lights.shadowmaps.CubeMapShadowMapper;
-	import away3d.loaders.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
-	import away3d.materials.lightpickers.StaticLightPicker;
+	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
 	import away3d.primitives.*;
 	import away3d.textures.*;
+	import away3d.utils.*;
 	
 	import flash.display.*;
 	import flash.events.*;
@@ -223,7 +221,7 @@ package
 			stage.quality = StageQuality.LOW;
 			addChild(SignatureBitmap);
 			
-			awayStats = new AwayStats(view)
+			awayStats = new AwayStats(view);
 			addChild(awayStats);
 		}
 		
@@ -292,10 +290,10 @@ package
 			AssetLibrary.load(new URLRequest("assets/PolarBear.awd"));
 			
 			//create a snowy ground plane
-			groundMaterial = new TextureMaterial(new BitmapTexture((new SnowDiffuse()).bitmapData), true, true, true);
+			groundMaterial = new TextureMaterial(Cast.bitmapTexture(SnowDiffuse), true, true, true);
 			groundMaterial.lightPicker = lightPicker;
-			groundMaterial.specularMap = new BitmapTexture(new SnowSpecular().bitmapData);
-			groundMaterial.normalMap = new BitmapTexture(new SnowNormal().bitmapData);
+			groundMaterial.specularMap = Cast.bitmapTexture(SnowSpecular);
+			groundMaterial.normalMap = Cast.bitmapTexture(SnowNormal);
 			groundMaterial.shadowMethod = filteredShadowMapMethod;
 			groundMaterial.addMethod(fogMethod);
 			groundMaterial.ambient = 0.5;
@@ -305,7 +303,7 @@ package
 			scene.addChild(ground);
 			
 			//create a skybox
-			cubeTexture = new BitmapCubeTexture(new PosX().bitmapData, new NegX().bitmapData, new PosY().bitmapData, new NegY().bitmapData, new PosZ().bitmapData, new NegZ().bitmapData);
+			cubeTexture = new BitmapCubeTexture(Cast.bitmapData(PosX), Cast.bitmapData(NegX), Cast.bitmapData(PosY), Cast.bitmapData(NegY), Cast.bitmapData(PosZ), Cast.bitmapData(NegZ));
 			skyBox = new SkyBox(cubeTexture);
 			scene.addChild(skyBox);
 		}
@@ -350,10 +348,10 @@ package
 					runSequence = event.asset as SkeletonAnimationSequence;
 			} else if (event.asset.assetType == AssetType.MESH) {
 				//create material object and assign it to our mesh
-				bearMaterial = new TextureMaterial(new BitmapTexture(new BearDiffuse().bitmapData));
+				bearMaterial = new TextureMaterial(Cast.bitmapTexture(BearDiffuse));
 				bearMaterial.shadowMethod = filteredShadowMapMethod;
-				bearMaterial.normalMap = new BitmapTexture(new BearNormal().bitmapData);
-				bearMaterial.specularMap = new BitmapTexture(new BearSpecular().bitmapData);
+				bearMaterial.normalMap = Cast.bitmapTexture(BearNormal);
+				bearMaterial.specularMap = Cast.bitmapTexture(BearSpecular);
 				bearMaterial.addMethod(fogMethod);
 				bearMaterial.lightPicker = lightPicker;
 				bearMaterial.gloss = 50;
