@@ -7,3 +7,4 @@
 /.actionScriptProperties
 *.iml
 out
+/bin-debug/
