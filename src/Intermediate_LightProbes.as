@@ -48,7 +48,6 @@ package
 	import away3d.library.assets.AssetType;
 	import away3d.lights.LightProbe;
 	import away3d.lights.PointLight;
-	import away3d.lights.shadowmaps.CubeMapShadowMapper;
 	import away3d.loaders.misc.AssetLoaderContext;
 	import away3d.loaders.parsers.OBJParser;
 	import away3d.materials.LightSources;
@@ -57,12 +56,8 @@ package
 	import away3d.materials.methods.FresnelSpecularMethod;
 	import away3d.materials.methods.HardShadowMapMethod;
 	import away3d.materials.methods.LightMapMethod;
-	import away3d.materials.methods.LightMapDiffuseMethod;
 	import away3d.materials.methods.RimLightMethod;
-	import away3d.materials.methods.ShadowMapMethodBase;
-	import away3d.materials.methods.SubsurfaceScatteringDiffuseMethod;
 	import away3d.textures.BitmapTexture;
-	import away3d.textures.BitmapTextureCache;
 	import away3d.textures.SpecularBitmapTexture;
 
 	import cornell.CornellDiffuseEnvMapFL;
