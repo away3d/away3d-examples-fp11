@@ -287,7 +287,7 @@ package
 		{
 			//create skybox.
 			scene.addChild(new SkyBox(cubeTexture));
-			
+
 			//create mountain like terrain
 			terrain = new Elevation(terrainMaterial, new HeightMap().bitmapData, 5000, 1300, 5000, 250, 250);
 			scene.addChild(terrain);

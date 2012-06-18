@@ -309,7 +309,7 @@ package
 			blueLight = new PointLight();
 			blueLight.x = 1000;
 			blueLight.y = 200;
-			blueLight.z = 1400;
+			blueLight.z = -1400;
 			blueLight.color = 0x1111ff;
 			scene.addChild(blueLight);
 			
@@ -440,7 +440,7 @@ package
 			
 			redLight.x = Math.sin(count)*1500;
 			redLight.y = 250 + Math.sin(count*0.54)*200;
-			redLight.z = Math.cos(count*0.7)*1500;
+			redLight.z = -Math.cos(count*0.7)*1500;
 			blueLight.x = -Math.sin(count*0.8)*1500;
 			blueLight.y = 250 - Math.sin(count*.65)*200;
 			blueLight.z = -Math.cos(count*0.9)*1500;
