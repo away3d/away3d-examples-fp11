@@ -51,6 +51,7 @@ package
 	import away3d.entities.Mesh;
 	import away3d.entities.Sprite3D;
 	import away3d.events.*;
+	import away3d.filters.MotionBlurFilter3D;
 	import away3d.library.*;
 	import away3d.library.assets.*;
 	import away3d.lights.*;
@@ -61,6 +62,7 @@ package
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.StaticLightPicker;
 	import away3d.materials.methods.*;
+	import away3d.materials.methods.ShadingMethodBase;
 	import away3d.primitives.*;
 	import away3d.textures.*;
 	
@@ -71,7 +73,7 @@ package
 	import flash.net.*;
 	import flash.text.*;
 	import flash.ui.*;
-	
+
 	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
 	
 	public class Intermediate_MD5Animation extends Sprite
@@ -199,8 +201,6 @@ package
 		private var blueLight:PointLight;
 		private var whiteLight:DirectionalLight;
 		private var lightPicker:StaticLightPicker;
-		private var shadowMapMethod:ShadowMapMethodBase;
-		private var fogMethod:FogMethod;
 		private var count:Number = 0;
 		
 		//material objects
@@ -261,7 +261,7 @@ package
 			
 			view.addSourceURL("srcview/index.html");
 			addChild(view);
-			
+
 			//add signature
 			Signature = Sprite(new SignatureSwf());
 			SignatureBitmap = new Bitmap(new BitmapData(Signature.width, Signature.height, true, 0));
@@ -270,7 +270,7 @@ package
 			stage.quality = StageQuality.LOW;
 			addChild(SignatureBitmap);
 			
-			awayStats = new AwayStats(view)
+			awayStats = new AwayStats(view);
 			addChild(awayStats);
 		}
 		
@@ -313,7 +313,7 @@ package
 			blueLight.color = 0x1111ff;
 			scene.addChild(blueLight);
 			
-			whiteLight = new DirectionalLight(-50, -20, 10);
+			whiteLight = new DirectionalLight(-50, -50, 10);
 			whiteLight.ambient = 1;
 			whiteLight.ambientColor = 0x303030;
 			whiteLight.color = 0xffffee;
@@ -322,14 +322,18 @@ package
 			scene.addChild(whiteLight);
 			
 			lightPicker = new StaticLightPicker([redLight, blueLight, whiteLight]);
-			
-			
-			//create a global shadow method
-			shadowMapMethod = new NearShadowMapMethod(new FilteredShadowMapMethod(whiteLight), .5);
+		}
+
+		private function createShadowMethod() : ShadowMapMethodBase
+		{
+			var shadowMapMethod : NearShadowMapMethod = new NearShadowMapMethod(new FilteredShadowMapMethod(whiteLight), .2);
 			shadowMapMethod.epsilon = .0005;
-			
-			//create a global fog method
-			fogMethod = new FogMethod(0, camera.lens.far*0.5, 0x000000);
+			return shadowMapMethod;
+		}
+
+		private function createFogMethod() : FogMethod
+		{
+			return new FogMethod(0, camera.lens.far * 0.5, 0x000000);
 		}
 
 		/**
@@ -340,12 +344,12 @@ package
 			//red light material
 			redLightMaterial = new TextureMaterial(new BitmapTexture(new RedLight().bitmapData));
 			redLightMaterial.alphaBlending = true;
-			redLightMaterial.addMethod(fogMethod);
+			redLightMaterial.addMethod(createFogMethod());
 			
 			//blue light material
 			blueLightMaterial = new TextureMaterial(new BitmapTexture(new BlueLight().bitmapData));
 			blueLightMaterial.alphaBlending = true;
-			blueLightMaterial.addMethod(fogMethod);
+			blueLightMaterial.addMethod(createFogMethod());
 			
 			//ground material
 			groundMaterial = new TextureMaterial(new BitmapTexture(new FloorDiffuse().bitmapData));
@@ -355,8 +359,8 @@ package
 			groundMaterial.lightPicker = lightPicker;
 			groundMaterial.normalMap = new BitmapTexture(new FloorNormals().bitmapData);
 			groundMaterial.specularMap = new BitmapTexture(new FloorSpecular().bitmapData);
-			groundMaterial.shadowMethod = shadowMapMethod;
-			groundMaterial.addMethod(fogMethod);
+			groundMaterial.shadowMethod = createShadowMethod();
+			groundMaterial.addMethod(createFogMethod());
 			
 			//body material
 			bodyMaterial = new TextureMaterial(new BitmapTexture(new BodyDiffuse().bitmapData));
@@ -364,9 +368,9 @@ package
 			bodyMaterial.specular = 1.5;
 			bodyMaterial.specularMap = new BitmapTexture(new BodySpecular().bitmapData);
 			bodyMaterial.normalMap = new BitmapTexture(new BodyNormals().bitmapData);
-			bodyMaterial.addMethod(fogMethod);
+			bodyMaterial.addMethod(createFogMethod());
 			bodyMaterial.lightPicker = lightPicker;
-			bodyMaterial.shadowMethod = shadowMapMethod;
+			bodyMaterial.shadowMethod = createShadowMethod();
 		}
 		
 		/**
