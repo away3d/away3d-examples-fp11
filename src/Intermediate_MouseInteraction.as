@@ -1,10 +1,11 @@
 package
 {
+	import away3d.core.pick.IPickingCollider;
+	import away3d.core.pick.PickingColliderType;
 	import away3d.bounds.*;
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
-	import away3d.core.raycast.*;
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.events.*;
@@ -20,7 +21,7 @@ package
 	import flash.text.*;
 	import flash.ui.*;
 	
-	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
+	[SWF(backgroundColor="#000000", frameRate="60", quality="LOW")]
 	
 	public class Intermediate_MouseInteraction extends Sprite
 	{
@@ -53,7 +54,7 @@ package
 		private var dataText:TextField;
 		private var meshIntersectionTracer:Mesh;
 		private var meshes:Vector.<Mesh>;
-		private var mouseHitMethod:uint = MouseHitMethod.MESH_ANY_HIT;
+		private var pickingCollider:IPickingCollider = PickingColliderType.AS3_FIRST_ENCOUNTERED;
 		
 		//navigation variables
 		private var move:Boolean = false;
@@ -227,7 +228,7 @@ package
 					mesh.material = offMaterial;
 				}
 				
-				mesh.mouseHitMethod = mouseHitMethod;
+				mesh.pickingCollider = pickingCollider;
 				mesh.mouseEnabled = true;
 				mesh.showBounds = true;
 				mesh.bounds.boundingRenderable.color = 0x333333;
@@ -269,18 +270,21 @@ package
 			
 			//update data text
 			var modeMsg:String;
-			switch(mouseHitMethod) {
-				case MouseHitMethod.BOUNDS_ONLY:
+			switch(pickingCollider) {
+				case PickingColliderType.BOUNDS_ONLY:
 					modeMsg = "bounds only";
 					break;
-				case MouseHitMethod.MESH_CLOSEST_HIT:
-					modeMsg = "mesh closest hit";
+				case PickingColliderType.AS3_BEST_HIT:
+					modeMsg = "as3 closest hit";
 					break;
-				case MouseHitMethod.MESH_ANY_HIT:
-					modeMsg = "mesh any hit";
+				case PickingColliderType.AS3_FIRST_ENCOUNTERED:
+					modeMsg = "as3 any hit";
 					break;
-				case 99:
-					modeMsg = "none";
+				case PickingColliderType.PB_BEST_HIT:
+					modeMsg = "pixel bender closest hit";
+					break;
+				case PickingColliderType.PB_FIRST_ENCOUNTERED:
+					modeMsg = "pixel bender any hit";
 					break;
 			}
 			dataText.text = "Mouse mode: " + modeMsg + "\n";
@@ -318,30 +322,30 @@ package
 					distanceIncrement = -distanceSpeed;
 					break;
 				case Keyboard.SPACE:
-					switch( mouseHitMethod ) {
-						case MouseHitMethod.MESH_ANY_HIT:
-							mouseHitMethod = MouseHitMethod.BOUNDS_ONLY;
+					switch( pickingCollider ) {
+						case PickingColliderType.BOUNDS_ONLY:
+							pickingCollider = PickingColliderType.AS3_FIRST_ENCOUNTERED;
 							break;
-						case MouseHitMethod.BOUNDS_ONLY:
-							mouseHitMethod = MouseHitMethod.MESH_CLOSEST_HIT;
+						case PickingColliderType.AS3_FIRST_ENCOUNTERED:
+							pickingCollider = PickingColliderType.AS3_BEST_HIT;
 							break;
-						case MouseHitMethod.MESH_CLOSEST_HIT:
-							mouseHitMethod = 99;
+						case PickingColliderType.AS3_BEST_HIT:
+							pickingCollider = PickingColliderType.PB_FIRST_ENCOUNTERED;
 							break;
-						case 99:
-							mouseHitMethod = MouseHitMethod.MESH_ANY_HIT;
+						case PickingColliderType.PB_FIRST_ENCOUNTERED:
+							pickingCollider = PickingColliderType.PB_BEST_HIT;
+							break;
+						case PickingColliderType.PB_BEST_HIT:
+							pickingCollider = PickingColliderType.BOUNDS_ONLY;
 							break;
 					}
 					
 					for each(var mesh:Mesh in meshes) {
-						if(mouseHitMethod == 99) {
-							mesh.mouseEnabled = false;
-						} else {
-							mesh.mouseEnabled = true;
-							mesh.mouseHitMethod = mouseHitMethod;
-						}
+						mesh.mouseEnabled = true;
+						mesh.pickingCollider = pickingCollider;
 					}
 					break;
+					
 			}
 		}
 		
@@ -398,7 +402,7 @@ package
 		private function  onMeshMouseMove(event:MouseEvent3D):void
 		{
 			meshIntersectionTracer.visible = true;
-			meshIntersectionTracer.position = new Vector3D( event.sceneX, event.sceneY, event.sceneZ );
+			meshIntersectionTracer.position = new Vector3D( event.scenePosition.x, event.scenePosition.y, event.scenePosition.z );
 		}
 		
 		/**

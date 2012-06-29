@@ -39,7 +39,7 @@ THE SOFTWARE.
 package
 {
 	import away3d.containers.*;
-	import away3d.core.raycast.MouseHitMethod;
+	import away3d.core.pick.*;
 	import away3d.entities.*;
 	import away3d.events.*;
 	import away3d.materials.*;
@@ -95,7 +95,7 @@ package
 			_view.scene.addChild(_cube);
 			
 			_plane = new Mesh(new PlaneGeometry(700, 700), new TextureMaterial(Cast.bitmapTexture(FloorDiffuse)));
-			_plane.mouseHitMethod = MouseHitMethod.MESH_ANY_HIT;
+			_plane.pickingCollider = PickingColliderType.AS3_FIRST_ENCOUNTERED;
 			_plane.mouseEnabled = true;
 			_view.scene.addChild(_plane);
 			
@@ -124,7 +124,7 @@ package
 		 */
 		private function _onMouseUp(ev:MouseEvent3D) : void
 		{
-			Tweener.addTween(_cube, { time:0.5, x:ev.sceneX, z:ev.sceneZ, _bezier:{x:_cube.x, z:ev.sceneZ} });
+			Tweener.addTween(_cube, { time:0.5, x:ev.scenePosition.x, z:ev.scenePosition.z, _bezier:{x:_cube.x, z:ev.scenePosition.z} });
 		}
 		
 		/**
