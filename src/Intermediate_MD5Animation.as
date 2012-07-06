@@ -40,6 +40,7 @@ THE SOFTWARE.
 
 package
 {
+	import away3d.animators.skeleton.Skeleton;
 	import away3d.animators.*;
 	import away3d.animators.data.*;
 	import away3d.cameras.*;
@@ -158,6 +159,7 @@ package
 		
 		//animation variables
 		private var animator:SmoothSkeletonAnimator;
+		private var skeleton:Skeleton;
 		private var isRunning:Boolean;
 		private var isMoving:Boolean;
 		private var movementDirection:Number;
@@ -393,18 +395,6 @@ package
 		}
 		
 		/**
-		 * Initialise the hellknight animations
-		 */
-		private function initAnimations():void
-		{
-			animator = new SmoothSkeletonAnimator(mesh.animationState as SkeletonAnimationState);
-			
-			for (var i:uint = 0; i < ANIM_NAMES.length; ++i)
-				AssetLibrary.loadData(new ANIM_CLASSES[i](), null, ANIM_NAMES[i], new MD5AnimParser());
-			
-		}
-		
-		/**
 		 * Initialise the listeners
 		 */
 		private function initListeners():void
@@ -455,7 +445,15 @@ package
 				
 				if (seq.name == IDLE_NAME)
 					stop();
+			} else if (event.asset.assetType == AssetType.ANIMATOR_LIBRARY) {
+				animator = new SmoothSkeletonAnimator(event.asset as SkeletonAnimatorLibrary, skeleton);
 				
+				for (var i:uint = 0; i < ANIM_NAMES.length; ++i)
+					AssetLibrary.loadData(new ANIM_CLASSES[i](), null, ANIM_NAMES[i], new MD5AnimParser());
+				
+				mesh.animator = animator;
+			} else if (event.asset.assetType == AssetType.SKELETON) {
+				skeleton = event.asset as Skeleton;	
 			} else if (event.asset.assetType == AssetType.MESH) {
 				//grab mesh object and assign our material object
 				mesh = event.asset as Mesh;
@@ -465,9 +463,6 @@ package
 				
 				//add our lookat object to the mesh
 				mesh.addChild(placeHolder);
-				
-				//initialise animation data
-				initAnimations();
 				
 				//add key listeners
 				stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
@@ -479,13 +474,13 @@ package
 		{
 			onceAnim = null;
 			animator.play(currentAnim, XFADE_TIME);
-			animator.timeScale = isMoving? movementDirection*(isRunning? RUN_SPEED : WALK_SPEED) : IDLE_SPEED;
+			animator.playbackSpeed = isMoving? movementDirection*(isRunning? RUN_SPEED : WALK_SPEED) : IDLE_SPEED;
 		}
 		
 		private function playAction(val:uint):void
 		{
 			onceAnim = ANIM_NAMES[val + 2];
-			animator.timeScale = ACTION_SPEED;
+			animator.playbackSpeed = ACTION_SPEED;
 			animator.play(onceAnim, XFADE_TIME);
 		}
 		
@@ -573,7 +568,7 @@ package
 		private function updateMovement(dir:Number):void
 		{
 			isMoving = true;
-			animator.timeScale = dir*(isRunning? RUN_SPEED : WALK_SPEED);
+			animator.playbackSpeed = dir*(isRunning? RUN_SPEED : WALK_SPEED);
 			
 			if (currentAnim == WALK_NAME)
 				return;
@@ -600,7 +595,7 @@ package
 				return;
 			
 			//update animator
-			animator.timeScale = IDLE_SPEED;
+			animator.playbackSpeed = IDLE_SPEED;
 			animator.play(currentAnim, XFADE_TIME);
 		}
 		

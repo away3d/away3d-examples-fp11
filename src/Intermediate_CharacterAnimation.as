@@ -121,11 +121,7 @@ package
 		private var awayStats:AwayStats;
 		
 		//animation variables
-		private var animation:SkeletonAnimation;
 		private var animator:SmoothSkeletonAnimator;
-		private var breatheSequence:SkeletonAnimationSequence;
-		private var walkSequence:SkeletonAnimationSequence;
-		private var runSequence:SkeletonAnimationSequence;
 		private var isRunning:Boolean;
 		private var isMoving:Boolean;
 		private var movementDirection:Number;
@@ -337,15 +333,29 @@ package
 		{
 			if (event.asset.assetType == AssetType.SKELETON) {
 				//create an animation object
-				animation = new SkeletonAnimation(event.asset as Skeleton, 3, true);
+				//animation = new SkeletonAnimation(event.asset as Skeleton, 3, true);
+				
+				
+				//wrap our mesh animation state in an animator object and add our sequence objects
+				animator = new SmoothSkeletonAnimator(new SkeletonAnimatorLibrary(3), event.asset as Skeleton, false);
+				//animator.addSequence(walkSequence);
+				//animator.addSequence(runSequence);
+				mesh.animator = animator;
+				
+				//register our mesh as the lookAt target
+				cameraController.lookAtObject = mesh;
+				
+				//default to breathe sequence
+				//stop();
+				
+				//add key listeners
+				stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+				stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 			} else if (event.asset.assetType == AssetType.ANIMATION) {
 				//create sequence objects for each animation sequence encountered
+				animator.addSequence(event.asset as SkeletonAnimationSequence);
 				if (event.asset.name == ANIM_BREATHE)
-					breatheSequence = event.asset as SkeletonAnimationSequence;
-				else if (event.asset.name == ANIM_WALK)
-					walkSequence = event.asset as SkeletonAnimationSequence;
-				else if (event.asset.name == ANIM_RUN)
-					runSequence = event.asset as SkeletonAnimationSequence;
+					stop();
 			} else if (event.asset.assetType == AssetType.MESH) {
 				//create material object and assign it to our mesh
 				bearMaterial = new TextureMaterial(Cast.bitmapTexture(BearDiffuse));
@@ -361,29 +371,13 @@ package
 				
 				//create mesh object and assign our animation object and material object
 				mesh = event.asset as Mesh;
-				mesh.geometry.animation = animation;
 				mesh.material = bearMaterial;
 				mesh.castsShadows = true;
-				mesh.scale(50);
+				mesh.scale(1.5);
 				mesh.z = 1000;
 				mesh.rotationY = -45;
 				scene.addChild(mesh);
 				
-				//wrap our mesh animation state in an animator object and add our sequence objects
-				animator = new SmoothSkeletonAnimator(mesh.animationState as SkeletonAnimationState);
-				animator.addSequence(breatheSequence);
-				animator.addSequence(walkSequence);
-				animator.addSequence(runSequence);
-				
-				//register our mesh as the lookAt target
-				cameraController.lookAtObject = mesh;
-				
-				//default to breathe sequence
-				stop();
-				
-				//add key listeners
-				stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
-				stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 			}
 		}
 		
@@ -445,7 +439,7 @@ package
 			isMoving = true;
 			
 			//update animator speed
-			animator.timeScale = dir*(isRunning? RUN_SPEED : WALK_SPEED);
+			animator.playbackSpeed = dir*(isRunning? RUN_SPEED : WALK_SPEED);
 			
 			//update animator sequence
 			var anim:String = isRunning? ANIM_RUN : ANIM_WALK;
@@ -462,7 +456,7 @@ package
 			isMoving = false;
 			
 			//update animator speed
-			animator.timeScale = BREATHE_SPEED;
+			animator.playbackSpeed = BREATHE_SPEED;
 			
 			//update animator sequence
 			if (currentAnim == ANIM_BREATHE)
