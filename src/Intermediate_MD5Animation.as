@@ -40,6 +40,7 @@ THE SOFTWARE.
 
 package
 {
+	import away3d.animators.transitions.CrossfadeStateTransition;
 	import away3d.animators.skeleton.Skeleton;
 	import away3d.animators.*;
 	import away3d.animators.data.*;
@@ -158,7 +159,9 @@ package
 		private var awayStats:AwayStats;
 		
 		//animation variables
-		private var animator:SmoothSkeletonAnimator;
+		private var animator:SkeletonAnimator;
+		private var animationSet:SkeletonAnimationSet;
+		private var stateTransition:CrossfadeStateTransition = new CrossfadeStateTransition(0.5);
 		private var skeleton:Skeleton;
 		private var isRunning:Boolean;
 		private var isMoving:Boolean;
@@ -172,7 +175,6 @@ package
 		private const WALK_NAME:String = "walk7";
 		private const ANIM_NAMES:Array = [IDLE_NAME, WALK_NAME, "attack3", "turret_attack", "attack2", "chest", "roar1", "leftslash", "headpain", "pain1", "pain_luparm", "range_attack2"];
 		private const ANIM_CLASSES:Array = [HellKnight_Idle2, HellKnight_Walk7, HellKnight_Attack3, HellKnight_TurretAttack, HellKnight_Attack2, HellKnight_Chest, HellKnight_Roar1, HellKnight_LeftSlash, HellKnight_HeadPain, HellKnight_Pain1, HellKnight_PainLUPArm, HellKnight_RangeAttack2];
-		private const XFADE_TIME:Number = 0.5;
 		private const ROTATION_SPEED:Number = 3;
 		private const RUN_SPEED:Number = 2;
 		private const WALK_SPEED:Number = 1;
@@ -430,24 +432,24 @@ package
 		 */
 		private function onAssetComplete(event:AssetEvent):void
 		{
-			if (event.asset.assetType == AssetType.ANIMATION) {
+			if (event.asset.assetType == AssetType.ANIMATION_STATE) {
 				
-				var seq:SkeletonAnimationSequence = event.asset as SkeletonAnimationSequence;
-				seq.name = event.asset.assetNamespace;
-				animator.addSequence(seq);
+				var state:SkeletonAnimationState = event.asset as SkeletonAnimationState;
 				
-				if (seq.name == IDLE_NAME || seq.name == WALK_NAME) {
-					seq.looping = true;
+				animationSet.addState(event.asset.assetNamespace, state);
+				
+				if (state.stateName == IDLE_NAME || state.stateName == WALK_NAME) {
+					state.looping = true;
 				} else {
-					seq.looping = false;
-					seq.addEventListener(AnimatorEvent.SEQUENCE_DONE, onSequenceDone);
+					state.looping = false;
+					state.addEventListener(AnimationStateEvent.PLAYBACK_COMPLETE, onPlaybackComplete);
 				}
 				
-				if (seq.name == IDLE_NAME)
+				if (state.stateName == IDLE_NAME)
 					stop();
-			} else if (event.asset.assetType == AssetType.ANIMATOR_LIBRARY) {
-				animator = new SmoothSkeletonAnimator(event.asset as SkeletonAnimatorLibrary, skeleton);
-				
+			} else if (event.asset.assetType == AssetType.ANIMATION_SET) {
+				animationSet = event.asset as SkeletonAnimationSet;
+				animator = new SkeletonAnimator(animationSet, skeleton);
 				for (var i:uint = 0; i < ANIM_NAMES.length; ++i)
 					AssetLibrary.loadData(new ANIM_CLASSES[i](), null, ANIM_NAMES[i], new MD5AnimParser());
 				
@@ -470,10 +472,10 @@ package
 			}
 		}
 		
-		private function onSequenceDone(event:AnimatorEvent):void
+		private function onPlaybackComplete(event:AnimationStateEvent):void
 		{
 			onceAnim = null;
-			animator.play(currentAnim, XFADE_TIME);
+			animator.play(currentAnim, stateTransition);
 			animator.playbackSpeed = isMoving? movementDirection*(isRunning? RUN_SPEED : WALK_SPEED) : IDLE_SPEED;
 		}
 		
@@ -481,7 +483,7 @@ package
 		{
 			onceAnim = ANIM_NAMES[val + 2];
 			animator.playbackSpeed = ACTION_SPEED;
-			animator.play(onceAnim, XFADE_TIME);
+			animator.play(onceAnim, stateTransition);
 		}
 		
 		
@@ -579,7 +581,7 @@ package
 				return;
 			
 			//update animator
-			animator.play(currentAnim, XFADE_TIME);
+			animator.play(currentAnim, stateTransition);
 		}
 		
 		private function stop():void
@@ -596,7 +598,7 @@ package
 			
 			//update animator
 			animator.playbackSpeed = IDLE_SPEED;
-			animator.play(currentAnim, XFADE_TIME);
+			animator.play(currentAnim, stateTransition);
 		}
 		
 		/**

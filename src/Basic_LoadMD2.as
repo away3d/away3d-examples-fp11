@@ -109,13 +109,12 @@ package
 		private var _mesh:Mesh;
 		
 		//navigation variables
-		private var _controller:VertexAnimator;
 		private var _move:Boolean = false;
 		private var _lastPanAngle:Number;
 		private var _lastTiltAngle:Number;
 		private var _lastMouseX:Number;
 		private var _lastMouseY:Number;
-		private var _sequences:Vector.<VertexAnimationSequence> = new Vector.<VertexAnimationSequence>();
+		private var _animationSet:VertexAnimationSet;
 		
 		/**
 		 * Constructor
@@ -212,7 +211,6 @@ package
 				_mesh.y = 120;
 				_mesh.scale(5);
 				
-				var animatorLibrary:VertexAnimatorLibrary = new VertexAnimatorLibrary();
 				
 				//create 16 different clones of the ogre
 				var numWide:Number = 4;
@@ -228,19 +226,20 @@ package
 						_view.scene.addChild(clone);
 						
 						//clone animation controller
-						var cloneController:VertexAnimator = new VertexAnimator(animatorLibrary);
+						var cloneAnimator:VertexAnimator = new VertexAnimator(_animationSet);
 						
 						//add specified sequence and play
 						//var sequence:VertexAnimationSequence = _controller.arcane::getSequence(sequenceNames[i*numDeep + j]);
-						cloneController.addSequence(_sequences[k]);
-						cloneController.play(_sequences[k].name);
-						clone.animator = cloneController;
+						//cloneController.addSequence(_sequences[k]);
+						cloneAnimator.play(sequenceNames[i*numDeep + j]);
+						clone.animator = cloneAnimator;
 						k++;
 					}
 				}
-			} else if (event.asset.assetType == AssetType.ANIMATION) {
+			} else if (event.asset.assetType == AssetType.ANIMATION_SET) {
+				_animationSet = event.asset as VertexAnimationSet;
+				
 				//_controller = event.asset as VertexAnimator;
-				_sequences.push(event.asset as VertexAnimationSequence);
 				//trace(sequence.name)
 				//for each (var sequence:VertexAnimationSequence in _controller.arcane::sequences)
 				//trace(sequence.name);

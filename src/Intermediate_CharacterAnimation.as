@@ -40,8 +40,8 @@ THE SOFTWARE.
 package
 {
 	import away3d.animators.*;
-	import away3d.animators.data.*;
 	import away3d.animators.skeleton.*;
+	import away3d.animators.transitions.*;
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
@@ -121,7 +121,9 @@ package
 		private var awayStats:AwayStats;
 		
 		//animation variables
-		private var animator:SmoothSkeletonAnimator;
+		private var animator:SkeletonAnimator;
+		private var animationSet:SkeletonAnimationSet;
+		private var stateTransition:CrossfadeStateTransition = new CrossfadeStateTransition(0.5);
 		private var isRunning:Boolean;
 		private var isMoving:Boolean;
 		private var movementDirection:Number;
@@ -132,7 +134,6 @@ package
 		private const ANIM_BREATHE:String = "Breathe";
 		private const ANIM_WALK:String = "Walk";
 		private const ANIM_RUN:String = "Run";
-		private const XFADE_TIME:Number = 0.5;
 		private const ROTATION_SPEED:Number = 3;
 		private const RUN_SPEED:Number = 2;
 		private const WALK_SPEED:Number = 1;
@@ -332,14 +333,13 @@ package
 		private function onAssetComplete(event:AssetEvent):void
 		{
 			if (event.asset.assetType == AssetType.SKELETON) {
-				//create an animation object
-				//animation = new SkeletonAnimation(event.asset as Skeleton, 3, true);
+				//create a new skeleton animation set
+				animationSet = new SkeletonAnimationSet(3);
 				
+				//wrap our skeleton animation set in an animator object and add our sequence objects
+				animator = new SkeletonAnimator(animationSet, event.asset as Skeleton, false);
 				
-				//wrap our mesh animation state in an animator object and add our sequence objects
-				animator = new SmoothSkeletonAnimator(new SkeletonAnimatorLibrary(3), event.asset as Skeleton, false);
-				//animator.addSequence(walkSequence);
-				//animator.addSequence(runSequence);
+				//apply our animator to our mesh
 				mesh.animator = animator;
 				
 				//register our mesh as the lookAt target
@@ -351,10 +351,11 @@ package
 				//add key listeners
 				stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
 				stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
-			} else if (event.asset.assetType == AssetType.ANIMATION) {
-				//create sequence objects for each animation sequence encountered
-				animator.addSequence(event.asset as SkeletonAnimationSequence);
-				if (event.asset.name == ANIM_BREATHE)
+			} else if (event.asset.assetType == AssetType.ANIMATION_STATE) {
+				//create state objects for each animation state encountered
+				var animationState:SkeletonAnimationState = event.asset as SkeletonAnimationState;
+				animationSet.addState(animationState.name, animationState);
+				if (animationState.name == ANIM_BREATHE)
 					stop();
 			} else if (event.asset.assetType == AssetType.MESH) {
 				//create material object and assign it to our mesh
@@ -448,7 +449,7 @@ package
 			
 			currentAnim = anim;
 			
-			animator.play(currentAnim, XFADE_TIME);
+			animator.play(currentAnim, stateTransition);
 		}
 		
 		private function stop():void
@@ -464,7 +465,7 @@ package
 			
 			currentAnim = ANIM_BREATHE;
 			
-			animator.play(currentAnim, XFADE_TIME);
+			animator.play(currentAnim, stateTransition);
 		}
 		
 		/**
