@@ -52,6 +52,7 @@ package
 	import away3d.library.*;
 	import away3d.library.assets.*;
 	import away3d.lights.*;
+	import away3d.lights.shadowmaps.NearDirectionalShadowMapper;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.*;
@@ -66,7 +67,7 @@ package
 	import flash.text.*;
 	import flash.ui.*;
 	
-	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
+	[SWF(backgroundColor="#000000", frameRate="30")]
 	
 	public class Intermediate_MD5Animation extends Sprite
 	{
@@ -189,7 +190,7 @@ package
 		private var blueLight:PointLight;
 		private var whiteLight:DirectionalLight;
 		private var lightPicker:StaticLightPicker;
-		private var filteredShadowMapMethod:TripleFilteredShadowMapMethod;
+		private var shadowMapMethod:NearShadowMapMethod;
 		private var fogMethod:FogMethod;
 		private var count:Number = 0;
 		
@@ -245,7 +246,7 @@ package
 			camera.y = 160;
 			
 			//setup controller to be used on the camera
-			placeHolder = new Mesh();
+			placeHolder = new Mesh(null, null);
 			placeHolder.y = 50;
 			cameraController = new LookAtController(camera, placeHolder);
 			
@@ -306,13 +307,17 @@ package
 			whiteLight = new DirectionalLight(-50, -20, 10);
 			whiteLight.color = 0xffffee;
 			whiteLight.castsShadows = true;
+			whiteLight.ambient = 1;
+			whiteLight.ambientColor = 0x303040;
+			whiteLight.shadowMapper = new NearDirectionalShadowMapper(.2);
 			scene.addChild(whiteLight);
 			
 			lightPicker = new StaticLightPicker([redLight, blueLight, whiteLight]);
 			
 			
 			//create a global shadow method
-			filteredShadowMapMethod = new TripleFilteredShadowMapMethod(whiteLight);
+			shadowMapMethod = new NearShadowMapMethod(new FilteredShadowMapMethod(whiteLight));
+			shadowMapMethod.epsilon = .0007;
 			
 			//create a global fog method
 			fogMethod = new FogMethod(0, camera.lens.far*0.5, 0x000000);
@@ -339,24 +344,20 @@ package
 			groundMaterial.repeat = true;
 			groundMaterial.mipmap = true;
 			groundMaterial.lightPicker = lightPicker;
-			groundMaterial.ambientColor = 0x202030;
-			groundMaterial.ambient = 1;
 			groundMaterial.normalMap = Cast.bitmapTexture(FloorNormals);
 			groundMaterial.specularMap = Cast.bitmapTexture(FloorSpecular);
-			groundMaterial.shadowMethod = filteredShadowMapMethod;
+			groundMaterial.shadowMethod = shadowMapMethod;
 			groundMaterial.addMethod(fogMethod);
 			
 			//body material
 			bodyMaterial = new TextureMaterial(Cast.bitmapTexture(BodyDiffuse));
 			bodyMaterial.gloss = 20;
 			bodyMaterial.specular = 1.5;
-			bodyMaterial.ambientColor = 0x505060;
-			bodyMaterial.ambient = 1;
 			bodyMaterial.specularMap = Cast.bitmapTexture(BodySpecular);
 			bodyMaterial.normalMap = Cast.bitmapTexture(BodyNormals);
 			bodyMaterial.addMethod(fogMethod);
 			bodyMaterial.lightPicker = lightPicker;
-			bodyMaterial.shadowMethod = filteredShadowMapMethod;
+			bodyMaterial.shadowMethod = shadowMapMethod;
 		}
 		
 		/**

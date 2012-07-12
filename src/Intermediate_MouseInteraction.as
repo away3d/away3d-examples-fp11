@@ -290,7 +290,7 @@ package
 
 		private function createSimpleObject():Mesh {
 
-			var mesh:Mesh = new Mesh();
+			var mesh:Mesh = new Mesh(null, null);
 
 			// Chose a random geometry.
 			var randGeometry:Number = Math.random();
