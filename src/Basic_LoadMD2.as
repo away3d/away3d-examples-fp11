@@ -115,6 +115,7 @@ package
 		private var _lastTiltAngle:Number;
 		private var _lastMouseX:Number;
 		private var _lastMouseY:Number;
+		private var _sequences:Vector.<VertexAnimationSequence> = new Vector.<VertexAnimationSequence>();
 		
 		/**
 		 * Constructor
@@ -139,7 +140,7 @@ package
 			
 			//setup the url map for textures in the 3ds file
 			var assetLoaderContext:AssetLoaderContext = new AssetLoaderContext();
-			assetLoaderContext.mapUrlToData("igdosh.jpg", new OgreDiffuse());
+			assetLoaderContext.mapUrlToData("layersogroigdosh.jpg", new OgreDiffuse());
 			
 			//setup parser to be used on AssetLibrary
 			AssetLibrary.loadData(new OgreModel(), assetLoaderContext, null, new MD2Parser());
@@ -210,30 +211,37 @@ package
 				//adjust the ogre mesh
 				_mesh.y = 120;
 				_mesh.scale(5);
-				_mesh.animationState;
+				
+				var animatorLibrary:VertexAnimatorLibrary = new VertexAnimatorLibrary();
 				
 				//create 16 different clones of the ogre
 				var numWide:Number = 4;
 				var numDeep:Number = 4;
+				var k:uint = 0;
 				for (var i:uint = 0; i < numWide; i++) {
 					for (var j:uint = 0; j < numDeep; j++) {
 						//clone mesh
 						var clone:Mesh = _mesh.clone() as Mesh;
 						clone.x = (i-(numWide-1)/2)*1000/numWide;
 						clone.z = (j-(numDeep-1)/2)*1000/numDeep;
+						//clone.material = new TextureMaterial(Cast.bitmapTexture(OgreDiffuse));
 						_view.scene.addChild(clone);
 						
 						//clone animation controller
-						var cloneController:VertexAnimator = new VertexAnimator(VertexAnimationState(clone.animationState = new VertexAnimationState(_mesh.animation as VertexAnimation)));
+						var cloneController:VertexAnimator = new VertexAnimator(animatorLibrary);
 						
 						//add specified sequence and play
-						var sequence:VertexAnimationSequence = _controller.arcane::getSequence(sequenceNames[i*numDeep + j]);
-						cloneController.addSequence(sequence);
-						cloneController.play(sequence.name);
+						//var sequence:VertexAnimationSequence = _controller.arcane::getSequence(sequenceNames[i*numDeep + j]);
+						cloneController.addSequence(_sequences[k]);
+						cloneController.play(_sequences[k].name);
+						clone.animator = cloneController;
+						k++;
 					}
 				}
-			} else if (event.asset.assetType == AssetType.ANIMATOR) {
-				_controller = event.asset as VertexAnimator;
+			} else if (event.asset.assetType == AssetType.ANIMATION) {
+				//_controller = event.asset as VertexAnimator;
+				_sequences.push(event.asset as VertexAnimationSequence);
+				//trace(sequence.name)
 				//for each (var sequence:VertexAnimationSequence in _controller.arcane::sequences)
 				//trace(sequence.name);
 			}

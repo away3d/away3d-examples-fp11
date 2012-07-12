@@ -334,7 +334,7 @@ package
 			//create terrain
 			terrain = new Elevation(terrainMaterial, heightMapData, terrainWidth, terrainHeight, terrainDepth, 65, 65);
 			terrain.y = terrainY;
-			terrain.smoothHeightMap();
+			//terrain.smoothHeightMap();
 			scene.addChild(terrain);
 			
 			terrainPolyCount = terrain.geometry.subGeometries[0].vertexData.length/3;

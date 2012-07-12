@@ -40,40 +40,32 @@ THE SOFTWARE.
 
 package
 {
+	import away3d.animators.skeleton.Skeleton;
 	import away3d.animators.*;
 	import away3d.animators.data.*;
-	import away3d.animators.skeleton.*;
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
-	import away3d.core.base.*;
 	import away3d.debug.*;
-	import away3d.entities.Mesh;
-	import away3d.entities.Sprite3D;
+	import away3d.entities.*;
 	import away3d.events.*;
-	import away3d.filters.MotionBlurFilter3D;
 	import away3d.library.*;
 	import away3d.library.assets.*;
 	import away3d.lights.*;
-	import away3d.lights.shadowmaps.CubeMapShadowMapper;
-	import away3d.lights.shadowmaps.NearDirectionalShadowMapper;
-	import away3d.loaders.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
-	import away3d.materials.lightpickers.StaticLightPicker;
+	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
-	import away3d.materials.methods.ShadingMethodBase;
 	import away3d.primitives.*;
 	import away3d.textures.*;
+	import away3d.utils.*;
 	
 	import flash.display.*;
 	import flash.events.*;
 	import flash.filters.*;
-	import flash.geom.*;
-	import flash.net.*;
 	import flash.text.*;
 	import flash.ui.*;
-
+	
 	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
 	
 	public class Intermediate_MD5Animation extends Sprite
@@ -166,21 +158,16 @@ package
 		private var awayStats:AwayStats;
 		
 		//animation variables
-		private var animation:SkeletonAnimation;
 		private var animator:SmoothSkeletonAnimator;
-		private var breatheSequence:SkeletonAnimationSequence;
-		private var walkSequence:SkeletonAnimationSequence;
-		private var runSequence:SkeletonAnimationSequence;
+		private var skeleton:Skeleton;
 		private var isRunning:Boolean;
 		private var isMoving:Boolean;
 		private var movementDirection:Number;
 		private var onceAnim:String;
 		private var currentAnim:String;
 		private var currentRotationInc:Number = 0;
-		private var action:uint;
 		
 		//animation constants
-		private const MESH_NAME:String = "hellknight";
 		private const IDLE_NAME:String = "idle2";
 		private const WALK_NAME:String = "walk7";
 		private const ANIM_NAMES:Array = [IDLE_NAME, WALK_NAME, "attack3", "turret_attack", "attack2", "chest", "roar1", "leftslash", "headpain", "pain1", "pain_luparm", "range_attack2"];
@@ -201,6 +188,8 @@ package
 		private var blueLight:PointLight;
 		private var whiteLight:DirectionalLight;
 		private var lightPicker:StaticLightPicker;
+		private var filteredShadowMapMethod:TripleFilteredShadowMapMethod;
+		private var fogMethod:FogMethod;
 		private var count:Number = 0;
 		
 		//material objects
@@ -261,7 +250,7 @@ package
 			
 			view.addSourceURL("srcview/index.html");
 			addChild(view);
-
+			
 			//add signature
 			Signature = Sprite(new SignatureSwf());
 			SignatureBitmap = new Bitmap(new BitmapData(Signature.width, Signature.height, true, 0));
@@ -309,68 +298,64 @@ package
 			blueLight = new PointLight();
 			blueLight.x = 1000;
 			blueLight.y = 200;
-			blueLight.z = -1400;
+			blueLight.z = 1400;
 			blueLight.color = 0x1111ff;
 			scene.addChild(blueLight);
 			
-			whiteLight = new DirectionalLight(-50, -50, 10);
-			whiteLight.ambient = 1;
-			whiteLight.ambientColor = 0x303030;
+			whiteLight = new DirectionalLight(-50, -20, 10);
 			whiteLight.color = 0xffffee;
 			whiteLight.castsShadows = true;
-			whiteLight.shadowMapper = new NearDirectionalShadowMapper(.2);
 			scene.addChild(whiteLight);
 			
 			lightPicker = new StaticLightPicker([redLight, blueLight, whiteLight]);
+			
+			
+			//create a global shadow method
+			filteredShadowMapMethod = new TripleFilteredShadowMapMethod(whiteLight);
+			
+			//create a global fog method
+			fogMethod = new FogMethod(0, camera.lens.far*0.5, 0x000000);
 		}
-
-		private function createShadowMethod() : ShadowMapMethodBase
-		{
-			var shadowMapMethod : NearShadowMapMethod = new NearShadowMapMethod(new FilteredShadowMapMethod(whiteLight), .2);
-			shadowMapMethod.epsilon = .0005;
-			return shadowMapMethod;
-		}
-
-		private function createFogMethod() : FogMethod
-		{
-			return new FogMethod(0, camera.lens.far * 0.5, 0x000000);
-		}
-
+		
 		/**
 		 * Initialise the materials
 		 */
 		private function initMaterials():void
 		{
 			//red light material
-			redLightMaterial = new TextureMaterial(new BitmapTexture(new RedLight().bitmapData));
+			redLightMaterial = new TextureMaterial(Cast.bitmapTexture(RedLight));
 			redLightMaterial.alphaBlending = true;
-			redLightMaterial.addMethod(createFogMethod());
+			redLightMaterial.addMethod(fogMethod);
 			
 			//blue light material
-			blueLightMaterial = new TextureMaterial(new BitmapTexture(new BlueLight().bitmapData));
+			blueLightMaterial = new TextureMaterial(Cast.bitmapTexture(BlueLight));
 			blueLightMaterial.alphaBlending = true;
-			blueLightMaterial.addMethod(createFogMethod());
+			blueLightMaterial.addMethod(fogMethod);
 			
 			//ground material
-			groundMaterial = new TextureMaterial(new BitmapTexture(new FloorDiffuse().bitmapData));
+			groundMaterial = new TextureMaterial(Cast.bitmapTexture(FloorDiffuse));
 			groundMaterial.smooth = true;
 			groundMaterial.repeat = true;
 			groundMaterial.mipmap = true;
 			groundMaterial.lightPicker = lightPicker;
-			groundMaterial.normalMap = new BitmapTexture(new FloorNormals().bitmapData);
-			groundMaterial.specularMap = new BitmapTexture(new FloorSpecular().bitmapData);
-			groundMaterial.shadowMethod = createShadowMethod();
-			groundMaterial.addMethod(createFogMethod());
+			groundMaterial.ambientColor = 0x202030;
+			groundMaterial.ambient = 1;
+			groundMaterial.normalMap = Cast.bitmapTexture(FloorNormals);
+			groundMaterial.specularMap = Cast.bitmapTexture(FloorSpecular);
+			groundMaterial.shadowMethod = filteredShadowMapMethod;
+			groundMaterial.addMethod(fogMethod);
 			
 			//body material
-			bodyMaterial = new TextureMaterial(new BitmapTexture(new BodyDiffuse().bitmapData));
+			bodyMaterial = new TextureMaterial(Cast.bitmapTexture(BodyDiffuse));
 			bodyMaterial.gloss = 20;
 			bodyMaterial.specular = 1.5;
-			bodyMaterial.specularMap = new BitmapTexture(new BodySpecular().bitmapData);
-			bodyMaterial.normalMap = new BitmapTexture(new BodyNormals().bitmapData);
-			bodyMaterial.addMethod(createFogMethod());
+			bodyMaterial.ambientColor = 0x505060;
+			bodyMaterial.ambient = 1;
+			bodyMaterial.specularMap = Cast.bitmapTexture(BodySpecular);
+			bodyMaterial.normalMap = Cast.bitmapTexture(BodyNormals);
+			bodyMaterial.addMethod(fogMethod);
 			bodyMaterial.lightPicker = lightPicker;
-			bodyMaterial.shadowMethod = createShadowMethod();
+			bodyMaterial.shadowMethod = filteredShadowMapMethod;
 		}
 		
 		/**
@@ -380,7 +365,7 @@ package
 		{
 			//create light billboards
 			redLight.addChild(new Sprite3D(redLightMaterial, 200, 200));
-			blueLight.addChild(new Sprite3D(blueLightMaterial, 200, 200))
+			blueLight.addChild(new Sprite3D(blueLightMaterial, 200, 200));
 			
 			//AssetLibrary.enableParser(MD5MeshParser);
 			//AssetLibrary.enableParser(MD5AnimParser);
@@ -394,7 +379,7 @@ package
 			scene.addChild(ground);
 			
 			//create a skybox
-			cubeTexture = new BitmapCubeTexture(new EnvPosX().bitmapData, new EnvNegX().bitmapData, new EnvPosY().bitmapData, new EnvNegY().bitmapData, new EnvPosZ().bitmapData, new EnvNegZ().bitmapData);
+			cubeTexture = new BitmapCubeTexture(Cast.bitmapData(EnvPosX), Cast.bitmapData(EnvNegX), Cast.bitmapData(EnvPosY), Cast.bitmapData(EnvNegY), Cast.bitmapData(EnvPosZ), Cast.bitmapData(EnvNegZ));
 			skyBox = new SkyBox(cubeTexture);
 			scene.addChild(skyBox);
 		}
@@ -407,18 +392,6 @@ package
 			//parse hellknight mesh
 			AssetLibrary.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetComplete);
 			AssetLibrary.loadData(new HellKnight_Mesh(), null, null, new MD5MeshParser());
-		}
-		
-		/**
-		 * Initialise the hellknight animations
-		 */
-		private function initAnimations():void
-		{
-			animator = new SmoothSkeletonAnimator(mesh.animationState as SkeletonAnimationState);
-			
-			for (var i:uint = 0; i < ANIM_NAMES.length; ++i)
-				AssetLibrary.loadData(new ANIM_CLASSES[i](), null, ANIM_NAMES[i], new MD5AnimParser());
-			
 		}
 		
 		/**
@@ -444,7 +417,7 @@ package
 			
 			redLight.x = Math.sin(count)*1500;
 			redLight.y = 250 + Math.sin(count*0.54)*200;
-			redLight.z = -Math.cos(count*0.7)*1500;
+			redLight.z = Math.cos(count*0.7)*1500;
 			blueLight.x = -Math.sin(count*0.8)*1500;
 			blueLight.y = 250 - Math.sin(count*.65)*200;
 			blueLight.z = -Math.cos(count*0.9)*1500;
@@ -472,7 +445,15 @@ package
 				
 				if (seq.name == IDLE_NAME)
 					stop();
+			} else if (event.asset.assetType == AssetType.ANIMATOR_LIBRARY) {
+				animator = new SmoothSkeletonAnimator(event.asset as SkeletonAnimatorLibrary, skeleton);
 				
+				for (var i:uint = 0; i < ANIM_NAMES.length; ++i)
+					AssetLibrary.loadData(new ANIM_CLASSES[i](), null, ANIM_NAMES[i], new MD5AnimParser());
+				
+				mesh.animator = animator;
+			} else if (event.asset.assetType == AssetType.SKELETON) {
+				skeleton = event.asset as Skeleton;	
 			} else if (event.asset.assetType == AssetType.MESH) {
 				//grab mesh object and assign our material object
 				mesh = event.asset as Mesh;
@@ -482,9 +463,6 @@ package
 				
 				//add our lookat object to the mesh
 				mesh.addChild(placeHolder);
-				
-				//initialise animation data
-				initAnimations();
 				
 				//add key listeners
 				stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
@@ -496,13 +474,13 @@ package
 		{
 			onceAnim = null;
 			animator.play(currentAnim, XFADE_TIME);
-			animator.timeScale = isMoving? movementDirection*(isRunning? RUN_SPEED : WALK_SPEED) : IDLE_SPEED;
+			animator.playbackSpeed = isMoving? movementDirection*(isRunning? RUN_SPEED : WALK_SPEED) : IDLE_SPEED;
 		}
 		
 		private function playAction(val:uint):void
 		{
 			onceAnim = ANIM_NAMES[val + 2];
-			animator.timeScale = ACTION_SPEED;
+			animator.playbackSpeed = ACTION_SPEED;
 			animator.play(onceAnim, XFADE_TIME);
 		}
 		
@@ -590,7 +568,7 @@ package
 		private function updateMovement(dir:Number):void
 		{
 			isMoving = true;
-			animator.timeScale = dir*(isRunning? RUN_SPEED : WALK_SPEED);
+			animator.playbackSpeed = dir*(isRunning? RUN_SPEED : WALK_SPEED);
 			
 			if (currentAnim == WALK_NAME)
 				return;
@@ -617,7 +595,7 @@ package
 				return;
 			
 			//update animator
-			animator.timeScale = IDLE_SPEED;
+			animator.playbackSpeed = IDLE_SPEED;
 			animator.play(currentAnim, XFADE_TIME);
 		}
 		
