@@ -38,6 +38,7 @@ THE SOFTWARE.
 
 package
 {
+	import away3d.materials.methods.FilteredShadowMapMethod;
 	import away3d.animators.*;
 	import away3d.animators.data.*;
 	import away3d.arcane;
@@ -103,6 +104,7 @@ package
 		
 		//material objects
 		private var _floorMaterial:TextureMaterial;
+		private var _shadowMapMethod:FilteredShadowMapMethod;
 		
 		//scene objects
 		private var _floor:Mesh;
@@ -146,10 +148,13 @@ package
 			AssetLibrary.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetComplete);
 			
 			//setup materials
+			//_shadowMapMethod = new FilteredShadowMapMethod(_light);
 			_floorMaterial = new TextureMaterial(Cast.bitmapTexture(FloorDiffuse));
 			_floorMaterial.lightPicker = _lightPicker;
 			_floorMaterial.specular = 0;
+			//_floorMaterial.shadowMethod = _shadowMapMethod;
 			_floor = new Mesh(new PlaneGeometry(1000, 1000), _floorMaterial);
+			//_floor.castsShadows = true;
 			
 			//setup the scene
 			_view.scene.addChild(_floor);
@@ -206,6 +211,7 @@ package
 				material.specular = 1;
 				material.ambientColor = 0x303040;
 				material.ambient = 1;
+				//material.shadowMethod = _shadowMapMethod;
 				
 				//adjust the ogre mesh
 				_mesh.y = 120;
@@ -222,15 +228,14 @@ package
 						var clone:Mesh = _mesh.clone() as Mesh;
 						clone.x = (i-(numWide-1)/2)*1000/numWide;
 						clone.z = (j-(numDeep-1)/2)*1000/numDeep;
-						//clone.material = new TextureMaterial(Cast.bitmapTexture(OgreDiffuse));
+						//clone.castsShadows = true;
+						
 						_view.scene.addChild(clone);
 						
 						//clone animation controller
 						var cloneAnimator:VertexAnimator = new VertexAnimator(_animationSet);
 						
 						//add specified sequence and play
-						//var sequence:VertexAnimationSequence = _controller.arcane::getSequence(sequenceNames[i*numDeep + j]);
-						//cloneController.addSequence(_sequences[k]);
 						cloneAnimator.play(sequenceNames[i*numDeep + j]);
 						clone.animator = cloneAnimator;
 						k++;
@@ -238,11 +243,6 @@ package
 				}
 			} else if (event.asset.assetType == AssetType.ANIMATION_SET) {
 				_animationSet = event.asset as VertexAnimationSet;
-				
-				//_controller = event.asset as VertexAnimator;
-				//trace(sequence.name)
-				//for each (var sequence:VertexAnimationSequence in _controller.arcane::sequences)
-				//trace(sequence.name);
 			}
 		}
 		
