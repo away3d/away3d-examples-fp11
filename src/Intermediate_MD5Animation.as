@@ -52,7 +52,7 @@ package
 	import away3d.library.*;
 	import away3d.library.assets.*;
 	import away3d.lights.*;
-	import away3d.lights.shadowmaps.NearDirectionalShadowMapper;
+	import away3d.lights.shadowmaps.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.*;
@@ -203,7 +203,7 @@ package
 		
 		//scene objects
 		private var text:TextField;
-		private var placeHolder:Mesh;
+		private var placeHolder:ObjectContainer3D;
 		private var mesh:Mesh;
 		private var ground:Mesh;
 		private var skyBox:SkyBox;
@@ -246,7 +246,7 @@ package
 			camera.y = 160;
 			
 			//setup controller to be used on the camera
-			placeHolder = new Mesh(null, null);
+			placeHolder = new ObjectContainer3D();
 			placeHolder.y = 50;
 			cameraController = new LookAtController(camera, placeHolder);
 			

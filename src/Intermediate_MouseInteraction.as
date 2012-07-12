@@ -1,22 +1,21 @@
 package
 {
-	import away3d.core.pick.IPickingCollider;
-	import away3d.core.pick.PickingColliderType;
 	import away3d.bounds.*;
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
-	import away3d.core.pick.PickingType;
+	import away3d.core.base.*;
+	import away3d.core.pick.*;
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.events.*;
-	import away3d.library.assets.AssetType;
+	import away3d.library.assets.*;
 	import away3d.lights.*;
-	import away3d.loaders.parsers.OBJParser;
+	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.*;
 	import away3d.primitives.*;
-	import away3d.textures.BitmapTexture;
+	import away3d.textures.*;
 
 	import flash.display.*;
 	import flash.events.*;
@@ -290,23 +289,30 @@ package
 
 		private function createSimpleObject():Mesh {
 
-			var mesh:Mesh = new Mesh(null, null);
-
+			var geometry:Geometry;
+			var bounds:BoundingVolumeBase;
+			
 			// Chose a random geometry.
 			var randGeometry:Number = Math.random();
 			if( randGeometry > 0.75 ) {
-				mesh.geometry = cubeGeometry;
+				geometry = cubeGeometry;
 			}
 			else if( randGeometry > 0.5 ) {
-				mesh.geometry = sphereGeometry;
-				mesh.bounds = new BoundingSphere(); // better on spherical meshes with bound picking colliders
+				geometry = sphereGeometry;
+				bounds = new BoundingSphere(); // better on spherical meshes with bound picking colliders
 			}
 			else if( randGeometry > 0.25 ) {
-				mesh.geometry = cylinderGeometry;
+				geometry = cylinderGeometry;
+				
 			}
 			else {
-				mesh.geometry = torusGeometry;
+				geometry = torusGeometry;
 			}
+			
+			var mesh:Mesh = new Mesh(geometry);
+			
+			if (bounds)
+				mesh.bounds = bounds;
 
 			// For shader based picking.
 			mesh.shaderPickingDetails = true;
