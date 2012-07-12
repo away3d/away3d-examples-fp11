@@ -40,7 +40,7 @@ THE SOFTWARE.
 package
 {
 	import away3d.animators.*;
-	import away3d.animators.skeleton.*;
+	import away3d.animators.data.*;
 	import away3d.animators.transitions.*;
 	import away3d.cameras.*;
 	import away3d.containers.*;

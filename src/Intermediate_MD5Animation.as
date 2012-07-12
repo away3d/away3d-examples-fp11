@@ -40,10 +40,9 @@ THE SOFTWARE.
 
 package
 {
-	import away3d.animators.transitions.CrossfadeStateTransition;
-	import away3d.animators.skeleton.Skeleton;
 	import away3d.animators.*;
 	import away3d.animators.data.*;
+	import away3d.animators.transitions.*;
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
