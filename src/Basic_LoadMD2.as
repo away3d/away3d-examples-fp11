@@ -87,8 +87,8 @@ package
 		[Embed(source="/../embeds/ogre/ogre.md2",mimeType="application/octet-stream")]
 		public static var OgreModel:Class;
 		
-		//pre-cached names of the sequences we want to use
-		public static var sequenceNames:Array = ["stand", "sniffsniff", "deathc", "attack", "crattack", "run", "paina", "cwalk", "crpain", "cstand", "deathb", "salute_alt", "painc", "painb", "flip", "jump"];
+		//pre-cached names of the states we want to use
+		public static var stateNames:Array = ["stand", "sniffsniff", "deathc", "attack", "crattack", "run", "paina", "cwalk", "crpain", "cstand", "deathb", "salute_alt", "painc", "painb", "flip", "jump"];
 		
 		//engine variables
 		private var _view:View3D;
@@ -141,20 +141,19 @@ package
 			
 			//setup the url map for textures in the 3ds file
 			var assetLoaderContext:AssetLoaderContext = new AssetLoaderContext();
-			assetLoaderContext.mapUrlToData("layersogroigdosh.jpg", new OgreDiffuse());
+			assetLoaderContext.mapUrlToData("igdosh.jpg", new OgreDiffuse());
 			
 			//setup parser to be used on AssetLibrary
 			AssetLibrary.loadData(new OgreModel(), assetLoaderContext, null, new MD2Parser());
 			AssetLibrary.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetComplete);
 			
 			//setup materials
-			//_shadowMapMethod = new FilteredShadowMapMethod(_light);
+			_shadowMapMethod = new FilteredShadowMapMethod(_light);
 			_floorMaterial = new TextureMaterial(Cast.bitmapTexture(FloorDiffuse));
 			_floorMaterial.lightPicker = _lightPicker;
 			_floorMaterial.specular = 0;
-			//_floorMaterial.shadowMethod = _shadowMapMethod;
+			_floorMaterial.shadowMethod = _shadowMapMethod;
 			_floor = new Mesh(new PlaneGeometry(1000, 1000), _floorMaterial);
-			//_floor.castsShadows = true;
 			
 			//setup the scene
 			_view.scene.addChild(_floor);
@@ -199,9 +198,6 @@ package
 			if (event.asset.assetType == AssetType.MESH) {
 				_mesh = event.asset as Mesh;
 				
-				if (event.asset.name == "null")
-					return;
-				
 				//adjust the ogre material
 				var material:TextureMaterial = _mesh.material as TextureMaterial;
 				material.specularMap = Cast.bitmapTexture(OgreSpecular);
@@ -211,7 +207,7 @@ package
 				material.specular = 1;
 				material.ambientColor = 0x303040;
 				material.ambient = 1;
-				//material.shadowMethod = _shadowMapMethod;
+				material.shadowMethod = _shadowMapMethod;
 				
 				//adjust the ogre mesh
 				_mesh.y = 120;
@@ -228,16 +224,16 @@ package
 						var clone:Mesh = _mesh.clone() as Mesh;
 						clone.x = (i-(numWide-1)/2)*1000/numWide;
 						clone.z = (j-(numDeep-1)/2)*1000/numDeep;
-						//clone.castsShadows = true;
+						clone.castsShadows = true;
 						
 						_view.scene.addChild(clone);
 						
-						//clone animation controller
-						var cloneAnimator:VertexAnimator = new VertexAnimator(_animationSet);
+						//create animator
+						var vertexAnimator:VertexAnimator = new VertexAnimator(_animationSet);
 						
-						//add specified sequence and play
-						cloneAnimator.play(sequenceNames[i*numDeep + j]);
-						clone.animator = cloneAnimator;
+						//play specified state
+						vertexAnimator.play(stateNames[i*numDeep + j]);
+						clone.animator = vertexAnimator;
 						k++;
 					}
 				}
