@@ -1,12 +1,12 @@
 ﻿/*
 
-3ds file loading example in Away3d
+MD2 file loading example in Away3d
 
 Demonstrates:
 
-How to use the Loader3D object to load an embedded internal 3ds model.
+How to use the AssetLibrary class to load an embedded internal md2 model.
 How to map an external asset reference inside a file to an internal embedded asset.
-How to extract material data and use it to set custom material properties on a model.
+How to clone an asset from the AssetLibrary and apply different animation sequences.
 
 Code by Rob Bateman
 rob@infiniteturtles.co.uk
@@ -38,46 +38,55 @@ THE SOFTWARE.
 
 package
 {
+	import away3d.materials.methods.FilteredShadowMapMethod;
+	import away3d.animators.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.events.*;
+	import away3d.library.*;
 	import away3d.library.assets.*;
 	import away3d.lights.*;
-	import away3d.loaders.*;
 	import away3d.loaders.misc.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.*;
-	import away3d.materials.methods.*;
 	import away3d.primitives.*;
-	import away3d.utils.*;
+	import away3d.utils.Cast;
 	
 	import flash.display.*;
 	import flash.events.*;
-	import flash.geom.*;
-	import flash.utils.*;
 	
 	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
-	
-	public class Basic_Load3DS extends Sprite
+	public class Basic_LoadMD2 extends Sprite
 	{
 		//signature swf
 		[Embed(source="/../embeds/signature.swf", symbol="Signature")]
 		public static var SignatureSwf:Class;
 		
-		//solider ant texture
-		[Embed(source="/../embeds/soldier_ant.jpg")]
-		public static var AntTexture:Class;
+		//plane textures
+		[Embed(source="/../embeds/floor_diffuse.jpg")]
+		public static var FloorDiffuse:Class;
+		
+		//ogre diffuse texture
+		[Embed(source="/../embeds/ogre/ogre_diffuse.jpg")]
+		public static var OgreDiffuse:Class;
+		
+		//ogre normal map texture
+		[Embed(source="/../embeds/ogre/ogre_normals.png")]
+		public static var OgreNormals:Class;
+		
+		//ogre specular map texture
+		[Embed(source="/../embeds/ogre/ogre_specular.jpg")]
+		public static var OgreSpecular:Class;
 		
 		//solider ant model
-		[Embed(source="/../embeds/soldier_ant.3ds",mimeType="application/octet-stream")]
-		public static var AntModel:Class;
+		[Embed(source="/../embeds/ogre/ogre.md2",mimeType="application/octet-stream")]
+		public static var OgreModel:Class;
 		
-		//ground texture
-		[Embed(source="/../embeds/CoarseRedSand.jpg")]
-		public static var SandTexture:Class;
+		//pre-cached names of the states we want to use
+		public static var stateNames:Array = ["stand", "sniffsniff", "deathc", "attack", "crattack", "run", "paina", "cwalk", "crpain", "cstand", "deathb", "salute_alt", "painc", "painb", "flip", "jump"];
 		
 		//engine variables
 		private var _view:View3D;
@@ -90,14 +99,14 @@ package
 		//light objects
 		private var _light:DirectionalLight;
 		private var _lightPicker:StaticLightPicker;
-		private var _direction:Vector3D;
 		
 		//material objects
-		private var _groundMaterial:TextureMaterial;
+		private var _floorMaterial:TextureMaterial;
+		private var _shadowMapMethod:FilteredShadowMapMethod;
 		
 		//scene objects
-		private var _loader:Loader3D;
-		private var _ground:Mesh;
+		private var _floor:Mesh;
+		private var _mesh:Mesh;
 		
 		//navigation variables
 		private var _move:Boolean = false;
@@ -105,11 +114,12 @@ package
 		private var _lastTiltAngle:Number;
 		private var _lastMouseX:Number;
 		private var _lastMouseY:Number;
+		private var _animationSet:VertexAnimationSet;
 		
 		/**
 		 * Constructor
 		 */
-		public function Basic_Load3DS()
+		public function Basic_LoadMD2()
 		{
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
@@ -119,41 +129,32 @@ package
 			_view.addSourceURL("srcview/index.html");
 			addChild(_view);
 			
-			//setup the camera for optimal shadow rendering
-			_view.camera.lens.far = 2100;
-			
 			//setup controller to be used on the camera
-			_cameraController = new HoverController(_view.camera, null, 45, 20, 1000, 10);
+			_cameraController = new HoverController(_view.camera, null, 45, 20, 1000, -90);
 			
 			//setup the lights for the scene
-			_light = new DirectionalLight(-1, -1, 1);
-			_direction = new Vector3D(-1, -1, 1);
+			_light = new DirectionalLight(0, -1, -1);
 			_lightPicker = new StaticLightPicker([_light]);
 			_view.scene.addChild(_light);
 			
-			//setup parser to be used on Loader3D
-			Parsers.enableAllBundled();
-			
 			//setup the url map for textures in the 3ds file
 			var assetLoaderContext:AssetLoaderContext = new AssetLoaderContext();
-			assetLoaderContext.mapUrlToData("texture.jpg", new AntTexture());
+			assetLoaderContext.mapUrlToData("igdosh.jpg", new OgreDiffuse());
+			
+			//setup parser to be used on AssetLibrary
+			AssetLibrary.loadData(new OgreModel(), assetLoaderContext, null, new MD2Parser());
+			AssetLibrary.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetComplete);
 			
 			//setup materials
-			_groundMaterial = new TextureMaterial(Cast.bitmapTexture(SandTexture));
-			_groundMaterial.shadowMethod = new FilteredShadowMapMethod(_light);
-			_groundMaterial.lightPicker = _lightPicker;
-			_groundMaterial.specular = 0;
-			_ground = new Mesh(new PlaneGeometry(1000, 1000), _groundMaterial);
-			_view.scene.addChild(_ground);
+			_shadowMapMethod = new FilteredShadowMapMethod(_light);
+			_floorMaterial = new TextureMaterial(Cast.bitmapTexture(FloorDiffuse));
+			_floorMaterial.lightPicker = _lightPicker;
+			_floorMaterial.specular = 0;
+			_floorMaterial.shadowMethod = _shadowMapMethod;
+			_floor = new Mesh(new PlaneGeometry(1000, 1000), _floorMaterial);
 			
 			//setup the scene
-			_loader = new Loader3D();
-			_loader.scale(300);
-			_loader.z = -200;
-			_loader.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetComplete);
-			_loader.loadData(new AntModel(), assetLoaderContext);
-			_view.scene.addChild(_loader);
-			
+			_view.scene.addChild(_floor);
 			
 			//add signature
 			_signature = new SignatureSwf();
@@ -184,10 +185,6 @@ package
 				_cameraController.tiltAngle = 0.3*(stage.mouseY - _lastMouseY) + _lastTiltAngle;
 			}
 			
-			_direction.x = -Math.sin(getTimer()/4000);
-			_direction.z = -Math.cos(getTimer()/4000);
-			_light.direction = _direction;
-			
 			_view.render();
 		}
 		
@@ -197,16 +194,49 @@ package
 		private function onAssetComplete(event:AssetEvent):void
 		{
 			if (event.asset.assetType == AssetType.MESH) {
-				var mesh:Mesh = event.asset as Mesh;
-				mesh.castsShadows = true;
-			} else if (event.asset.assetType == AssetType.MATERIAL) {
-				var material:TextureMaterial = event.asset as TextureMaterial;
-				material.shadowMethod = new FilteredShadowMapMethod(_light);
+				_mesh = event.asset as Mesh;
+				
+				//adjust the ogre material
+				var material:TextureMaterial = _mesh.material as TextureMaterial;
+				material.specularMap = Cast.bitmapTexture(OgreSpecular);
+				material.normalMap = Cast.bitmapTexture(OgreNormals);
 				material.lightPicker = _lightPicker;
 				material.gloss = 30;
 				material.specular = 1;
 				material.ambientColor = 0x303040;
 				material.ambient = 1;
+				material.shadowMethod = _shadowMapMethod;
+				
+				//adjust the ogre mesh
+				_mesh.y = 120;
+				_mesh.scale(5);
+				
+				
+				//create 16 different clones of the ogre
+				var numWide:Number = 4;
+				var numDeep:Number = 4;
+				var k:uint = 0;
+				for (var i:uint = 0; i < numWide; i++) {
+					for (var j:uint = 0; j < numDeep; j++) {
+						//clone mesh
+						var clone:Mesh = _mesh.clone() as Mesh;
+						clone.x = (i-(numWide-1)/2)*1000/numWide;
+						clone.z = (j-(numDeep-1)/2)*1000/numDeep;
+						clone.castsShadows = true;
+						
+						_view.scene.addChild(clone);
+						
+						//create animator
+						var vertexAnimator:VertexAnimator = new VertexAnimator(_animationSet);
+						
+						//play specified state
+						vertexAnimator.play(stateNames[i*numDeep + j]);
+						clone.animator = vertexAnimator;
+						k++;
+					}
+				}
+			} else if (event.asset.assetType == AssetType.ANIMATION_SET) {
+				_animationSet = event.asset as VertexAnimationSet;
 			}
 		}
 		

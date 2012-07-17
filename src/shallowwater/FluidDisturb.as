@@ -137,8 +137,9 @@ package shallowwater
 			}
 		}
 
-		public function releaseMemoryDisturbances():void {
-			var i:uint, j:uint;
+		public function releaseMemoryDisturbances():void
+		{
+			var i:uint;
 			var loop:uint = _memoryDisturbances.length;
 			for( i = 0; i < loop; i++ ) {
 				var memoryDisturbance:MemoryDisturbance = _memoryDisturbances[i];

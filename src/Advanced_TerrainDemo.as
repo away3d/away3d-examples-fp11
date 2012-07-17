@@ -47,13 +47,13 @@ package
 	import away3d.debug.*;
 	import away3d.entities.Mesh;
 	import away3d.extrusions.*;
-	import away3d.filters.*;
 	import away3d.lights.*;
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
 	import away3d.primitives.*;
 	import away3d.textures.*;
+	import away3d.utils.*;
 	
 	import flash.display.*;
 	import flash.events.*;
@@ -207,7 +207,7 @@ package
 			stage.quality = StageQuality.LOW;
 			addChild(SignatureBitmap);
 			
-			awayStats = new AwayStats(view)
+			awayStats = new AwayStats(view);
 			addChild(awayStats);
 		}
 		
@@ -251,20 +251,20 @@ package
 		 */
 		private function initMaterials():void
 		{
-			cubeTexture = new BitmapCubeTexture(new EnvPosX().bitmapData, new EnvNegX().bitmapData, new EnvPosY().bitmapData, new EnvNegY().bitmapData, new EnvPosZ().bitmapData, new EnvNegZ().bitmapData);
+			cubeTexture = new BitmapCubeTexture(Cast.bitmapData(EnvPosX), Cast.bitmapData(EnvNegX), Cast.bitmapData(EnvPosY), Cast.bitmapData(EnvNegY), Cast.bitmapData(EnvPosZ), Cast.bitmapData(EnvNegZ));
 
-			terrainMethod = new TerrainDiffuseMethod([new BitmapTexture(new Beach().bitmapData), new BitmapTexture(new Grass().bitmapData), new BitmapTexture(new Rock().bitmapData)], new BitmapTexture(new Blend().bitmapData) , [1, 50, 150, 100]);
+			terrainMethod = new TerrainDiffuseMethod([Cast.bitmapTexture(Beach), Cast.bitmapTexture(Grass), Cast.bitmapTexture(Rock)], Cast.bitmapTexture(Blend), [1, 50, 150, 100]);
 
-			terrainMaterial = new TextureMaterial(new BitmapTexture(new Albedo().bitmapData));
+			terrainMaterial = new TextureMaterial(Cast.bitmapTexture(Albedo));
 			terrainMaterial.diffuseMethod = terrainMethod;
-			terrainMaterial.normalMap = new BitmapTexture(new Normals().bitmapData);
+			terrainMaterial.normalMap = Cast.bitmapTexture(Normals);
 			terrainMaterial.lightPicker = lightPicker;
 			terrainMaterial.ambientColor = 0x303040;
 			terrainMaterial.ambient = 1;
 			terrainMaterial.specular = .2;
 			terrainMaterial.addMethod(fogMethod);
 			
-			waterMethod = new SimpleWaterNormalMethod(new BitmapTexture(new WaterNormals().bitmapData), new BitmapTexture(new WaterNormals().bitmapData));
+			waterMethod = new SimpleWaterNormalMethod(Cast.bitmapTexture(WaterNormals), Cast.bitmapTexture(WaterNormals));
 			fresnelMethod = new FresnelSpecularMethod();
 			fresnelMethod.normalReflectance = .3;
 			
@@ -272,7 +272,7 @@ package
 			waterMaterial.alphaBlending = true;
 			waterMaterial.lightPicker = lightPicker;
 			waterMaterial.repeat = true;
-			waterMaterial.normalMethod = waterMethod
+			waterMaterial.normalMethod = waterMethod;
 			waterMaterial.addMethod(new EnvMapMethod(cubeTexture));
 			waterMaterial.specularMethod = fresnelMethod;
 			waterMaterial.gloss = 100;
@@ -289,7 +289,7 @@ package
 			scene.addChild(new SkyBox(cubeTexture));
 
 			//create mountain like terrain
-			terrain = new Elevation(terrainMaterial, new HeightMap().bitmapData, 5000, 1300, 5000, 250, 250);
+			terrain = new Elevation(terrainMaterial, Cast.bitmapData(HeightMap), 5000, 1300, 5000, 250, 250);
 			scene.addChild(terrain);
 			
 			//create water

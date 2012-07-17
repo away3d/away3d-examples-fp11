@@ -47,7 +47,7 @@ package
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
-	import away3d.core.raycast.*;
+	import away3d.core.pick.*;
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.events.*;
@@ -57,11 +57,11 @@ package
 	import away3d.materials.methods.*;
 	import away3d.primitives.*;
 	import away3d.textures.*;
+	import away3d.utils.*;
 	
 	import flash.display.*;
 	import flash.events.*;
 	import flash.geom.*;
-	import flash.net.*;
 	import flash.ui.*;
 	import flash.utils.*;
 	
@@ -388,7 +388,7 @@ package
 		 */
 		private function initMaterials():void
 		{
-			cubeTexture = new BitmapCubeTexture(new EnvPosX().bitmapData, new EnvNegX().bitmapData, new EnvPosY().bitmapData, new EnvNegY().bitmapData, new EnvPosZ().bitmapData, new EnvNegZ().bitmapData);
+			cubeTexture = new BitmapCubeTexture(Cast.bitmapData(EnvPosX), Cast.bitmapData(EnvNegX), Cast.bitmapData(EnvPosY), Cast.bitmapData(EnvNegY), Cast.bitmapData(EnvPosZ), Cast.bitmapData(EnvNegZ));
 			
 			liquidMaterial = new ColorMaterial(0xFFFFFF);
 			liquidMaterial.specular = 0.5;
@@ -430,7 +430,7 @@ package
 			plane.x -= planeSize/2;
 			plane.z -= planeSize/2;
 			plane.mouseEnabled = true;
-			plane.mouseHitMethod = MouseHitMethod.BOUNDS_ONLY;
+			plane.pickingCollider = PickingColliderType.BOUNDS_ONLY;
 			plane.geometry.subGeometries[0].autoDeriveVertexNormals = false;
 			plane.geometry.subGeometries[0].autoDeriveVertexTangents = false;
 			scene.addChild(plane);
@@ -663,7 +663,7 @@ package
 		private function onPlaneMouseMove(event:MouseEvent3D):void
 		{
 			if (planeDisturb)
-				updatePlaneCoords(event.localX, event.localY);
+				updatePlaneCoords(event.localPosition.x, event.localPosition.y);
 		}
 		
 		/**
@@ -672,7 +672,7 @@ package
 		private function onPlaneMouseDown(event:MouseEvent3D):void
 		{
 				planeDisturb = true;
-				updatePlaneCoords(event.localX, event.localY);
+				updatePlaneCoords(event.localPosition.x, event.localPosition.y);
 		}
 		
 		/**

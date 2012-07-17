@@ -53,6 +53,7 @@ package
 	import away3d.materials.methods.*;
 	import away3d.primitives.*;
 	import away3d.textures.*;
+	import away3d.utils.*;
 	
 	import com.bit101.components.Label;
 	
@@ -60,11 +61,8 @@ package
 	import flash.events.*;
 	import flash.filters.*;
 	import flash.geom.*;
-	import flash.net.*;
 	import flash.ui.*;
 	import flash.utils.*;
-	
-	import shallowwater.*;
 	
 	import uk.co.soulwire.gui.*;
 	
@@ -173,7 +171,7 @@ package
 		private var treeTimer:Timer;
 		private var treeDelay:uint = 0;
 		private var treeSize:Number = 1000;
-		private var treeMin:Number = 0.75
+		private var treeMin:Number = 0.75;
 		private var treeMax:Number = 1.25;
 		
 		//foliage configuration variables
@@ -186,7 +184,6 @@ package
 		private var terrainWidth:Number = 200000;
 		private var terrainHeight:Number = 50000;
 		private var terrainDepth:Number = 200000;
-		private var cameraTerrainHeight:Number = 5000;
 		
 		private var currentTreeCount:uint;
 		private var polyCount:uint;
@@ -288,19 +285,19 @@ package
 		private function initMaterials():void
 		{
 			//create skybox texture
-			cubeTexture = new BitmapCubeTexture(new EnvPosX().bitmapData, new EnvNegX().bitmapData, new EnvPosY().bitmapData, new EnvNegY().bitmapData, new EnvPosZ().bitmapData, new EnvNegZ().bitmapData);
+			cubeTexture = new BitmapCubeTexture(Cast.bitmapData(EnvPosX), Cast.bitmapData(EnvNegX), Cast.bitmapData(EnvPosY), Cast.bitmapData(EnvNegY), Cast.bitmapData(EnvPosZ), Cast.bitmapData(EnvNegZ));
 			
 			//create tree material
-			trunkMaterial = new TextureMaterial(new BitmapTexture(new TrunkDiffuse().bitmapData));
-			trunkMaterial.normalMap = new BitmapTexture(new TrunkNormals().bitmapData);
-			trunkMaterial.specularMap = new BitmapTexture(new TrunkSpecular().bitmapData);
+			trunkMaterial = new TextureMaterial(Cast.bitmapTexture(TrunkDiffuse));
+			trunkMaterial.normalMap = Cast.bitmapTexture(TrunkNormals);
+			trunkMaterial.specularMap = Cast.bitmapTexture(TrunkSpecular);
 			trunkMaterial.diffuseMethod = new BasicDiffuseMethod();
 			trunkMaterial.specularMethod = new BasicSpecularMethod();
 			trunkMaterial.addMethod(fogMethod);
 			trunkMaterial.lightPicker = lightPicker;
 			
 			//create leaf material
-			leafMaterial = new TextureMaterial(new BitmapTexture(new LeafDiffuse().bitmapData));
+			leafMaterial = new TextureMaterial(Cast.bitmapTexture(LeafDiffuse));
 			leafMaterial.addMethod(fogMethod);
 			leafMaterial.lightPicker = lightPicker;
 			
@@ -315,7 +312,7 @@ package
 			blendBitmapData.colorTransform(blendBitmapData.rect, new ColorTransform(1, 1, 1, 1, 255, 0, 0, 0));
 			blendBitmapData.applyFilter(blendBitmapData, blendBitmapData.rect, destPoint, new BlurFilter(16, 16, 3));
 			blendTexture = new BitmapTexture(blendBitmapData);
-			terrainMethod = new TerrainDiffuseMethod([new BitmapTexture(new Grass().bitmapData), new BitmapTexture(new Rock().bitmapData), new BitmapTexture(new BitmapData(512, 512, false, 0x000000))], blendTexture, [1, 20, 20, 1]);
+			terrainMethod = new TerrainDiffuseMethod([Cast.bitmapTexture(Grass), Cast.bitmapTexture(Rock), new BitmapTexture(new BitmapData(512, 512, false, 0x000000))], blendTexture, [1, 20, 20, 1]);
 			
 			//create terrain material
 			terrainMaterial = new TextureMaterial(new BitmapTexture(heightMapData));
@@ -337,7 +334,7 @@ package
 			//create terrain
 			terrain = new Elevation(terrainMaterial, heightMapData, terrainWidth, terrainHeight, terrainDepth, 65, 65);
 			terrain.y = terrainY;
-			terrain.smoothHeightMap();
+			//terrain.smoothHeightMap();
 			scene.addChild(terrain);
 			
 			terrainPolyCount = terrain.geometry.subGeometries[0].vertexData.length/3;
@@ -407,7 +404,7 @@ package
 			
 			
 			// Create tree.
-			var treeGeometry:FractalTreeRound = new FractalTreeRound(treeSize, 10, 3, minAperture, maxAperture, minTwist, maxTwist, treeLevel)
+			var treeGeometry:FractalTreeRound = new FractalTreeRound(treeSize, 10, 3, minAperture, maxAperture, minTwist, maxTwist, treeLevel);
 			tree = new Mesh(treeGeometry, trunkMaterial);
 			tree.rotationY = 360*Math.random();
 			tree.y = terrain != null ? terrain.y + terrain.getHeightAt(tree.x, tree.z) : 0;
@@ -450,7 +447,7 @@ package
 			var dx:Number = (x/terrainWidth + 0.5)*512 - 8;
 			var dy:Number = (-z/terrainDepth + 0.5)*512 - 8;
 			matrix.translate(dx, dy);
-			var treeShadowBitmapData = new BitmapData(16, 16, false, 0x0000FF);
+			var treeShadowBitmapData:BitmapData = new BitmapData(16, 16, false, 0x0000FF);
 			treeShadowBitmapData.draw(createGradientSprite(16, 16, 0, 1), matrix);
 			blendBitmapData.draw(treeShadowBitmapData, matrix, null, BlendMode.ADD);
 			

@@ -1,111 +1,104 @@
 ﻿/*
 
-MD5 animation loading and interaction example in Away3d
+ MD5 animation loading and interaction example in Away3d
 
-Demonstrates:
+ Demonstrates:
 
-How to load MD5 mesh and anim files with bones animation from embedded resources.
-How to map animation data after loading in order to playback an animation sequence.
-How to control the movement of a game character using keys.
+ How to load MD5 mesh and anim files with bones animation from embedded resources.
+ How to map animation data after loading in order to playback an animation sequence.
+ How to control the movement of a game character using keys.
 
-Code by Rob Bateman & David Lenaerts
-rob@infiniteturtles.co.uk
-http://www.infiniteturtles.co.uk
-david.lenaerts@gmail.com
-http://www.derschmale.com
+ Code by Rob Bateman & David Lenaerts
+ rob@infiniteturtles.co.uk
+ http://www.infiniteturtles.co.uk
+ david.lenaerts@gmail.com
+ http://www.derschmale.com
 
-This code is distributed under the MIT License
+ This code is distributed under the MIT License
 
-Copyright (c)  
+ Copyright (c)
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the “Software”), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the “Software”), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 
-*/
+ */
 
 package
 {
 	import away3d.animators.*;
 	import away3d.animators.data.*;
-	import away3d.animators.skeleton.*;
+	import away3d.animators.transitions.*;
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
-	import away3d.core.base.*;
 	import away3d.debug.*;
-	import away3d.entities.Mesh;
-	import away3d.entities.Sprite3D;
+	import away3d.entities.*;
 	import away3d.events.*;
-	import away3d.filters.MotionBlurFilter3D;
 	import away3d.library.*;
 	import away3d.library.assets.*;
 	import away3d.lights.*;
-	import away3d.lights.shadowmaps.CubeMapShadowMapper;
-	import away3d.lights.shadowmaps.NearDirectionalShadowMapper;
-	import away3d.loaders.*;
+	import away3d.lights.shadowmaps.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
-	import away3d.materials.lightpickers.StaticLightPicker;
+	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
-	import away3d.materials.methods.ShadingMethodBase;
 	import away3d.primitives.*;
 	import away3d.textures.*;
-	
+	import away3d.utils.*;
+
 	import flash.display.*;
 	import flash.events.*;
 	import flash.filters.*;
-	import flash.geom.*;
-	import flash.net.*;
 	import flash.text.*;
 	import flash.ui.*;
 
-	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
-	
+	[SWF(backgroundColor="#000000", frameRate="30")]
+
 	public class Intermediate_MD5Animation extends Sprite
 	{
 		//signature swf
 		[Embed(source="/../embeds/signature.swf", symbol="Signature")]
 		public var SignatureSwf:Class;
-		
+
 		//floor diffuse map
 		[Embed(source="/../embeds/rockbase_diffuse.jpg")]
 		private var FloorDiffuse:Class;
-		
+
 		//floor normal map
 		[Embed(source="/../embeds/rockbase_normals.png")]
 		private var FloorNormals:Class;
-		
+
 		//floor specular map
 		[Embed(source="/../embeds/rockbase_specular.png")]
 		private var FloorSpecular:Class;
-		
+
 		//body diffuse map
 		[Embed(source="/../embeds/hellknight/hellknight_diffuse.jpg")]
 		private var BodyDiffuse:Class;
-		
+
 		//body normal map
 		[Embed(source="/../embeds/hellknight/hellknight_normals.png")]
 		private var BodyNormals:Class;
-		
+
 		//bidy specular map
 		[Embed(source="/../embeds/hellknight/hellknight_specular.png")]
 		private var BodySpecular:Class;
-		
+
 		//skybox
 		[Embed(source="/../embeds/skybox/grimnight_posX.png")]
 		private var EnvPosX:Class;
@@ -119,19 +112,19 @@ package
 		private var EnvNegY:Class;
 		[Embed(source="/../embeds/skybox/grimnight_negZ.png")]
 		private var EnvNegZ:Class;
-		
+
 		//billboard texture for red light
 		[Embed(source="/../embeds/redlight.png")]
 		private var RedLight:Class;
-		
+
 		//billboard texture for blue light
 		[Embed(source="/../embeds/bluelight.png")]
 		private var BlueLight:Class;
-		
+
 		//hellknight mesh
 		[Embed(source="/../embeds/hellknight/hellknight.md5mesh", mimeType="application/octet-stream")]
 		private var HellKnight_Mesh:Class;
-		
+
 		//hellknight animations
 		[Embed(source="/../embeds/hellknight/idle2.md5anim", mimeType="application/octet-stream")]
 		private var HellKnight_Idle2:Class;
@@ -157,66 +150,64 @@ package
 		private var HellKnight_PainLUPArm:Class;
 		[Embed(source="/../embeds/hellknight/range_attack2.md5anim", mimeType="application/octet-stream")]
 		private var HellKnight_RangeAttack2:Class;
-		
+
 		//engine variables
 		private var scene:Scene3D;
 		private var camera:Camera3D;
 		private var view:View3D;
 		private var cameraController:LookAtController;
 		private var awayStats:AwayStats;
-		
+
 		//animation variables
-		private var animation:SkeletonAnimation;
-		private var animator:SmoothSkeletonAnimator;
-		private var breatheSequence:SkeletonAnimationSequence;
-		private var walkSequence:SkeletonAnimationSequence;
-		private var runSequence:SkeletonAnimationSequence;
+		private var animator:SkeletonAnimator;
+		private var animationSet:SkeletonAnimationSet;
+		private var stateTransition:CrossfadeStateTransition = new CrossfadeStateTransition(0.5);
+		private var skeleton:Skeleton;
 		private var isRunning:Boolean;
 		private var isMoving:Boolean;
 		private var movementDirection:Number;
 		private var onceAnim:String;
 		private var currentAnim:String;
 		private var currentRotationInc:Number = 0;
-		private var action:uint;
-		
+
 		//animation constants
-		private const MESH_NAME:String = "hellknight";
 		private const IDLE_NAME:String = "idle2";
 		private const WALK_NAME:String = "walk7";
 		private const ANIM_NAMES:Array = [IDLE_NAME, WALK_NAME, "attack3", "turret_attack", "attack2", "chest", "roar1", "leftslash", "headpain", "pain1", "pain_luparm", "range_attack2"];
 		private const ANIM_CLASSES:Array = [HellKnight_Idle2, HellKnight_Walk7, HellKnight_Attack3, HellKnight_TurretAttack, HellKnight_Attack2, HellKnight_Chest, HellKnight_Roar1, HellKnight_LeftSlash, HellKnight_HeadPain, HellKnight_Pain1, HellKnight_PainLUPArm, HellKnight_RangeAttack2];
-		private const XFADE_TIME:Number = 0.5;
 		private const ROTATION_SPEED:Number = 3;
 		private const RUN_SPEED:Number = 2;
 		private const WALK_SPEED:Number = 1;
 		private const IDLE_SPEED:Number = 1;
 		private const ACTION_SPEED:Number = 1;
-		
+
 		//signature variables
 		private var Signature:Sprite;
 		private var SignatureBitmap:Bitmap;
-		
+
 		//light objects
 		private var redLight:PointLight;
 		private var blueLight:PointLight;
 		private var whiteLight:DirectionalLight;
 		private var lightPicker:StaticLightPicker;
+		private var shadowMapMethod:NearShadowMapMethod;
+		private var fogMethod:FogMethod;
 		private var count:Number = 0;
-		
+
 		//material objects
 		private var redLightMaterial:TextureMaterial;
 		private var blueLightMaterial:TextureMaterial;
 		private var groundMaterial:TextureMaterial;
 		private var bodyMaterial:TextureMaterial;
 		private var cubeTexture:BitmapCubeTexture;
-		
+
 		//scene objects
 		private var text:TextField;
-		private var placeHolder:Mesh;
+		private var placeHolder:ObjectContainer3D;
 		private var mesh:Mesh;
 		private var ground:Mesh;
 		private var skyBox:SkyBox;
-		
+
 		/**
 		 * Constructor
 		 */
@@ -224,7 +215,7 @@ package
 		{
 			init();
 		}
-		
+
 		/**
 		 * Global initialise function
 		 */
@@ -237,7 +228,7 @@ package
 			initObjects();
 			initListeners();
 		}
-		
+
 		/**
 		 * Initialise the engine
 		 */
@@ -245,20 +236,20 @@ package
 		{
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
-			
+
 			view = new View3D();
 			scene = view.scene;
 			camera = view.camera;
-			
+
 			camera.lens.far = 5000;
 			camera.z = -200;
 			camera.y = 160;
-			
+
 			//setup controller to be used on the camera
-			placeHolder = new Mesh();
+			placeHolder = new ObjectContainer3D();
 			placeHolder.y = 50;
 			cameraController = new LookAtController(camera, placeHolder);
-			
+
 			view.addSourceURL("srcview/index.html");
 			addChild(view);
 
@@ -269,11 +260,11 @@ package
 			SignatureBitmap.bitmapData.draw(Signature);
 			stage.quality = StageQuality.LOW;
 			addChild(SignatureBitmap);
-			
+
 			awayStats = new AwayStats(view);
 			addChild(awayStats);
 		}
-		
+
 		/**
 		 * Create an instructions overlay
 		 */
@@ -289,10 +280,10 @@ package
 			text.appendText("SHIFT - hold down to run\n");
 			text.appendText("Numbers 1-9 - Attack\n");
 			text.filters = [new DropShadowFilter(1, 45, 0x0, 1, 0, 0)];
-			
+
 			addChild(text);
 		}
-		
+
 		/**
 		 * Initialise the lights
 		 */
@@ -305,35 +296,31 @@ package
 			redLight.z = -1400;
 			redLight.color = 0xff1111;
 			scene.addChild(redLight);
-			
+
 			blueLight = new PointLight();
 			blueLight.x = 1000;
 			blueLight.y = 200;
-			blueLight.z = -1400;
+			blueLight.z = 1400;
 			blueLight.color = 0x1111ff;
 			scene.addChild(blueLight);
-			
-			whiteLight = new DirectionalLight(-50, -50, 10);
-			whiteLight.ambient = 1;
-			whiteLight.ambientColor = 0x303030;
+
+			whiteLight = new DirectionalLight(-50, -20, 10);
 			whiteLight.color = 0xffffee;
 			whiteLight.castsShadows = true;
+			whiteLight.ambient = 1;
+			whiteLight.ambientColor = 0x303040;
 			whiteLight.shadowMapper = new NearDirectionalShadowMapper(.2);
 			scene.addChild(whiteLight);
-			
+
 			lightPicker = new StaticLightPicker([redLight, blueLight, whiteLight]);
-		}
 
-		private function createShadowMethod() : ShadowMapMethodBase
-		{
-			var shadowMapMethod : NearShadowMapMethod = new NearShadowMapMethod(new FilteredShadowMapMethod(whiteLight), .2);
-			shadowMapMethod.epsilon = .0005;
-			return shadowMapMethod;
-		}
 
-		private function createFogMethod() : FogMethod
-		{
-			return new FogMethod(0, camera.lens.far * 0.5, 0x000000);
+			//create a global shadow method
+			shadowMapMethod = new NearShadowMapMethod(new FilteredShadowMapMethod(whiteLight));
+			shadowMapMethod.epsilon = .0007;
+
+			//create a global fog method
+			fogMethod = new FogMethod(0, camera.lens.far*0.5, 0x000000);
 		}
 
 		/**
@@ -342,37 +329,37 @@ package
 		private function initMaterials():void
 		{
 			//red light material
-			redLightMaterial = new TextureMaterial(new BitmapTexture(new RedLight().bitmapData));
+			redLightMaterial = new TextureMaterial(Cast.bitmapTexture(RedLight));
 			redLightMaterial.alphaBlending = true;
-			redLightMaterial.addMethod(createFogMethod());
-			
+			redLightMaterial.addMethod(fogMethod);
+
 			//blue light material
-			blueLightMaterial = new TextureMaterial(new BitmapTexture(new BlueLight().bitmapData));
+			blueLightMaterial = new TextureMaterial(Cast.bitmapTexture(BlueLight));
 			blueLightMaterial.alphaBlending = true;
-			blueLightMaterial.addMethod(createFogMethod());
-			
+			blueLightMaterial.addMethod(fogMethod);
+
 			//ground material
-			groundMaterial = new TextureMaterial(new BitmapTexture(new FloorDiffuse().bitmapData));
+			groundMaterial = new TextureMaterial(Cast.bitmapTexture(FloorDiffuse));
 			groundMaterial.smooth = true;
 			groundMaterial.repeat = true;
 			groundMaterial.mipmap = true;
 			groundMaterial.lightPicker = lightPicker;
-			groundMaterial.normalMap = new BitmapTexture(new FloorNormals().bitmapData);
-			groundMaterial.specularMap = new BitmapTexture(new FloorSpecular().bitmapData);
-			groundMaterial.shadowMethod = createShadowMethod();
-			groundMaterial.addMethod(createFogMethod());
-			
+			groundMaterial.normalMap = Cast.bitmapTexture(FloorNormals);
+			groundMaterial.specularMap = Cast.bitmapTexture(FloorSpecular);
+			groundMaterial.shadowMethod = shadowMapMethod;
+			groundMaterial.addMethod(fogMethod);
+
 			//body material
-			bodyMaterial = new TextureMaterial(new BitmapTexture(new BodyDiffuse().bitmapData));
+			bodyMaterial = new TextureMaterial(Cast.bitmapTexture(BodyDiffuse));
 			bodyMaterial.gloss = 20;
 			bodyMaterial.specular = 1.5;
-			bodyMaterial.specularMap = new BitmapTexture(new BodySpecular().bitmapData);
-			bodyMaterial.normalMap = new BitmapTexture(new BodyNormals().bitmapData);
-			bodyMaterial.addMethod(createFogMethod());
+			bodyMaterial.specularMap = Cast.bitmapTexture(BodySpecular);
+			bodyMaterial.normalMap = Cast.bitmapTexture(BodyNormals);
+			bodyMaterial.addMethod(fogMethod);
 			bodyMaterial.lightPicker = lightPicker;
-			bodyMaterial.shadowMethod = createShadowMethod();
+			bodyMaterial.shadowMethod = shadowMapMethod;
 		}
-		
+
 		/**
 		 * Initialise the scene objects
 		 */
@@ -380,25 +367,25 @@ package
 		{
 			//create light billboards
 			redLight.addChild(new Sprite3D(redLightMaterial, 200, 200));
-			blueLight.addChild(new Sprite3D(blueLightMaterial, 200, 200))
-			
+			blueLight.addChild(new Sprite3D(blueLightMaterial, 200, 200));
+
 			//AssetLibrary.enableParser(MD5MeshParser);
 			//AssetLibrary.enableParser(MD5AnimParser);
-			
+
 			initMesh();
-			
+
 			//create a snowy ground plane
 			ground = new Mesh(new PlaneGeometry(50000, 50000, 1, 1), groundMaterial);
 			ground.geometry.scaleUV(200, 200);
 			ground.castsShadows = false;
 			scene.addChild(ground);
-			
+
 			//create a skybox
-			cubeTexture = new BitmapCubeTexture(new EnvPosX().bitmapData, new EnvNegX().bitmapData, new EnvPosY().bitmapData, new EnvNegY().bitmapData, new EnvPosZ().bitmapData, new EnvNegZ().bitmapData);
+			cubeTexture = new BitmapCubeTexture(Cast.bitmapData(EnvPosX), Cast.bitmapData(EnvNegX), Cast.bitmapData(EnvPosY), Cast.bitmapData(EnvNegY), Cast.bitmapData(EnvPosZ), Cast.bitmapData(EnvNegZ));
 			skyBox = new SkyBox(cubeTexture);
 			scene.addChild(skyBox);
 		}
-		
+
 		/**
 		 * Initialise the hellknight mesh
 		 */
@@ -408,19 +395,7 @@ package
 			AssetLibrary.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetComplete);
 			AssetLibrary.loadData(new HellKnight_Mesh(), null, null, new MD5MeshParser());
 		}
-		
-		/**
-		 * Initialise the hellknight animations
-		 */
-		private function initAnimations():void
-		{
-			animator = new SmoothSkeletonAnimator(mesh.animationState as SkeletonAnimationState);
-			
-			for (var i:uint = 0; i < ANIM_NAMES.length; ++i)
-				AssetLibrary.loadData(new ANIM_CLASSES[i](), null, ANIM_NAMES[i], new MD5AnimParser());
-			
-		}
-		
+
 		/**
 		 * Initialise the listeners
 		 */
@@ -430,83 +405,90 @@ package
 			stage.addEventListener(Event.RESIZE, onResize);
 			onResize();
 		}
-		
+
 		/**
 		 * Navigation and render loop
 		 */
 		private function onEnterFrame(event:Event):void
 		{
+			cameraController.update();
+
 			//update character animation
 			if (mesh)
 				mesh.rotationY += currentRotationInc;
-			
+
 			count += 0.01;
-			
+
 			redLight.x = Math.sin(count)*1500;
 			redLight.y = 250 + Math.sin(count*0.54)*200;
-			redLight.z = -Math.cos(count*0.7)*1500;
+			redLight.z = Math.cos(count*0.7)*1500;
 			blueLight.x = -Math.sin(count*0.8)*1500;
 			blueLight.y = 250 - Math.sin(count*.65)*200;
 			blueLight.z = -Math.cos(count*0.9)*1500;
-			
+
 			view.render();
 		}
-		
+
 		/**
 		 * Listener function for asset complete event on loader
 		 */
 		private function onAssetComplete(event:AssetEvent):void
 		{
-			if (event.asset.assetType == AssetType.ANIMATION) {
-				
-				var seq:SkeletonAnimationSequence = event.asset as SkeletonAnimationSequence;
-				seq.name = event.asset.assetNamespace;
-				animator.addSequence(seq);
-				
-				if (seq.name == IDLE_NAME || seq.name == WALK_NAME) {
-					seq.looping = true;
+			if (event.asset.assetType == AssetType.ANIMATION_STATE) {
+
+				var state:SkeletonAnimationState = event.asset as SkeletonAnimationState;
+
+				animationSet.addState(event.asset.assetNamespace, state);
+
+				if (state.stateName == IDLE_NAME || state.stateName == WALK_NAME) {
+					state.looping = true;
 				} else {
-					seq.looping = false;
-					seq.addEventListener(AnimatorEvent.SEQUENCE_DONE, onSequenceDone);
+					state.looping = false;
+					state.addEventListener(AnimationStateEvent.PLAYBACK_COMPLETE, onPlaybackComplete);
 				}
-				
-				if (seq.name == IDLE_NAME)
+
+				if (state.stateName == IDLE_NAME)
 					stop();
-				
+			} else if (event.asset.assetType == AssetType.ANIMATION_SET) {
+				animationSet = event.asset as SkeletonAnimationSet;
+				animator = new SkeletonAnimator(animationSet, skeleton);
+				for (var i:uint = 0; i < ANIM_NAMES.length; ++i)
+					AssetLibrary.loadData(new ANIM_CLASSES[i](), null, ANIM_NAMES[i], new MD5AnimParser());
+
+				mesh.animator = animator;
+			} else if (event.asset.assetType == AssetType.SKELETON) {
+				skeleton = event.asset as Skeleton;
 			} else if (event.asset.assetType == AssetType.MESH) {
 				//grab mesh object and assign our material object
 				mesh = event.asset as Mesh;
 				mesh.material = bodyMaterial;
 				mesh.castsShadows = true;
 				scene.addChild(mesh);
-				
+
 				//add our lookat object to the mesh
 				mesh.addChild(placeHolder);
-				
-				//initialise animation data
-				initAnimations();
-				
+
 				//add key listeners
 				stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
 				stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 			}
 		}
-		
-		private function onSequenceDone(event:AnimatorEvent):void
+
+		private function onPlaybackComplete(event:AnimationStateEvent):void
 		{
 			onceAnim = null;
-			animator.play(currentAnim, XFADE_TIME);
-			animator.timeScale = isMoving? movementDirection*(isRunning? RUN_SPEED : WALK_SPEED) : IDLE_SPEED;
+			animator.play(currentAnim, stateTransition);
+			animator.playbackSpeed = isMoving? movementDirection*(isRunning? RUN_SPEED : WALK_SPEED) : IDLE_SPEED;
 		}
-		
+
 		private function playAction(val:uint):void
 		{
 			onceAnim = ANIM_NAMES[val + 2];
-			animator.timeScale = ACTION_SPEED;
-			animator.play(onceAnim, XFADE_TIME);
+			animator.playbackSpeed = ACTION_SPEED;
+			animator.play(onceAnim, stateTransition);
 		}
-		
-		
+
+
 		/**
 		 * Key down listener for animation
 		 */
@@ -563,7 +545,7 @@ package
 					break;
 			}
 		}
-		
+
 		private function onKeyUp(event:KeyboardEvent):void
 		{
 			switch (event.keyCode) {
@@ -586,41 +568,41 @@ package
 					break;
 			}
 		}
-		
+
 		private function updateMovement(dir:Number):void
 		{
 			isMoving = true;
-			animator.timeScale = dir*(isRunning? RUN_SPEED : WALK_SPEED);
-			
+			animator.playbackSpeed = dir*(isRunning? RUN_SPEED : WALK_SPEED);
+
 			if (currentAnim == WALK_NAME)
 				return;
-			
+
 			currentAnim = WALK_NAME;
-			
+
 			if (onceAnim)
 				return;
-			
+
 			//update animator
-			animator.play(currentAnim, XFADE_TIME);
+			animator.play(currentAnim, stateTransition);
 		}
-		
+
 		private function stop():void
 		{
 			isMoving = false;
-			
+
 			if (currentAnim == IDLE_NAME)
 				return;
-			
+
 			currentAnim = IDLE_NAME;
-			
+
 			if (onceAnim)
 				return;
-			
+
 			//update animator
-			animator.timeScale = IDLE_SPEED;
-			animator.play(currentAnim, XFADE_TIME);
+			animator.playbackSpeed = IDLE_SPEED;
+			animator.play(currentAnim, stateTransition);
 		}
-		
+
 		/**
 		 * stage listener for resize events
 		 */

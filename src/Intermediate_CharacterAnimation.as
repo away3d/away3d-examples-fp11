@@ -41,25 +41,23 @@ package
 {
 	import away3d.animators.*;
 	import away3d.animators.data.*;
-	import away3d.animators.skeleton.*;
+	import away3d.animators.transitions.*;
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
-	import away3d.core.base.*;
 	import away3d.debug.*;
 	import away3d.entities.Mesh;
 	import away3d.events.*;
 	import away3d.library.*;
 	import away3d.library.assets.*;
 	import away3d.lights.*;
-	import away3d.lights.shadowmaps.CubeMapShadowMapper;
-	import away3d.loaders.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
-	import away3d.materials.lightpickers.StaticLightPicker;
+	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
 	import away3d.primitives.*;
 	import away3d.textures.*;
+	import away3d.utils.*;
 	
 	import flash.display.*;
 	import flash.events.*;
@@ -123,11 +121,9 @@ package
 		private var awayStats:AwayStats;
 		
 		//animation variables
-		private var animation:SkeletonAnimation;
-		private var animator:SmoothSkeletonAnimator;
-		private var breatheSequence:SkeletonAnimationSequence;
-		private var walkSequence:SkeletonAnimationSequence;
-		private var runSequence:SkeletonAnimationSequence;
+		private var animator:SkeletonAnimator;
+		private var animationSet:SkeletonAnimationSet;
+		private var stateTransition:CrossfadeStateTransition = new CrossfadeStateTransition(0.5);
 		private var isRunning:Boolean;
 		private var isMoving:Boolean;
 		private var movementDirection:Number;
@@ -138,7 +134,6 @@ package
 		private const ANIM_BREATHE:String = "Breathe";
 		private const ANIM_WALK:String = "Walk";
 		private const ANIM_RUN:String = "Run";
-		private const XFADE_TIME:Number = 0.5;
 		private const ROTATION_SPEED:Number = 3;
 		private const RUN_SPEED:Number = 2;
 		private const WALK_SPEED:Number = 1;
@@ -223,7 +218,7 @@ package
 			stage.quality = StageQuality.LOW;
 			addChild(SignatureBitmap);
 			
-			awayStats = new AwayStats(view)
+			awayStats = new AwayStats(view);
 			addChild(awayStats);
 		}
 		
@@ -292,10 +287,10 @@ package
 			AssetLibrary.load(new URLRequest("assets/PolarBear.awd"));
 			
 			//create a snowy ground plane
-			groundMaterial = new TextureMaterial(new BitmapTexture((new SnowDiffuse()).bitmapData), true, true, true);
+			groundMaterial = new TextureMaterial(Cast.bitmapTexture(SnowDiffuse), true, true, true);
 			groundMaterial.lightPicker = lightPicker;
-			groundMaterial.specularMap = new BitmapTexture(new SnowSpecular().bitmapData);
-			groundMaterial.normalMap = new BitmapTexture(new SnowNormal().bitmapData);
+			groundMaterial.specularMap = Cast.bitmapTexture(SnowSpecular);
+			groundMaterial.normalMap = Cast.bitmapTexture(SnowNormal);
 			groundMaterial.shadowMethod = filteredShadowMapMethod;
 			groundMaterial.addMethod(fogMethod);
 			groundMaterial.ambient = 0.5;
@@ -305,7 +300,7 @@ package
 			scene.addChild(ground);
 			
 			//create a skybox
-			cubeTexture = new BitmapCubeTexture(new PosX().bitmapData, new NegX().bitmapData, new PosY().bitmapData, new NegY().bitmapData, new PosZ().bitmapData, new NegZ().bitmapData);
+			cubeTexture = new BitmapCubeTexture(Cast.bitmapData(PosX), Cast.bitmapData(NegX), Cast.bitmapData(PosY), Cast.bitmapData(NegY), Cast.bitmapData(PosZ), Cast.bitmapData(NegZ));
 			skyBox = new SkyBox(cubeTexture);
 			scene.addChild(skyBox);
 		}
@@ -338,22 +333,36 @@ package
 		private function onAssetComplete(event:AssetEvent):void
 		{
 			if (event.asset.assetType == AssetType.SKELETON) {
-				//create an animation object
-				animation = new SkeletonAnimation(event.asset as Skeleton, 3, true);
-			} else if (event.asset.assetType == AssetType.ANIMATION) {
-				//create sequence objects for each animation sequence encountered
-				if (event.asset.name == ANIM_BREATHE)
-					breatheSequence = event.asset as SkeletonAnimationSequence;
-				else if (event.asset.name == ANIM_WALK)
-					walkSequence = event.asset as SkeletonAnimationSequence;
-				else if (event.asset.name == ANIM_RUN)
-					runSequence = event.asset as SkeletonAnimationSequence;
+				//create a new skeleton animation set
+				animationSet = new SkeletonAnimationSet(3);
+				
+				//wrap our skeleton animation set in an animator object and add our sequence objects
+				animator = new SkeletonAnimator(animationSet, event.asset as Skeleton, false);
+				
+				//apply our animator to our mesh
+				mesh.animator = animator;
+				
+				//register our mesh as the lookAt target
+				cameraController.lookAtObject = mesh;
+				
+				//default to breathe sequence
+				//stop();
+				
+				//add key listeners
+				stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+				stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+			} else if (event.asset.assetType == AssetType.ANIMATION_STATE) {
+				//create state objects for each animation state encountered
+				var animationState:SkeletonAnimationState = event.asset as SkeletonAnimationState;
+				animationSet.addState(animationState.name, animationState);
+				if (animationState.name == ANIM_BREATHE)
+					stop();
 			} else if (event.asset.assetType == AssetType.MESH) {
 				//create material object and assign it to our mesh
-				bearMaterial = new TextureMaterial(new BitmapTexture(new BearDiffuse().bitmapData));
+				bearMaterial = new TextureMaterial(Cast.bitmapTexture(BearDiffuse));
 				bearMaterial.shadowMethod = filteredShadowMapMethod;
-				bearMaterial.normalMap = new BitmapTexture(new BearNormal().bitmapData);
-				bearMaterial.specularMap = new BitmapTexture(new BearSpecular().bitmapData);
+				bearMaterial.normalMap = Cast.bitmapTexture(BearNormal);
+				bearMaterial.specularMap = Cast.bitmapTexture(BearSpecular);
 				bearMaterial.addMethod(fogMethod);
 				bearMaterial.lightPicker = lightPicker;
 				bearMaterial.gloss = 50;
@@ -363,29 +372,13 @@ package
 				
 				//create mesh object and assign our animation object and material object
 				mesh = event.asset as Mesh;
-				mesh.geometry.animation = animation;
 				mesh.material = bearMaterial;
 				mesh.castsShadows = true;
-				mesh.scale(50);
+				mesh.scale(1.5);
 				mesh.z = 1000;
 				mesh.rotationY = -45;
 				scene.addChild(mesh);
 				
-				//wrap our mesh animation state in an animator object and add our sequence objects
-				animator = new SmoothSkeletonAnimator(mesh.animationState as SkeletonAnimationState);
-				animator.addSequence(breatheSequence);
-				animator.addSequence(walkSequence);
-				animator.addSequence(runSequence);
-				
-				//register our mesh as the lookAt target
-				cameraController.lookAtObject = mesh;
-				
-				//default to breathe sequence
-				stop();
-				
-				//add key listeners
-				stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
-				stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 			}
 		}
 		
@@ -447,7 +440,7 @@ package
 			isMoving = true;
 			
 			//update animator speed
-			animator.timeScale = dir*(isRunning? RUN_SPEED : WALK_SPEED);
+			animator.playbackSpeed = dir*(isRunning? RUN_SPEED : WALK_SPEED);
 			
 			//update animator sequence
 			var anim:String = isRunning? ANIM_RUN : ANIM_WALK;
@@ -456,7 +449,7 @@ package
 			
 			currentAnim = anim;
 			
-			animator.play(currentAnim, XFADE_TIME);
+			animator.play(currentAnim, stateTransition);
 		}
 		
 		private function stop():void
@@ -464,7 +457,7 @@ package
 			isMoving = false;
 			
 			//update animator speed
-			animator.timeScale = BREATHE_SPEED;
+			animator.playbackSpeed = BREATHE_SPEED;
 			
 			//update animator sequence
 			if (currentAnim == ANIM_BREATHE)
@@ -472,7 +465,7 @@ package
 			
 			currentAnim = ANIM_BREATHE;
 			
-			animator.play(currentAnim, XFADE_TIME);
+			animator.play(currentAnim, stateTransition);
 		}
 		
 		/**

@@ -47,7 +47,7 @@ package shallowwater
 
 			_bmd = new BitmapData( blurRect.width, blurRect.height, false, 0x000000 );
 			var matrix:Matrix = new Matrix();
-			matrix.translate( -blurRect.x, -blurRect.y )
+			matrix.translate( -blurRect.x, -blurRect.y );
 			spr.filters = [blurFilter];
 			_bmd.draw( spr, matrix );
 		}
