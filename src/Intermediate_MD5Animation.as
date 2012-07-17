@@ -411,6 +411,8 @@ package
 		 */
 		private function onEnterFrame(event:Event):void
 		{
+			cameraController.update();
+			
 			//update character animation
 			if (mesh)
 				mesh.rotationY += currentRotationInc;
