@@ -40,8 +40,6 @@ package
 {
 	import away3d.materials.methods.FilteredShadowMapMethod;
 	import away3d.animators.*;
-	import away3d.animators.data.*;
-	import away3d.arcane;
 	import away3d.containers.*;
 	import away3d.controllers.*;
 	import away3d.debug.*;
