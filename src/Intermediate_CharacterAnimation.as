@@ -39,6 +39,7 @@ THE SOFTWARE.
 
 package
 {
+	import away3d.animators.nodes.SkeletonClipNode;
 	import away3d.animators.*;
 	import away3d.animators.data.*;
 	import away3d.animators.transitions.*;
@@ -123,7 +124,7 @@ package
 		//animation variables
 		private var animator:SkeletonAnimator;
 		private var animationSet:SkeletonAnimationSet;
-		private var stateTransition:CrossfadeStateTransition = new CrossfadeStateTransition(0.5);
+		private var stateTransition:CrossfadeTransition = new CrossfadeTransition(0.5);
 		private var isRunning:Boolean;
 		private var isMoving:Boolean;
 		private var movementDirection:Number;
@@ -351,11 +352,12 @@ package
 				//add key listeners
 				stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
 				stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
-			} else if (event.asset.assetType == AssetType.ANIMATION_STATE) {
-				//create state objects for each animation state encountered
-				var animationState:SkeletonAnimationState = event.asset as SkeletonAnimationState;
-				animationSet.addState(animationState.name, animationState);
-				if (animationState.name == ANIM_BREATHE)
+			} else if (event.asset.assetType == AssetType.ANIMATION_NODE) {
+				//create animation objects for each animation node encountered
+				var animationNode:SkeletonClipNode = event.asset as SkeletonClipNode;
+				trace(animationNode.name)
+				animationSet.addAnimation(animationNode.name, animationNode);
+				if (animationNode.name == ANIM_BREATHE)
 					stop();
 			} else if (event.asset.assetType == AssetType.MESH) {
 				//create material object and assign it to our mesh

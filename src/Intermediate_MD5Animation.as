@@ -40,6 +40,7 @@
 
 package
 {
+	import away3d.animators.nodes.SkeletonClipNode;
 	import away3d.animators.*;
 	import away3d.animators.data.*;
 	import away3d.animators.transitions.*;
@@ -161,7 +162,7 @@ package
 		//animation variables
 		private var animator:SkeletonAnimator;
 		private var animationSet:SkeletonAnimationSet;
-		private var stateTransition:CrossfadeStateTransition = new CrossfadeStateTransition(0.5);
+		private var stateTransition:CrossfadeTransition = new CrossfadeTransition(0.5);
 		private var skeleton:Skeleton;
 		private var isRunning:Boolean;
 		private var isMoving:Boolean;
@@ -434,20 +435,20 @@ package
 		 */
 		private function onAssetComplete(event:AssetEvent):void
 		{
-			if (event.asset.assetType == AssetType.ANIMATION_STATE) {
+			if (event.asset.assetType == AssetType.ANIMATION_NODE) {
 
-				var state:SkeletonAnimationState = event.asset as SkeletonAnimationState;
-
-				animationSet.addState(event.asset.assetNamespace, state);
-
-				if (state.stateName == IDLE_NAME || state.stateName == WALK_NAME) {
-					state.looping = true;
+				var node:SkeletonClipNode = event.asset as SkeletonClipNode;
+				var name:String = event.asset.assetNamespace;
+				animationSet.addAnimation(name, node);
+				
+				if (name == IDLE_NAME || name == WALK_NAME) {
+					node.looping = true;
 				} else {
-					state.looping = false;
-					state.addEventListener(AnimationStateEvent.PLAYBACK_COMPLETE, onPlaybackComplete);
+					node.looping = false;
+					node.addEventListener(AnimationStateEvent.PLAYBACK_COMPLETE, onPlaybackComplete);
 				}
 
-				if (state.stateName == IDLE_NAME)
+				if (name == IDLE_NAME)
 					stop();
 			} else if (event.asset.assetType == AssetType.ANIMATION_SET) {
 				animationSet = event.asset as SkeletonAnimationSet;
@@ -476,7 +477,11 @@ package
 
 		private function onPlaybackComplete(event:AnimationStateEvent):void
 		{
+			if (animator.activeState != event.animationState)
+				return;
+			
 			onceAnim = null;
+			
 			animator.play(currentAnim, stateTransition);
 			animator.playbackSpeed = isMoving? movementDirection*(isRunning? RUN_SPEED : WALK_SPEED) : IDLE_SPEED;
 		}
@@ -485,7 +490,7 @@ package
 		{
 			onceAnim = ANIM_NAMES[val + 2];
 			animator.playbackSpeed = ACTION_SPEED;
-			animator.play(onceAnim, stateTransition);
+			animator.play(onceAnim, stateTransition, 0);
 		}
 
 
