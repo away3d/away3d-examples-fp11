@@ -349,7 +349,7 @@ package
 			atmosphereMaterial.ambient = 1;
 		}
 		
-		private function modulateDiffuseMethod(t:ShaderRegisterElement, regCache:ShaderRegisterCache):String
+		private function modulateDiffuseMethod(vo : MethodVO, t:ShaderRegisterElement, regCache:ShaderRegisterCache):String
 		{
 			var viewDirFragmentReg:ShaderRegisterElement = atmosphereDiffuseMethod.viewDirFragmentReg;
 			var normalFragmentReg:ShaderRegisterElement = atmosphereDiffuseMethod.normalFragmentReg;
@@ -360,7 +360,7 @@ package
 			return code;
 		}
 		
-		private function modulateSpecularMethod(t:ShaderRegisterElement, regCache:ShaderRegisterCache):String
+		private function modulateSpecularMethod(vo : MethodVO, t:ShaderRegisterElement, regCache:ShaderRegisterCache):String
 		{
 			var viewDirFragmentReg:ShaderRegisterElement = atmosphereDiffuseMethod.viewDirFragmentReg;
 			var normalFragmentReg:ShaderRegisterElement = atmosphereDiffuseMethod.normalFragmentReg;
