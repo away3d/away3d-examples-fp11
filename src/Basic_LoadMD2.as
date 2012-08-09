@@ -129,14 +129,14 @@ package
 			_view.addSourceURL("srcview/index.html");
 			addChild(_view);
 			
-			//setup the camera for optimal shadow rendering
-			_view.camera.lens.far = 2100;
+			//setup the camera for optimal rendering
+			_view.camera.lens.far = 5000;
 			
 			//setup controller to be used on the camera
-			_cameraController = new HoverController(_view.camera, null, 45, 20, 1000, -90);
+			_cameraController = new HoverController(_view.camera, null, 45, 20, 2000, 5);
 			
 			//setup the lights for the scene
-			_light = new DirectionalLight(0, -1, -1);
+			_light = new DirectionalLight(-0.5, -1, -1);
 			_lightPicker = new StaticLightPicker([_light]);
 			_view.scene.addChild(_light);
 			
@@ -154,7 +154,9 @@ package
 			_floorMaterial.lightPicker = _lightPicker;
 			_floorMaterial.specular = 0;
 			_floorMaterial.shadowMethod = _shadowMapMethod;
-			_floor = new Mesh(new PlaneGeometry(1000, 1000), _floorMaterial);
+			_floorMaterial.repeat = true;
+			_floor = new Mesh(new PlaneGeometry(5000, 5000), _floorMaterial);
+			_floor.geometry.scaleUV(5, 5);
 			
 			//setup the scene
 			_view.scene.addChild(_floor);
@@ -216,15 +218,15 @@ package
 				
 				
 				//create 16 different clones of the ogre
-				var numWide:Number = 4;
-				var numDeep:Number = 4;
+				var numWide:Number = 20;
+				var numDeep:Number = 20;
 				var k:uint = 0;
 				for (var i:uint = 0; i < numWide; i++) {
 					for (var j:uint = 0; j < numDeep; j++) {
 						//clone mesh
 						var clone:Mesh = _mesh.clone() as Mesh;
-						clone.x = (i-(numWide-1)/2)*1000/numWide;
-						clone.z = (j-(numDeep-1)/2)*1000/numDeep;
+						clone.x = (i-(numWide-1)/2)*5000/numWide;
+						clone.z = (j-(numDeep-1)/2)*5000/numDeep;
 						clone.castsShadows = true;
 						
 						_view.scene.addChild(clone);
@@ -233,7 +235,7 @@ package
 						var vertexAnimator:VertexAnimator = new VertexAnimator(_animationSet);
 						
 						//play specified state
-						vertexAnimator.play(stateNames[i*numDeep + j]);
+						vertexAnimator.play(_animationSet.animationNames[int(Math.random()*(_animationSet.animationNames.length-1))], null, Math.random()*1000);
 						clone.animator = vertexAnimator;
 						k++;
 					}
