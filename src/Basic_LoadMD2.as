@@ -1,4 +1,4 @@
-﻿/*
+﻿﻿/*
 
 MD2 file loading example in Away3d
 
@@ -128,6 +128,9 @@ package
 			_view = new View3D();
 			_view.addSourceURL("srcview/index.html");
 			addChild(_view);
+			
+			//setup the camera for optimal shadow rendering
+			_view.camera.lens.far = 2100;
 			
 			//setup controller to be used on the camera
 			_cameraController = new HoverController(_view.camera, null, 45, 20, 1000, -90);
