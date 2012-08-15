@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="ant.includes.init" default="-usage" basedir=".">
+
+<description>
+Initialization of the build properties and tools. Import this file; it imports the rest.
+</description>
+	
+	<import file="properties.xml"/>
+	<import file="flex.xml"/>
+	<import file="targets.xml"/>
+	<import file="macros.xml"/>
+
+</project>

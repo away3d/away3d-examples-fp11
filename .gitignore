@@ -1,8 +1,10 @@
 /.flexLibProperties
 /bin
+/target
 /launch/output.txt
 /.project
 /.settings
 /.actionScriptProperties
 *.iml
 out
+/bin-debug/
