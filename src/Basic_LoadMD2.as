@@ -12,6 +12,8 @@ Code by Rob Bateman
 rob@infiniteturtles.co.uk
 http://www.infiniteturtles.co.uk
 
+Perelith Knight, by James Green (no email given)
+
 This code is distributed under the MIT License
 
 Copyright (c)  
@@ -38,7 +40,8 @@ THE SOFTWARE.
 
 package
 {
-	import away3d.materials.methods.FilteredShadowMapMethod;
+	import utils.*;
+	
 	import away3d.animators.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
@@ -48,9 +51,9 @@ package
 	import away3d.library.*;
 	import away3d.library.assets.*;
 	import away3d.lights.*;
-	import away3d.loaders.misc.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
+	import away3d.materials.methods.*;
 	import away3d.materials.lightpickers.*;
 	import away3d.primitives.*;
 	import away3d.utils.Cast;
@@ -69,24 +72,29 @@ package
 		[Embed(source="/../embeds/floor_diffuse.jpg")]
 		public static var FloorDiffuse:Class;
 		
-		//ogre diffuse texture
-		[Embed(source="/../embeds/ogre/ogre_diffuse.jpg")]
-		public static var OgreDiffuse:Class;
+		//Perelith Knight diffuse texture 1
+		[Embed(source="/../embeds/pknight/pknight1.png")]
+		public static var PKnightTexture1:Class;
 		
-		//ogre normal map texture
-		[Embed(source="/../embeds/ogre/ogre_normals.png")]
-		public static var OgreNormals:Class;
+		//Perelith Knight diffuse texture 2
+		[Embed(source="/../embeds/pknight/pknight2.png")]
+		public static var PKnightTexture2:Class;
 		
-		//ogre specular map texture
-		[Embed(source="/../embeds/ogre/ogre_specular.jpg")]
-		public static var OgreSpecular:Class;
+		//Perelith Knight diffuse texture 3
+		[Embed(source="/../embeds/pknight/pknight3.png")]
+		public static var PKnightTexture3:Class;
 		
-		//solider ant model
-		[Embed(source="/../embeds/ogre/ogre.md2",mimeType="application/octet-stream")]
-		public static var OgreModel:Class;
+		//Perelith Knight diffuse texture 4
+		[Embed(source="/../embeds/pknight/pknight4.png")]
+		public static var PKnightTexture4:Class;
 		
-		//pre-cached names of the states we want to use
-		public static var stateNames:Array = ["stand", "sniffsniff", "deathc", "attack", "crattack", "run", "paina", "cwalk", "crpain", "cstand", "deathb", "salute_alt", "painc", "painb", "flip", "jump"];
+		//Perelith Knight model
+		[Embed(source="/../embeds/pknight/pknight.md2", mimeType="application/octet-stream")]
+		public static var PKnightModel:Class;
+		
+		//array of textures for random sampling
+		private var _pKnightTextures:Vector.<Bitmap> = Vector.<Bitmap>([new PKnightTexture1(), new PKnightTexture2(), new PKnightTexture3(), new PKnightTexture4()]);
+		private var _pKnightMaterials:Vector.<TextureMaterial> = new Vector.<TextureMaterial>();
 		
 		//engine variables
 		private var _view:View3D;
@@ -137,24 +145,40 @@ package
 			
 			//setup the lights for the scene
 			_light = new DirectionalLight(-0.5, -1, -1);
+			_light.ambient = 0.4;
 			_lightPicker = new StaticLightPicker([_light]);
 			_view.scene.addChild(_light);
 			
-			//setup the url map for textures in the 3ds file
-			var assetLoaderContext:AssetLoaderContext = new AssetLoaderContext();
-			assetLoaderContext.mapUrlToData("igdosh.jpg", new OgreDiffuse());
-			
 			//setup parser to be used on AssetLibrary
-			AssetLibrary.loadData(new OgreModel(), assetLoaderContext, null, new MD2Parser());
+			AssetLibrary.loadData(new PKnightModel(), null, null, new MD2Parser());
 			AssetLibrary.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetComplete);
+			AssetLibrary.addEventListener(LoaderEvent.RESOURCE_COMPLETE, onResourceComplete);
 			
-			//setup materials
+			//create a global shadow map method
 			_shadowMapMethod = new FilteredShadowMapMethod(_light);
+			
+			//setup floor material
 			_floorMaterial = new TextureMaterial(Cast.bitmapTexture(FloorDiffuse));
 			_floorMaterial.lightPicker = _lightPicker;
 			_floorMaterial.specular = 0;
+			_floorMaterial.ambient = 1;
 			_floorMaterial.shadowMethod = _shadowMapMethod;
 			_floorMaterial.repeat = true;
+			
+			//setup Perelith Knight materials
+			for (var i:uint = 0; i < _pKnightTextures.length; i++) {
+				var bitmapData:BitmapData = _pKnightTextures[i].bitmapData;
+				var knightMaterial:TextureMaterial = new TextureMaterial(Cast.bitmapTexture(bitmapData));
+				knightMaterial.normalMap = Cast.bitmapTexture(BitmapFilterEffects.normalMap(bitmapData));
+				knightMaterial.specularMap = Cast.bitmapTexture(BitmapFilterEffects.outline(bitmapData));
+				knightMaterial.lightPicker = _lightPicker;
+				knightMaterial.gloss = 30;
+				knightMaterial.specular = 1;
+				knightMaterial.ambient = 1;
+				knightMaterial.shadowMethod = _shadowMapMethod;
+				_pKnightMaterials.push(knightMaterial);
+			}
+				
 			_floor = new Mesh(new PlaneGeometry(5000, 5000), _floorMaterial);
 			_floor.geometry.scaleUV(5, 5);
 			
@@ -201,47 +225,42 @@ package
 			if (event.asset.assetType == AssetType.MESH) {
 				_mesh = event.asset as Mesh;
 				
-				//adjust the ogre material
-				var material:TextureMaterial = _mesh.material as TextureMaterial;
-				material.specularMap = Cast.bitmapTexture(OgreSpecular);
-				material.normalMap = Cast.bitmapTexture(OgreNormals);
-				material.lightPicker = _lightPicker;
-				material.gloss = 30;
-				material.specular = 1;
-				material.ambientColor = 0x303040;
-				material.ambient = 1;
-				material.shadowMethod = _shadowMapMethod;
-				
 				//adjust the ogre mesh
 				_mesh.y = 120;
 				_mesh.scale(5);
 				
-				
-				//create 16 different clones of the ogre
-				var numWide:Number = 20;
-				var numDeep:Number = 20;
-				var k:uint = 0;
-				for (var i:uint = 0; i < numWide; i++) {
-					for (var j:uint = 0; j < numDeep; j++) {
-						//clone mesh
-						var clone:Mesh = _mesh.clone() as Mesh;
-						clone.x = (i-(numWide-1)/2)*5000/numWide;
-						clone.z = (j-(numDeep-1)/2)*5000/numDeep;
-						clone.castsShadows = true;
-						
-						_view.scene.addChild(clone);
-						
-						//create animator
-						var vertexAnimator:VertexAnimator = new VertexAnimator(_animationSet);
-						
-						//play specified state
-						vertexAnimator.play(_animationSet.animationNames[int(Math.random()*(_animationSet.animationNames.length-1))], null, Math.random()*1000);
-						clone.animator = vertexAnimator;
-						k++;
-					}
-				}
 			} else if (event.asset.assetType == AssetType.ANIMATION_SET) {
 				_animationSet = event.asset as VertexAnimationSet;
+			}
+		}
+		
+		/**
+		 * Listener function for resource complete event on loader
+		 */
+		private function onResourceComplete(event:LoaderEvent):void
+		{
+			//create 20 x 20 different clones of the ogre
+			var numWide:Number = 20;
+			var numDeep:Number = 20;
+			var k:uint = 0;
+			for (var i:uint = 0; i < numWide; i++) {
+				for (var j:uint = 0; j < numDeep; j++) {
+					//clone mesh
+					var clone:Mesh = _mesh.clone() as Mesh;
+					clone.x = (i-(numWide-1)/2)*5000/numWide;
+					clone.z = (j-(numDeep-1)/2)*5000/numDeep;
+					clone.castsShadows = true;
+					clone.material = _pKnightMaterials[uint(Math.random()*_pKnightMaterials.length)];
+					_view.scene.addChild(clone);
+					
+					//create animator
+					var vertexAnimator:VertexAnimator = new VertexAnimator(_animationSet);
+					
+					//play specified state
+					vertexAnimator.play(_animationSet.animationNames[int(Math.random()*_animationSet.animationNames.length)], null, Math.random()*1000);
+					clone.animator = vertexAnimator;
+					k++;
+				}
 			}
 		}
 		
