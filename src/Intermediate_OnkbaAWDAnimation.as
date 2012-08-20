@@ -234,6 +234,9 @@ package
 		{
             _text = new TextField();
             _text.defaultTextFormat = new TextFormat("Verdana", 11, 0xFFFFFF);
+			_text.embedFonts = true;
+			_text.antiAliasType = AntiAliasType.ADVANCED;
+			_text.gridFitType = GridFitType.PIXEL;
             _text.width = 300;
             _text.height = 250;
             _text.selectable = false;
