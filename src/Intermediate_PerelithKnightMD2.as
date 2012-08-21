@@ -1,12 +1,12 @@
 ﻿﻿/*
 
-MD2 file loading example in Away3d
+Vertex animation example in Away3d using the MD2 format
 
 Demonstrates:
 
 How to use the AssetLibrary class to load an embedded internal md2 model.
-How to map an external asset reference inside a file to an internal embedded asset.
-How to clone an asset from the AssetLibrary and apply different animation sequences.
+How to clone an asset from the AssetLibrary and apply different mateirals.
+How to load animations into an animation set and apply to individual meshes.
 
 Code by Rob Bateman
 rob@infiniteturtles.co.uk
@@ -40,8 +40,6 @@ THE SOFTWARE.
 
 package
 {
-	import utils.*;
-	
 	import away3d.animators.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
@@ -53,16 +51,22 @@ package
 	import away3d.lights.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
-	import away3d.materials.methods.*;
 	import away3d.materials.lightpickers.*;
+	import away3d.materials.methods.*;
 	import away3d.primitives.*;
 	import away3d.utils.Cast;
 	
 	import flash.display.*;
 	import flash.events.*;
+	import flash.filters.*;
+	import flash.geom.*;
+	import flash.text.*;
+	import flash.ui.*;
+	
+	import utils.*;
 	
 	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
-	public class Basic_LoadMD2 extends Sprite
+	public class Intermediate_PerelithKnightMD2 extends Sprite
 	{
 		//signature swf
 		[Embed(source="/../embeds/signature.swf", symbol="Signature")]
@@ -104,6 +108,9 @@ package
 		private var _signature:Sprite;
 		private var _signatureBitmap:Bitmap;
 		
+		//stats
+		private var _stats:AwayStats;
+		
 		//light objects
 		private var _light:DirectionalLight;
 		private var _lightPicker:StaticLightPicker;
@@ -122,12 +129,17 @@ package
 		private var _lastTiltAngle:Number;
 		private var _lastMouseX:Number;
 		private var _lastMouseY:Number;
+		private var _keyUp:Boolean;
+		private var _keyDown:Boolean;
+		private var _keyLeft:Boolean;
+		private var _keyRight:Boolean;
+		private var _lookAtPosition:Vector3D = new Vector3D();
 		private var _animationSet:VertexAnimationSet;
 		
 		/**
 		 * Constructor
 		 */
-		public function Basic_LoadMD2()
+		public function Intermediate_PerelithKnightMD2()
 		{
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
@@ -142,6 +154,24 @@ package
 			
 			//setup controller to be used on the camera
 			_cameraController = new HoverController(_view.camera, null, 45, 20, 2000, 5);
+			
+			//setup the help text
+			var text:TextField = new TextField();
+			text.defaultTextFormat = new TextFormat("Verdana", 11, 0xFFFFFF);
+			text.embedFonts = true;
+			text.antiAliasType = AntiAliasType.ADVANCED;
+			text.gridFitType = GridFitType.PIXEL;
+			text.width = 240;
+			text.height = 100;
+			text.selectable = false;
+			text.mouseEnabled = false;
+			text.text = "Click and drag - rotate\n" + 
+				"Cursor keys / WSAD / ZSQD - move\n" + 
+				"Scroll wheel - zoom";
+			
+			text.filters = [new DropShadowFilter(1, 45, 0x0, 1, 0, 0)];
+			
+			addChild(text);
 			
 			//setup the lights for the scene
 			_light = new DirectionalLight(-0.5, -1, -1);
@@ -178,7 +208,8 @@ package
 				knightMaterial.shadowMethod = _shadowMapMethod;
 				_pKnightMaterials.push(knightMaterial);
 			}
-				
+			
+			//setup the floor
 			_floor = new Mesh(new PlaneGeometry(5000, 5000), _floorMaterial);
 			_floor.geometry.scaleUV(5, 5);
 			
@@ -194,12 +225,16 @@ package
 			addChild(_signatureBitmap);
 			
 			//add stats panel
-			addChild(new AwayStats(_view));
+			addChild(_stats = new AwayStats(_view));
 			
 			//add listeners
 			addEventListener(Event.ENTER_FRAME, onEnterFrame);
+			stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+			stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 			stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+			stage.addEventListener(Event.MOUSE_LEAVE, onMouseUp);
+			stage.addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheel);
 			stage.addEventListener(Event.RESIZE, onResize);
 			onResize();
 		}
@@ -213,6 +248,17 @@ package
 				_cameraController.panAngle = 0.3*(stage.mouseX - _lastMouseX) + _lastPanAngle;
 				_cameraController.tiltAngle = 0.3*(stage.mouseY - _lastMouseY) + _lastTiltAngle;
 			}
+			
+			if (_keyUp)
+				_lookAtPosition.x -= 10;
+			if (_keyDown)
+				_lookAtPosition.x += 10;
+			if (_keyLeft)
+				_lookAtPosition.z -= 10;
+			if (_keyRight)
+				_lookAtPosition.z += 10;
+			
+			_cameraController.lookAtPosition = _lookAtPosition;
 			
 			_view.render();
 		}
@@ -263,6 +309,59 @@ package
 				}
 			}
 		}
+		/**
+		 * Key down listener for animation
+		 */
+		private function onKeyDown(event:KeyboardEvent):void
+		{
+			switch (event.keyCode) {
+				case Keyboard.UP: 
+				case Keyboard.W: 
+				case Keyboard.Z: //fr
+					_keyUp = true;
+					break;
+				case Keyboard.DOWN: 
+				case Keyboard.S: 
+					_keyDown = true;
+					break;
+				case Keyboard.LEFT: 
+				case Keyboard.A: 
+				case Keyboard.Q: //fr
+					_keyLeft = true;
+					break;
+				case Keyboard.RIGHT: 
+				case Keyboard.D: 
+					_keyRight = true;
+					break;
+			}
+		}
+		
+		/**
+		 * Key up listener
+		 */
+		private function onKeyUp(event:KeyboardEvent):void
+		{
+			switch (event.keyCode) {
+				case Keyboard.UP: 
+				case Keyboard.W: 
+				case Keyboard.Z: //fr
+					_keyUp = false;
+					break;
+				case Keyboard.DOWN: 
+				case Keyboard.S: 
+					_keyDown = false;
+					break;
+				case Keyboard.LEFT: 
+				case Keyboard.A: 
+				case Keyboard.Q: //fr
+					_keyLeft = false;
+					break;
+				case Keyboard.RIGHT: 
+				case Keyboard.D: 
+					_keyRight = false;
+					break;
+			}
+		}
 		
 		/**
 		 * Mouse down listener for navigation
@@ -274,35 +373,38 @@ package
 			_lastMouseX = stage.mouseX;
 			_lastMouseY = stage.mouseY;
 			_move = true;
-			stage.addEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
 		}
 		
 		/**
 		 * Mouse up listener for navigation
 		 */
-		private function onMouseUp(event:MouseEvent):void
+		private function onMouseUp(event:Event):void
 		{
 			_move = false;
-			stage.removeEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
 		}
 		
 		/**
-		 * Mouse stage leave listener for navigation
+		 * Mouse wheel listener for navigation
 		 */
-		private function onStageMouseLeave(event:Event):void
+		private function onMouseWheel(ev:MouseEvent):void
 		{
-			_move = false;
-			stage.removeEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
+			_cameraController.distance -= ev.delta * 5;
+			
+			if (_cameraController.distance < 100)
+				_cameraController.distance = 100;
+			else if (_cameraController.distance > 2000)
+				_cameraController.distance = 2000;
 		}
 		
 		/**
-		 * stage listener for resize events
+		 * Stage listener for resize events
 		 */
 		private function onResize(event:Event = null):void
 		{
 			_view.width = stage.stageWidth;
 			_view.height = stage.stageHeight;
 			_signatureBitmap.y = stage.stageHeight - _signature.height;
+			_stats.x = stage.stageWidth - _stats.width;
 		}
 	}
 }
