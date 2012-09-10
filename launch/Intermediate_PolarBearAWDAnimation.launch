@@ -3,10 +3,11 @@
 <stringAttribute key="ADL_ARGUMENTS" value=""/>
 <stringAttribute key="APP_ARGUMENTS" value=""/>
 <stringAttribute key="ARGUMENTS" value=""/>
+<booleanAttribute key="DISABLE_COMPILE_PROCESS" value="false"/>
 <booleanAttribute key="KILL_PREVIOUS_VIEWER" value="true"/>
 <stringAttribute key="LAUNCHER_DEPENDENCIES" value="[Self]"/>
-<stringAttribute key="MAIN_CLASS" value="src/Basic_LoadMD2.as"/>
-<stringAttribute key="OUTPUT" value="bin/Basic_LoadMD2.swf"/>
+<stringAttribute key="MAIN_CLASS" value="src/Intermediate_PolarBearAWDAnimation.as"/>
+<stringAttribute key="OUTPUT" value="bin/Intermediate_PolarBearAWDAnimation.swf"/>
 <booleanAttribute key="PASS_CP" value="true"/>
 <booleanAttribute key="PASS_EXTERNS" value="true"/>
 <booleanAttribute key="PASS_MAIN_CLASS" value="true"/>
@@ -18,7 +19,7 @@
 <stringAttribute key="PRE_COMPILE_ANT" value="build/pre_compile.xml"/>
 <stringAttribute key="PROJECT_NAME" value="away3d-examples-fp11"/>
 <booleanAttribute key="START_SWF_ENABLED" value="true"/>
-<stringAttribute key="START_SWF_LOCATION" value="bin/Basic_LoadMD2.html"/>
+<stringAttribute key="START_SWF_LOCATION" value="bin/Intermediate_PolarBearAWDAnimation.html"/>
 <stringAttribute key="START_SWF_WITH" value="Browser"/>
 <booleanAttribute key="USE_PROJECT_COMPILER_ARGUMENTS" value="true"/>
 <stringAttribute key="bad_container_name" value="/away3d-examples-fp11/launch"/>

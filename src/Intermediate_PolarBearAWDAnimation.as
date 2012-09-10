@@ -70,7 +70,7 @@ package
 	
 	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
 	
-	public class Intermediate_CharacterAnimation extends Sprite
+	public class Intermediate_PolarBearAWDAnimation extends Sprite
 	{
 		//signature swf
 		[Embed(source="/../embeds/signature.swf", symbol="Signature")]
@@ -165,7 +165,7 @@ package
 		/**
 		 * Constructor
 		 */
-		public function Intermediate_CharacterAnimation()
+		public function Intermediate_PolarBearAWDAnimation()
 		{
 			init();
 		}
