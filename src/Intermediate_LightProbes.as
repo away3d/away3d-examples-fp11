@@ -41,6 +41,7 @@ package
 	import away3d.containers.Scene3D;
 	import away3d.containers.View3D;
 	import away3d.controllers.LookAtController;
+	import away3d.core.base.CompactSubGeometry;
 	import away3d.debug.AwayStats;
 	import away3d.entities.Mesh;
 	import away3d.events.AssetEvent;

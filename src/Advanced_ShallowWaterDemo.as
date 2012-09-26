@@ -435,10 +435,8 @@ package
 			plane.mouseEnabled = true;
 			plane.pickingCollider = PickingColliderType.BOUNDS_ONLY;
 
-			// need to move from CompactSubGeometry to SubGeometry to have things in separate buffers and compatible with PixelBender
-			var subGeom : ISubGeometry = plane.geometry.subGeometries[0];
-			plane.geometry.removeSubGeometry(subGeom);
-			plane.geometry.addSubGeometry(subGeom.cloneWithSeperateBuffers());
+			// need to separate vertex data buffers for PixelBender compatibility
+			plane.geometry.convertToSeparateBuffers();
 			scene.addChild(plane);
 
 			//create pool

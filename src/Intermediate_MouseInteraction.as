@@ -245,6 +245,8 @@ package
 			var bitmapTexture:BitmapTexture = new BitmapTexture( bmd );
 			var textureMaterial:TextureMaterial = new TextureMaterial( bitmapTexture );
 			textureMaterial.lightPicker = lightPicker;
+			// this is necessary for PBPickingCollider!!
+			model.geometry.convertToSeparateBuffers();
 			model.material = textureMaterial;
 
 			// Set up a ray picking collider.
