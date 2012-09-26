@@ -1,17 +1,17 @@
 package away3d.primitives
 {
-	import away3d.core.base.*;
-	import away3d.primitives.*;
-	
-	import flash.geom.*;
-	
+	import away3d.core.base.CompactSubGeometry;
+
+	import flash.geom.Matrix3D;
+
+	import flash.geom.Point;
+
+	import flash.geom.Vector3D;
+
 	public class FractalTreeRound extends PrimitiveBase
 	{
-	    private var _rawVertices:Vector.<Number>;
-	    private var _rawNormals:Vector.<Number>;
+	    private var _rawData:Vector.<Number>;
 	    private var _rawIndices:Vector.<uint>;
-	    private var _rawUvs:Vector.<Number>;
-	    private var _rawTangents:Vector.<Number>;
 	    private var _size:Number;
 	    private var _off:uint;
 	    private var _level:uint;
@@ -51,10 +51,10 @@ package away3d.primitives
 	
 	        _leafPositions = new Vector.<Number>();
 	
-	        buildGeometry(subGeometries[0]);
+	        buildGeometry(CompactSubGeometry(subGeometries[0]));
 	    }
 	
-	    override protected function buildGeometry(target:SubGeometry):void
+	    override protected function buildGeometry(target:CompactSubGeometry):void
 	    {
 	        if(_built)
 	            return;
@@ -62,12 +62,9 @@ package away3d.primitives
 	        _built = true;
 	
 	        // Init raw buffers.
-	        _rawVertices = new Vector.<Number>();
-	        _rawNormals = new Vector.<Number>();
+	        _rawData = new Vector.<Number>();
 	        _rawIndices = new Vector.<uint>();
-	        _rawUvs = new Vector.<Number>();
-	        _rawTangents = new Vector.<Number>();
-	
+
 	        // Start recursive method.
 	        buildOpenBox(Vector.<Number>([-_size/2, 0, -_size/2,
 	                                       _size/2, 0, -_size/2,
@@ -76,24 +73,22 @@ package away3d.primitives
 	        step(1);
 	
 	        // Report geom data.
-	        target.updateVertexData(_rawVertices);
-	        target.updateVertexNormalData(_rawNormals);
+	        target.updateData(_rawData);
 	        target.updateIndexData(_rawIndices);
-	        target.updateVertexTangentData(_rawTangents);
 	    }
 	
 	    private function step(level:uint):void
 	    {
 	        // Obtain the last set of quads (make sure rotation occurs).
-	        var last:Vector.<Number> = _rawVertices.slice(_rawVertices.length - 18);
-	        var front:Vector.<Number> = Vector.<Number>([last[3], last[4], last[5],
-	                                                     last[12], last[13], last[14],
-	                                                     last[15], last[16], last[17],
+	        var last:Vector.<Number> = _rawData.slice(_rawData.length - 78);
+	        var front:Vector.<Number> = Vector.<Number>([last[13], last[14], last[15],
+	                                                     last[52], last[53], last[54],
+	                                                     last[65], last[66], last[67],
 	                                                     last[0], last[1], last[2]]);
-	        var back:Vector.<Number> = Vector.<Number>([last[12], last[13], last[14],
-	                                                    last[6], last[7], last[8],
-	                                                    last[9], last[10], last[11],
-	                                                    last[15], last[16], last[17]]);
+	        var back:Vector.<Number> = Vector.<Number>([last[52], last[53], last[54],
+	                                                    last[26], last[27], last[28],
+	                                                    last[39], last[40], last[41],
+	                                                    last[65], last[66], last[67]]);
 	
 	        // If level reached, remember position and end process.
 	        if(level > _level)
@@ -117,6 +112,14 @@ package away3d.primitives
 	    // 2 triangles instead at the top.
 	    private function buildOpenBox(vertices:Vector.<Number>, forceBaseToHeightFactor:Number = -1):void
 	    {
+			// Set indices.
+			_rawIndices.push(_off + 0, _off + 4, _off + 1, _off + 4, _off + 5, _off + 1); // Front.
+			_rawIndices.push(_off + 2, _off + 6, _off + 3, _off + 6, _off + 7, _off + 3); // Back.
+			_rawIndices.push(_off + 1, _off + 5, _off + 2, _off + 5, _off + 6, _off + 2); // Right.
+			_rawIndices.push(_off + 3, _off + 7, _off + 0, _off + 7, _off + 4, _off + 0); // Left.
+			_rawIndices.push(_off + 5, _off + 8, _off + 6, _off + 7, _off + 9, _off + 4); // Tris.
+			_off += 10;
+
 	        // Pre-calculate values for vertices and normals.
 	        _v0.x = vertices[0];
 	        _v0.y = vertices[1];
@@ -140,88 +143,51 @@ package away3d.primitives
 	        _sideLength = _d0.length;
 	        _boxNorm.scaleBy((forceBaseToHeightFactor > 0 ? forceBaseToHeightFactor : _baseToHeightFactor)*_sideLength);
 	        _triNorm.scaleBy(rand(_baseToTriangleHeightFactorRange.x, _baseToTriangleHeightFactorRange.y)*_sideLength);
-	
-	        // Set vertices.
-	        _rawVertices.push(_v0.x, _v0.y, _v0.z); // flb (front left bottom)
-	        _rawVertices.push(_v1.x, _v1.y, _v1.z); // frb
-	        _rawVertices.push(_v2.x, _v2.y, _v2.z); // brb
-	        _rawVertices.push(_v3.x, _v3.y, _v3.z); // blb
-	        _rawVertices.push(_v0.x + _boxNorm.x, _v0.y + _boxNorm.y, _v0.z + _boxNorm.z); // flt
-	        _rawVertices.push(_v1.x + _boxNorm.x, _v1.y + _boxNorm.y, _v1.z + _boxNorm.z); // frt
-	        _rawVertices.push(_v2.x + _boxNorm.x, _v2.y + _boxNorm.y, _v2.z + _boxNorm.z); // brt
-	        _rawVertices.push(_v3.x + _boxNorm.x, _v3.y + _boxNorm.y, _v3.z + _boxNorm.z); // blt
-	        _rawVertices.push(_v1.x + _boxNorm.x + _mid.x + _triNorm.x, _v1.y + _boxNorm.y + _mid.y + _triNorm.y, _v1.z + _boxNorm.z + _mid.z + _triNorm.z); // tri front
-	        _rawVertices.push(_v0.x + _boxNorm.x + _mid.x + _triNorm.x, _v0.y + _boxNorm.y + _mid.y + _triNorm.y, _v0.z + _boxNorm.z + _mid.z + _triNorm.z); // tri back
-	
-	        // Set indices.
-	        _rawIndices.push(_off + 0, _off + 4, _off + 1, _off + 4, _off + 5, _off + 1); // Front.
-	        _rawIndices.push(_off + 2, _off + 6, _off + 3, _off + 6, _off + 7, _off + 3); // Back.
-	        _rawIndices.push(_off + 1, _off + 5, _off + 2, _off + 5, _off + 6, _off + 2); // Right.
-	        _rawIndices.push(_off + 3, _off + 7, _off + 0, _off + 7, _off + 4, _off + 0); // Left.
-	        _rawIndices.push(_off + 5, _off + 8, _off + 6, _off + 7, _off + 9, _off + 4); // Tris.
-	        _off += 10;
-	
-	        // Set uvs.
-	        _rawUvs.push(0, 1, 1, 1, 0, 1, 1, 1); // b
-	        _rawUvs.push(0, 0, 1, 0, 0, 0, 1, 0); // t
-	        _rawUvs.push(0.5, 0.5, 0.5, 0.5); // tris
-	
-	        // Calculate radially outward pointing normals.
-	        var norm0:Vector3D = _v0.subtract(_v2);
-	        var norm1:Vector3D = _v1.subtract(_v3);
-	        var norm2:Vector3D = _v2.subtract(_v0);
-	        var norm3:Vector3D = _v3.subtract(_v1);
-	        norm0.normalize();
-	        norm1.normalize();
-	        norm2.normalize();
-	        norm3.normalize();
-	        var normFront:Vector3D = _d1.clone();
-	        normFront.normalize();
-	        var normBack:Vector3D = normFront.clone();
-	        normBack.negate();
-	        var normLeft:Vector3D = _d0.clone();
-	        normLeft.normalize();
-	        var normRight:Vector3D = normLeft.clone();
-	        normRight.negate();
-	
-	        // Set normals.
-	        _rawNormals.push(norm0.x, norm0.y, norm0.z,
-	                         norm1.x, norm1.y, norm1.z,
-	                         norm2.x, norm2.y, norm2.z,
-	                         norm3.x, norm3.y, norm3.z);
-	        _rawNormals.push(norm0.x, norm0.y, norm0.z,
-	                         norm1.x, norm1.y, norm1.z,
-	                         norm2.x, norm2.y, norm2.z,
-	                         norm3.x, norm3.y, norm3.z);
-	        _rawNormals.push(normRight.x, normRight.y, normRight.z,
-	                         normLeft.x, normLeft.y, normLeft.z);
-	
-	        // Set tangents.
-	        var rotate:Matrix3D = new Matrix3D();
-	        var normTop:Vector3D = normRight.crossProduct(normFront);
-	        normTop.normalize();
-	        rotate.appendRotation(45, normTop);
-	        norm0 = rotate.transformVector(norm0);
-	        norm1 = rotate.transformVector(norm1);
-	        norm2 = rotate.transformVector(norm2);
-	        norm3 = rotate.transformVector(norm3);
-	        normRight = rotate.transformVector(normRight);
-	        normLeft = rotate.transformVector(normLeft);
-	        _rawTangents.push(norm0.x, norm0.y, norm0.z,
-	                          norm1.x, norm1.y, norm1.z,
-	                          norm2.x, norm2.y, norm2.z,
-	                          norm3.x, norm3.y, norm3.z);
-	        _rawTangents.push(norm0.x, norm0.y, norm0.z,
-	                          norm1.x, norm1.y, norm1.z,
-	                          norm2.x, norm2.y, norm2.z,
-	                          norm3.x, norm3.y, norm3.z);
-	        _rawTangents.push(normRight.x, normRight.y, normRight.z,
-	                          normLeft.x, normLeft.y, normLeft.z);
+
+			// Calculate radially outward pointing normals.
+			var norm0:Vector3D = _v0.subtract(_v2);
+			var norm1:Vector3D = _v1.subtract(_v3);
+			var norm2:Vector3D = _v2.subtract(_v0);
+			var norm3:Vector3D = _v3.subtract(_v1);
+			norm0.normalize();
+			norm1.normalize();
+			norm2.normalize();
+			norm3.normalize();
+			var normFront:Vector3D = _d1.clone();
+			normFront.normalize();
+			var normBack:Vector3D = normFront.clone();
+			normBack.negate();
+			var normLeft:Vector3D = _d0.clone();
+			normLeft.normalize();
+			var normRight:Vector3D = normLeft.clone();
+			normRight.negate();
+			// Set tangents.
+			var rotate:Matrix3D = new Matrix3D();
+			var tangTop:Vector3D = normRight.crossProduct(normFront);
+			tangTop.normalize();
+			rotate.appendRotation(45, tangTop);
+			var tang0 : Vector3D = rotate.transformVector(norm0);
+			var tang1 : Vector3D = rotate.transformVector(norm1);
+			var tang2 : Vector3D = rotate.transformVector(norm2);
+			var tang3 : Vector3D = rotate.transformVector(norm3);
+			var tangRight : Vector3D = rotate.transformVector(normRight);
+			var tangLeft : Vector3D = rotate.transformVector(normLeft);
+
+	        _rawData.push(_v0.x, _v0.y, _v0.z, norm0.x, norm0.y, norm0.z, tang0.x, tang0.y, tang0.z, 0, 1, 0, 1);	// flb (front left bottom)
+			_rawData.push(_v1.x, _v1.y, _v1.z, norm1.x, norm1.y, norm1.z, tang1.x, tang1.y, tang1.z, 1, 1, 1, 1); // frb
+			_rawData.push(_v2.x, _v2.y, _v2.z, norm2.x, norm2.y, norm2.z, tang2.x, tang2.y, tang2.z, 0, 1, 0, 1); // brb
+			_rawData.push(_v3.x, _v3.y, _v3.z, norm3.x, norm3.y, norm3.z, tang3.x, tang3.y, tang3.z, 1, 1, 1, 1); // blb
+			_rawData.push(_v0.x + _boxNorm.x, _v0.y + _boxNorm.y, _v0.z + _boxNorm.z, norm0.x, norm0.y, norm0.z, tang0.x, tang0.y, tang0.z, 0, 0, 0, 0); // flt
+			_rawData.push(_v1.x + _boxNorm.x, _v1.y + _boxNorm.y, _v1.z + _boxNorm.z, norm1.x, norm1.y, norm1.z, tang1.x, tang1.y, tang1.z, 1, 0, 1, 0); // frt
+			_rawData.push(_v2.x + _boxNorm.x, _v2.y + _boxNorm.y, _v2.z + _boxNorm.z, norm2.x, norm2.y, norm2.z, tang2.x, tang2.y, tang2.z, 0, 0, 0, 0); // brt
+			_rawData.push(_v3.x + _boxNorm.x, _v3.y + _boxNorm.y, _v3.z + _boxNorm.z, norm3.x, norm3.y, norm3.z, tang3.x, tang3.y, tang3.z, 1, 0, 1, 0); // blt
+			_rawData.push(_v1.x + _boxNorm.x + _mid.x + _triNorm.x, _v1.y + _boxNorm.y + _mid.y + _triNorm.y, _v1.z + _boxNorm.z + _mid.z + _triNorm.z, normRight.x, normRight.y, normRight.z, tangRight.x, tangRight.y, tangRight.z, 0.5, 0.5, 0.5, 0.5); // tri front
+			_rawData.push(_v0.x + _boxNorm.x + _mid.x + _triNorm.x, _v0.y + _boxNorm.y + _mid.y + _triNorm.y, _v0.z + _boxNorm.z + _mid.z + _triNorm.z, normLeft.x, normLeft.y, normLeft.z, tangLeft.x, tangLeft.y, tangLeft.z, 0.5, 0.5, 0.5, 0.5); // tri back
 	    }
 	
-	    override protected function buildUVs(target:SubGeometry):void
+	    override protected function buildUVs(target:CompactSubGeometry):void
 	    {
-	        target.updateUVData(_rawUvs);
+			buildGeometry(target);
 	    }
 	
 	    private function rand(min:Number, max:Number):Number
