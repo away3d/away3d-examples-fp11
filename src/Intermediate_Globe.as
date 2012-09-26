@@ -47,6 +47,9 @@ package
 	import away3d.lights.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
+	import away3d.materials.compilation.ShaderRegisterCache;
+	import away3d.materials.compilation.ShaderRegisterData;
+	import away3d.materials.compilation.ShaderRegisterElement;
 	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
 	import away3d.materials.utils.*;
@@ -349,10 +352,10 @@ package
 			atmosphereMaterial.ambient = 1;
 		}
 		
-		private function modulateDiffuseMethod(vo : MethodVO, t:ShaderRegisterElement, regCache:ShaderRegisterCache):String
+		private function modulateDiffuseMethod(vo : MethodVO, t:ShaderRegisterElement, regCache:ShaderRegisterCache, sharedRegisters:ShaderRegisterData):String
 		{
-			var viewDirFragmentReg:ShaderRegisterElement = atmosphereDiffuseMethod.viewDirFragmentReg;
-			var normalFragmentReg:ShaderRegisterElement = atmosphereDiffuseMethod.normalFragmentReg;
+			var viewDirFragmentReg:ShaderRegisterElement = sharedRegisters.viewDirFragment;
+			var normalFragmentReg:ShaderRegisterElement = sharedRegisters.normalFragment;
 			
 			var code:String = "dp3 " + t + ".w, " + viewDirFragmentReg + ".xyz, " + normalFragmentReg + ".xyz\n" + 
 							"mul " + t + ".w, " + t + ".w, " + t + ".w\n";
@@ -360,10 +363,10 @@ package
 			return code;
 		}
 		
-		private function modulateSpecularMethod(vo : MethodVO, t:ShaderRegisterElement, regCache:ShaderRegisterCache):String
+		private function modulateSpecularMethod(vo : MethodVO, t:ShaderRegisterElement, regCache:ShaderRegisterCache, sharedRegisters:ShaderRegisterData):String
 		{
-			var viewDirFragmentReg:ShaderRegisterElement = atmosphereDiffuseMethod.viewDirFragmentReg;
-			var normalFragmentReg:ShaderRegisterElement = atmosphereDiffuseMethod.normalFragmentReg;
+			var viewDirFragmentReg:ShaderRegisterElement = sharedRegisters.viewDirFragment;
+			var normalFragmentReg:ShaderRegisterElement = sharedRegisters.normalFragment;
 			var temp:ShaderRegisterElement = regCache.getFreeFragmentSingleTemp();
 			regCache.addFragmentTempUsages(temp, 1);
 			
