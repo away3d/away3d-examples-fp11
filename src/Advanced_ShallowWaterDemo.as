@@ -47,6 +47,9 @@ package
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
+	import away3d.core.base.CompactSubGeometry;
+	import away3d.core.base.ISubGeometry;
+	import away3d.core.base.SubGeometry;
 	import away3d.core.pick.*;
 	import away3d.debug.*;
 	import away3d.entities.*;
@@ -425,14 +428,17 @@ package
 			//create water plane.
 			var planeSegments:uint = (gridDimension - 1);
 			planeSize = planeSegments*gridSpacing;
-			plane = new Mesh(new PlaneGeometry(planeSize, planeSize, planeSegments, planeSegments), liquidMaterial);
+			plane = new Mesh(new PlaneGeometry(planeSize, planeSize, planeSegments, planeSegments, false), liquidMaterial);
 			plane.rotationX = 90;
 			plane.x -= planeSize/2;
 			plane.z -= planeSize/2;
 			plane.mouseEnabled = true;
 			plane.pickingCollider = PickingColliderType.BOUNDS_ONLY;
-			plane.geometry.subGeometries[0].autoDeriveVertexNormals = false;
-			plane.geometry.subGeometries[0].autoDeriveVertexTangents = false;
+
+			// need to move from CompactSubGeometry to SubGeometry to have things in separate buffers and compatible with PixelBender
+			var subGeom : ISubGeometry = plane.geometry.subGeometries[0];
+			plane.geometry.removeSubGeometry(subGeom);
+			plane.geometry.addSubGeometry(subGeom.cloneWithSeperateBuffers());
 			scene.addChild(plane);
 
 			//create pool
@@ -576,9 +582,10 @@ package
 			fluidDisturb.updateMemoryDisturbances();
 
 			// Update plane to fluid.
-			plane.geometry.subGeometries[0].updateVertexData(fluid.points);
-			plane.geometry.subGeometries[0].updateVertexNormalData(fluid.normals);
-			plane.geometry.subGeometries[0].updateVertexTangentData(fluid.tangents);
+			var subGeometry : SubGeometry = SubGeometry(plane.geometry.subGeometries[0]);
+			subGeometry.updateVertexData(fluid.points);
+			subGeometry.updateVertexNormalData(fluid.normals);
+			subGeometry.updateVertexTangentData(fluid.tangents);
 
 			
 			if (planeDisturb) {
