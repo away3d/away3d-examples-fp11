@@ -1,12 +1,12 @@
 /*
 
-3D Tweening example in Away3d
-
+Basic View example in Away3d
+ 
 Demonstrates:
-
-How to use Tweener within a 3D coordinate system.
-How to create a 3D mouse event listener on a scene object.
-How to return the scene coordinates of a mouse click on the surface of a scene object.
+ 
+How to create a 3D environment for your objects
+How to add a new textured object to your world
+How to rotate an object in your world
 
 Code by Rob Bateman
 rob@infiniteturtles.co.uk
