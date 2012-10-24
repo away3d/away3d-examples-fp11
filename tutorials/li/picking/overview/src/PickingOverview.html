@@ -1,0 +1,495 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+	<title>Away3D Picking Tutorial</title>
+
+	<!-- AS3 Syntax Highlighter -->
+	<script type="text/javascript" src="../../../base/bin/highlight/scripts/shCore.js"></script>
+	<script type="text/javascript" src="../../../base/bin/highlight/scripts/shBrushAS3.js"></script>
+	<link type="text/css" rel="stylesheet" href="../../../base/bin/highlight/styles/shCoreDefault.css"/>
+	<script type="text/javascript">SyntaxHighlighter.all();</script>
+
+	<!-- Styles -->
+	<link type="text/css" rel="stylesheet" href="../../../base/src/tutorial.css"/>
+
+</head>
+
+<body>
+
+<article>
+
+<header>
+	<hgroup>
+		<h3>Away3D Picking</h3>
+		<h4>An introduction to mouse interactivity in Away3D 4.</h4>
+	</hgroup>
+</header>
+
+<aside>
+	<p>Contents:</p>
+	<ul>
+		<li><a href="#intro">Introduction</a></li>
+		<li><a href="#hello">Hello Picking</a></li>
+		<li>
+			<a href="#mesh">Entity Properties</a>
+			<ul>
+				<li><a href="#mouseEnabled">MouseEnabled</li>
+				<li><a href="#bounds">Picking Colliders</a></li>
+			</ul>
+		</li>
+		<li>
+			<a href="#view">View Properties</a>
+			<ul>
+				<li><a href="#shader">Shader vs. Raycast MousePickers</a></li>
+				<li><a href="#raycast">The Raycast MousePickers</a></li>
+			</ul>
+		</li>
+		<li><a href="#uv">UV Painting</a></li>
+	</ul>
+</aside>
+
+<section id="intro">
+
+	<h3>Introduction</h3>
+
+	<p>Every 3D engine needs to solve a very basic problem: what lies beneath the mouse? This is commonly referred to as
+		<span class="newTerm">Picking</span>. Although this sounds
+		like a simple and straight forward problem, it actually involves non-trivial mathematics, very efficient algorithms,
+		and is definitely much more complex than its 2D counterpart. Detecting what object/s is beneath the cursor in a 3D scene can be in fact
+		a programatically expensive task, despite the apparent simplicity of the problem. But don't panic! Away3D offers a series of carefully
+		crafted features in order to deal with such a problem, taking into account the Flash Player's capabilities and limitations,
+		and giving the user plenty of flexibility to balance precision vs performance for a particular implementation.
+	</p>
+
+	<p>In this article, we will explore the engine's picking feature set, get to know how easy it is to use them, and understand how to master the
+		subtleties in order to achieve an efficient implementation in advanced and demanding projects.</p>
+</section>
+
+<section id="hello">
+
+	<h4>Hello Picking</h4>
+
+	<p>So lets get right down to business. Have a look at the following example, and it's code, below:</p>
+	<figure>
+		<iframe class="demoFrames interactiveFigure" src="../bin/listing_01/demo_01.html"></iframe>
+		<figcaption>
+			Listing 1. Basic mouse interactivity on a 3D scene. Hover over the objects to change their material from gray to red.
+			<a href="../bin/listing_01/src_01.html" target="_blank">Source code.</a>
+		</figcaption>
+	</figure>
+	<p>The key parts of the code are:</p>
+				<pre class="brush: as3">
+anObject.mouseEnabled = true;
+anObject.addEventListener( MouseEvent3D.MOUSE_OVER, onObjectMouseOver );
+private function onObjectMouseOver( event:MouseEvent3D ):void {
+	// do stuff...
+}
+				</pre>
+	<p>And its as simple as that.</p>
+
+	<p>Of course, you can use all the other mouse event types, just like in 2D. The idea is that the interface is what you know and are already familiar with.
+		Nothing new here. But it is 3D picking though, and things can get more complicated, as stated before, so lets have a look under the hood and see what we find.</p>
+</section>
+
+<section id="mesh">
+
+	<h4>Entity Properties</h4>
+
+	<p>Picking in Away3D can be managed by a set of properties within 3D entities. Lets have a look at them.</p>
+
+	<section id="mouseEnabled">
+
+		<h4>MouseEnabled</h4>
+
+		<p>So, what's going on under the hood? The core of 3D picking is casting a ray from the camera, via the mouse on the screen, and into the scene. One method to determine
+			if the mouse is under an object is evaluating what objects are hit by such ray. This involves calculating ray-sphere collisions, ray-aabb collisions, ray-triangle collisions,
+			etc. The most expensive part of this process is finding out if the ray hits the inside of a triangle in a mesh which could, potentially, contain a very high poly count.
+			Ray tracing is not the only method used for picking. Away3D in fact, has 2 different methods and uses this one by default for reasons we will discuss further along in
+			this tutorial. Figure one below shows the basic of the ray tracing approach.</p>
+
+		<figure>
+			<img class="staticFigure" src="../images/figure_01.jpg">
+			<figcaption>
+				Figure 1. Tracing collisions from a ray cast from the camera, through the screen, into a mesh's bounding volume and into the mesh's triangles.
+			</figcaption>
+		</figure>
+
+		<p>When you set mouseEnabled to true on an object, you make it eligible for picking evaluations. This property is set to false by default on all objects in order to avoid
+			unnecessary calculations.</p>
+
+		<p>Now, as in 2D mouse interactions, you may wish to have an object mouse enabled but with no listeners attached.
+			The result of this is simply occlusion. The object collides with the ray, but triggers no mouse events. You can see this on listing 2, which is
+			just the same as listing 1, but simply comments out the attachment of listeners on one of the objects.</p>
+		<figure>
+			<iframe class="demoFrames interactiveFigure" src="../bin/listing_02/demo_02.html"></iframe>
+			<figcaption>
+				Listing 2. MouseEnabled and listeners. Both objects are mouse enabled, but only one listens for mouse events. The object with no listeners, simply occludes interaction
+				on the other.
+				<a href="../bin/listing_02/src_02.html" target="_blank">Source code.</a>
+			</figcaption>
+		</figure>
+		<p>If the occluding object was not mouse enabled, the picking ray would just pass through it, completely ignoring it. Again, this is the default behaviour for all
+			scene objects unless you set them to be mouse enabled. This is actually the same as 2D picking in Flash, but in that case objects are mouse enabled by default, because
+			picking is so much cheaper in two dimensions.</p>
+	</section>
+
+	<section id="bounds">
+
+		<h4>Picking Colliders</h4>
+
+		<p>You may have noticed on the previous listings that ( after rotating the camera to particular angles ) picking around the sphere is not very accurate.
+			In listing 1 or 2, if you hover
+			the mouse close enough to the sphere, it will trigger a mouse over, even though the mouse is not actually over the object. How lame!</p>
+
+		<figure>
+			<img class="staticFigure" src="../images/figure_02.png">
+			<figcaption>
+				Figure 2. 3D object's mouse interactivity is set to BOUNDS by default.
+			</figcaption>
+		</figure>
+
+		<p>The reason for this is performance. If you have a look at figure 1 again, what's happening is that the ray is being "stopped" at the mesh's bounding volume surface
+			and collision calculations with its potentially hundreds or thousands or millions of triangles is avoided by default. If you do need more precision, you just need to tell
+			the ray to keep going.
+			You change this using the following property:</p>
+
+				<pre class="brush: as3">
+anObject.pickingCollider = PickingColliderType.BOUNDS_ONLY; // default
+//anObject.pickingCollider = PickingColliderType.AS3_FIRST_ENCOUNTERED;
+//anObject.pickingCollider = PickingColliderType.AS3_BEST_HIT;
+// etc...
+				</pre>
+
+		<p>BOUNDS_ONLY is the cheapest picking collider that the engine offers and is accurate enough for more cases than we usually consider. If you want
+			more precision, you just chose a different one:</p>
+
+		<ol>
+			<!-- 1 -->
+			<li>
+				<p class="listItemTitle">PickingColliderType.BOUNDS_ONLY ( default value )</p>
+
+				<p class="listItemDetails">Calculates ray vs bounding volume collisions.</p>
+			</li>
+			<!-- 2 -->
+			<li>
+				<p class="listItemTitle">PickingColliderType.AS3_FIRST_ENCOUNTERED</p>
+
+				<p class="listItemDetails">Calculates ray vs all mesh triangles collision. This costs considerably
+					more than BOUNDS_ONLY (1) and is heavier as the number of triangles in the mesh increases. The collider stops
+					all tests as soon as a collision with a triangle is found, despite the fact that the hit surface is not the mesh's closest surface along the ray, to the camera.</p>
+			</li>
+			<!-- 3 -->
+			<li>
+				<p class="listItemTitle">PickingColliderType.AS3_BEST_HIT</p>
+
+				<p class="listItemDetails">As the previous collider, but more detailed, evaluating which
+					of the triangles that collide with the ray is closest to the ray's origin. This is necessary if you want to accurately know
+					the collision point on a mesh that may have more than one possible collision surface with the ray, such as a mesh
+					representing a coffee cup, for example. AS3_FIRST_ENCOUNTERED (2) could incorrectly resolve a collision with the inner walls of the cup whereas
+					this collider will not stop tests on the first hit, but will instead find all collisions
+					and evaluate the best one in the end.</p>
+			</li>
+			<!-- 4 -->
+			<li>
+				<p class="listItemTitle">PickingColliderType.PB_FIRST_ENCOUNTERED</p>
+
+				<p class="listItemDetails">This is the same as AS3_FIRST_ENCOUNTERED (2) but uses pixel bender instead of pure Actionscript for ray collision
+					calculations. This method proves to be faster for higher-poly meshes and slower for lower-poly meshes. Pixel bender
+					takes advantage of multi-threading if it can, meaning that such collider will tend to be faster on desktops, but
+					such may not be the case on simpler CPU's like those found on mobile devices. Furthermore, AIR for iOS simply does not
+					support pixel bender, which causes this collider to fail silently in such platform.</p>
+			</li>
+			<!-- 5 -->
+			<li>
+				<p class="listItemTitle">PickingColliderType.PB_BEST_HIT</p>
+
+				<p class="listItemDetails">Pixel bender equivalent to AS3_BEST_HIT (3).</p>
+			</li>
+			<!-- 6 -->
+			<li>
+				<p class="listItemTitle">PickingColliderType.AUTO_FIRST_ENCOUNTERED</p>
+
+				<p class="listItemDetails">As AS3_FIRST_ENCOUNTERED (2), but automatically decides weather to use the actionscript or pixel bender
+					version of the collider depending on the poly count of the mesh.</p>
+			</li>
+			<!-- 7 -->
+			<li>
+				<p class="listItemTitle">PickingColliderType.AUTO_BEST_HIT</p>
+
+				<p class="listItemDetails">Same as AUTO_FIRST_ENCOUNTERED (6) but with the behaviour of AS3_BEST_HIT (3).</p>
+			</li>
+		</ol>
+
+		<p>As you can see, deciding which picking collider to use is a delicate topic, and it is important to understand what each
+			available type does in order to choose the best balance between performance and precision. For instance, you would choose PB_BEST_HIT
+			(5) on an application that paints on a high poly mesh of a human face where you want very accurate precision,
+			but would definitely not pick such a collider for a game, where you need to be able to click on a low poly mesh that occupies
+			a small portion of the screen. Such a poor choice would be a waste of resources, specially if you enable such type of
+			mouse interactivity on many of these objects! Deciding which collider type to use is very important, but a simple task
+			once you understand the basics of each collider type.</p>
+
+		<p>Hence, to solve our problem on figure one, we could set a different collider to the object:</p>
+		<pre class="brush: as3">sphere.pickingCollider = PickingColliderType.AS3_FIRST_ENCOUNTERED;</pre>
+
+		<p>Or, we could simply change the sphere's bounding volume to a BoundingSphere instead of an AxisAlignedBoundingBox
+			(Away3D sets all bounding volumes to AxisAlignedBoundingBox by default). This would allow us to get the precision we want
+			without the need to enter the volume and perform costly ray triangle collision calculations.
+			Of course, this is a very specific, almost theoretical case, but its important to keep in mind that the core of this picking technique is bounding volumes, and
+			different bounding volume shapes can be very helpful.
+			In code, this is how you change a bounding volume:</p>
+
+		<p class="todo">TODO: fix Away3D's incorrect BoundingSphere radius calculation for SphereGeometry.</p>
+		<pre class="brush: as3">sphere.bounds = new BoundingSphere();</pre>
+
+		<p>Either way we choose to resolve our precision problem, the result can be appreciated in listing 3:</p>
+
+		<figure>
+			<iframe class="demoFrames interactiveFigure" src="../bin/listing_03/demo_03.html"></iframe>
+			<figcaption>
+				Listing 3. More accurate picking precision on the sphere by either changing its picking collider or by changing its bounding volume type.
+				<a href="../bin/listing_03/src_03.html" target="_blank">Source code.</a>
+			</figcaption>
+		</figure>
+
+	</section>
+
+</section>
+
+<section id="view">
+
+	<section id="shader">
+
+	<h4>Shader vs. Raycast Mouse Pickers</h4>
+
+	<p>As mentioned before, Away3D offers a completely different approach for picking calculations. So far we have been dealing with the properties of individual
+		objects, you can change the way picking works on a global scale as well.</p>
+
+	<pre class="brush: as3">view.mousePicker = PickingType.SHADER;</pre>
+
+	<p>You can choose from the following set of values:</p>
+
+	<ol>
+		<li>
+			<p class="listItemTitle">PickingType.RAYCAST_FIRST_ENCOUNTERED ( default value )</p>
+
+			<p class="listItemDetails">Uses ray tracing as a picking method, stopping tests at the first
+				successful renderable level collision.</p>
+		</li>
+		<li>
+			<p class="listItemTitle">PickingType.RAYCAST_BEST_HIT</p>
+
+			<p class="listItemDetails">Uses ray tracing as a picking method, evaluating the best ( closest )
+				hit between all the colliding renderables.</p>
+		</li>
+		<li>
+			<p class="listItemTitle">PickingType.SHADER</p>
+
+			<p class="listItemDetails">Uses a shader technique as a picking method, always evaluating the best hit.</p>
+		</li>
+	</ol>
+
+	<p>The difference between first 2 options is quite subtle, lets first see the difference between the first 2 and the 3rd option,
+		which represents a completely different picking technique from the others. As detailed before, the first two are based on evaluating collisions
+		between a ray cast from the camera to the mouse and into the scene, and mathematical entities within the scene, be it bounding volumes
+		or triangles. The 3rd option ( SHADER ) does not evaluate ray-geometry collisions at all, but instead renders a portion of the scene around the mouse
+		with specific colors into a temporary buffer, and then analyzes the color directly under the mouse to find which object is hit. This
+		technique is harder to visualize, and is in fact what most high end 3D engines use, proving to be very efficient both in accuracy and performance. In Flash's
+		Stage3D though, it isn't as performant because it involves transferring images from the GPU to the CPU via Context3D's drawToBitmapData() method,
+		which is not very fast. You can read about this limitation in <a
+				href="http://jacksondunstan.com/articles/1446">this</a> article. The method
+		introduces a severe bottleneck which is the sole reason why Away3D offers a raycast alternative picking method and sets it as the default one.
+		RAYCAST proves to be faster than the SHADER in Flash. Keep in mind that you can only have one of the two methods per view,
+		but not both, i.e. for the moment, you cannot have shader based picking on some objects and raycast based on other objects.
+	</p>
+
+	<p>You may be asking yourself "why does Away3D still offer shader based picking if it is proved to be slower?". Because it is still necessary in some situations. For example,
+		when dealing with GPU animations and transformations. In such, geometry can be altered after the CPU stage, in the GPU,
+		where the raycast approach could not possibly know where the vertices will be, and will not be able to properly calculate ray-geometry
+		collisions. Since the shader method is not ray-geometry collision based and deals with what is actually visible on screen, it is the method
+		of choice when dealing with animated objects and high picking precision is desired. Listing 4 shows the effect of using ray versus shader based
+		picking on an animated object. We will also be using a sphere to trace where the mouse ray hits the mesh, as well as a line segment to trace the mesh's normal at such point.</p>
+
+	<p class="todo">TODO: fix Away3D's incorrect shader picking on this demo.</p>
+	<figure>
+		<iframe class="demoFrames interactiveFigure" src="../bin/listing_04/demo_04.html"></iframe>
+		<figcaption>
+			Listing 4. Picking on animated objects. A RAYCAST picker collides with the non-transformed geometry, whereas
+			the SHADER picker correctly collides with the visible geometry.
+			<a href="../bin/listing_04/src_04.html" target="_blank">Source code.</a>
+		</figcaption>
+	</figure>
+
+	<p>Notice how the raycast method does not see the GPU level vertex transformations and instead hits the static "ghost" mesh. Such
+		a problem does not exist for the shader method. Furthermore, the shader based method ignores the ".pickingCollider" property
+		of objects since this property is only relevant for the raycast based method. The shader picker does however care about the object's ".shaderPickingDetails" property</p>
+
+	<pre class="brush: as3">anObject.shaderPickingDetails = true;</pre>
+
+	<p>This property simply asks the shader picker to evaluate not just whether the mouse events exist, but also the data involved in them such as position, normals, etc.
+		The calculation of such information is not free as it is in the raycast approach, so it should only be requested when needed.
+		If set to false, the mouse events will trigger, but some of the event properties will be null or invalid. The value is set to false
+		by default, and in the case of listing 4, it needs to be enabled so that we can retrieve the location of the mouse event in the scene.</p>
+
+	<p>Hopefully, Adobe will someday remove the drawToBitmapData() bottleneck and make all our lives easier!</p>
+
+</section>
+
+	<h4>View Properties</h4>
+
+	<p>Picking is also managed globally via the View3D object. Lets study these properties as well.</p>
+
+	<section id="raycast">
+
+		<h4>The Raycast Mouse Pickers</h4>
+
+		<p>On the previous section, we discussed the difference between the raycast pickers and the shader picker. Its time to
+			talk about the difference between the two raycast mouse pickers, (1) RAYCAST_FIRST_ENCOUNTERED and (2) RAYCAST_BEST_HIT. These
+			are actually the same picker, but with slightly different settings. The differentiation exists for the same reason "best hit"
+			and "first encountered" options exist in an objects picking collider: for stopping the collision test as soon as it is needed in
+			terms of precision. In this case, the test stops checking on the criteria of "renderables" instead of triangles.</p>
+
+		<ol>
+			<li>
+				<p class="listItemTitle">PickingType.RAYCAST_FIRST_ENCOUNTERED ( default value )</p>
+
+				<p class="listItemDetails">Uses ray tracing as a picking method, stopping tests at the first
+					successful renderable level collision.</p>
+			</li>
+			<li>
+				<p class="listItemTitle">PickingType.RAYCAST_BEST_HIT</p>
+
+				<p class="listItemDetails">Uses ray tracing as a picking method, evaluating the best ( closest )
+					hit between all the colliding renderables.</p>
+			</li>
+		</ol>
+
+		<p>But what is a "renderable"? The raycast picking system relies on an entity's bounding volume, but an entity can contain
+			multiple sub meshes. These sub meshes share a single bounding volume. A sub mesh is a renderable, and that is what a renderable is: something that can be drawn to screen.
+			Sub meshes exist because Stage3D limits the amount of elements that can be put in a buffer, so if the poly count increases beyond such limits in a mesh, a new set of
+			buffers is created within a sub mesh object.
+			Such buffers represent
+			vertices, normals, uvs, etc. With RAYCAST_FIRST_ENCOUNTERED,
+			the picking system will not care about which colliding sub renderable is closest to the camera and stop collision checks as soon
+			as a positive collision is found. RAYCAST_BEST_HIT, instead, will find all collisions amongst renderables and pick the one closest to the camera,
+			and exist solely for this case where there are large meshes subdivided into multiple sub meshes.</p>
+
+		<p>This is in fact a very subtle difference, and to be honest, one not too easy to grasp, but it's good to be aware of it. The use of RAYCAST_BEST_HIT should not be very common,
+			but it is there in case its needed. For
+			example, you will not have a problem if you align a set of cubes along the path of the mouse ray, RAYCAST_FIRST_ENCOUNTERED will
+			do just fine, but if you import a mesh which contains a set of aligned cubes into the same geometry ( yeah, weird case ), you will need RAYCAST_BEST_HIT
+			for proper picking. The following listing illustrates all this. We added another cone tracer pointing towards the hit location, just to help us know where it is.</p>
+
+		<figure>
+			<iframe class="demoFrames interactiveFigure" src="../bin/listing_05/demo_05.html"></iframe>
+			<figcaption>
+				Listing 5. The two available raycast pickers on a mesh with multiple sub meshes. RAYCAST_BEST_HIT works, whereas RAYCAST_FIRST_ENCOUNTERED does not.
+				<a href="../bin/listing_05/src_05.html" target="_blank">Source code.</a>
+			</figcaption>
+		</figure>
+
+		<p>As you can see, if the mouse ray hits more than 1 sub mesh with RAYCAST_FIRST_ENCOUNTERED, it will fail to identify the
+			appropriate collision. RAYCAST_BEST_HIT however, always finds the right one. Notice how we used a AS3_FIRST_ENCOUNTERED
+			collider on the mesh, otherwise we would be checking collisions with its bounding volume and not the triangles of its
+			sub meshes, even worse! Also, notice how we shuffled the z positions of the sub meshes. If we didn't do this, the order of the sub meshes
+			in the tree would coincide with the order in which they collide with the ray, hence achieving correct results by mere coincidence.</p>
+
+		<p>By now we have covered the 3 available mouse pickers, as well as the 7 available picking colliders for independent
+			object. Phewww, that's quite a lot! But don't worry, we have actually covered most of the topic of picking in the Away3D engine.
+			All this gives you a lot of flexibility when it comes to setting up mouse interactivity on your project as efficient as possible. It can be
+			confusing if you don't understand what each feature does, but once you do, the decision becomes pretty obvious on your implementation.</p>
+
+	</section>
+
+</section>
+
+<section id="uv">
+
+	<h4>UV Painting</h4>
+
+	<p>There is one last bit of the picking system it is worth going through. This is simple, but important: MouseEvent3D. The scene position property of MouseEvent3D
+		used in listings 4 and 5 allowed us to position a tracer mesh where
+		the mouse ray collides with the object under it. MouseEvent3D also offers a series of other helpful properties. Lets review them, and use them in
+		one last example.</p>
+
+	<ol>
+		<li>
+			<p class="listItemTitle">scenePosition</p>
+
+			<p class="listItemDetails">The position of the event's collision in scene space.</p>
+		</li>
+		<li>
+			<p class="listItemTitle">localPosition</p>
+
+			<p class="listItemDetails">Same as (1) but in the hit object's local space.</p>
+		</li>
+		<li>
+			<p class="listItemTitle">sceneNormal</p>
+
+			<p class="listItemDetails">The object's normal at the point of collision, in scene space.</p>
+		</li>
+		<li>
+			<p class="listItemTitle">localNormal</p>
+
+			<p class="listItemDetails">The object's normal at the point of collision, in object space.</p>
+		</li>
+		<li>
+			<p class="listItemTitle">uv</p>
+
+			<p class="listItemDetails">The interpolated uv coordinates at the point of collision. Will not be available
+				with raycast bounds collisions and shader collisions with details disabled.</p>
+		</li>
+		<li>
+			<p class="listItemTitle">screenX and screenY</p>
+
+			<p class="listItemDetails">The position in screen space of the mouse event.</p>
+		</li>
+		<li>
+			<p class="listItemTitle">material</p>
+
+			<p class="listItemDetails">The material of the colliding renderable.</p>
+		</li>
+		<li>
+			<p class="listItemTitle">etc...</p>
+		</li>
+	</ol>
+
+	<p>The following listing uses the position property, as well as the normal and uv properties to draw a line segment
+		representing the event's normal and to paint on the object's material when the mouse is down.</p>
+
+	<figure>
+		<iframe class="demoFrames interactiveFigure" src="../bin/listing_06/demo_06.html"></iframe>
+		<figcaption>
+			Listing 6. Painting on an object.
+			<a href="../bin/listing_06/src_06.html" target="_blank">Source code.</a>
+		</figcaption>
+	</figure>
+
+	<p>In this example, we've used PB_BEST_HIT as the mesh's picking collider. This seemed appropriate given the considerable
+		polycount of this mesh.</p>
+
+	<p>As you can see, MouseEvent3D provides useful information on the involved event, providing pretty much all the information
+		needed for complex mouse interaction with the 3D scene. Fun!</p>
+
+</section>
+
+<section id="conclusion">
+
+	<h4>Conclusion</h4>
+
+	<p>As we have seen, 3D picking is not a trivial topic. It is something to understand and master properly for developing good quality 3D applications.
+		Fortunately, Away3D
+		offers a flexible feature set for such an important task.</p>
+
+	<p>We hope
+		this has been helpful. If you have any questions, please don't hesitate to leave a comment below or ask about it in the forums.</p>
+
+	<p>Is there anything you would like to change about Away3D's picking system? Any feature you would like to be added?</p>
+
+</section>
+
+</article>
+
+</body>
+
+</html>
