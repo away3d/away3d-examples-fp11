@@ -10,7 +10,7 @@ package li.materials.globe.src
 	import away3d.textures.BitmapCubeTexture;
 	import away3d.utils.Cast;
 
-	import li.base.src.ListingBase;
+	import li.base.ListingBase;
 
 	public class GlobeListing02 extends ListingBase
 	{

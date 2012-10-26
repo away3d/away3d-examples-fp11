@@ -87,7 +87,7 @@ package li.picking.overview.src
 			var bmd:BitmapData = new BitmapData( TEXTURE_SIZE, TEXTURE_SIZE, false, 0xFF0000 );
 			bmd.perlinNoise( 50, 50, 8, 1, false, true, 7, true );
 			_bitmap = new Bitmap( bmd );
-			_bitmap.scaleX = _bitmap.scaleY = 0.05;
+			_bitmap.scaleX = _bitmap.scaleY = 0.1;
 			addChildAt( _bitmap, 1 );
 			_texture = new BitmapTexture( bmd );
 			_material = new TextureMaterial( _texture );

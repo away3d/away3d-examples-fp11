@@ -3,7 +3,7 @@ package li.picking.overview.src
 
 	import away3d.lights.PointLight;
 
-	import li.base.src.ListingBase;
+	import li.base.ListingBase;
 
 	public class PickingOverviewListingBase extends ListingBase
 	{
@@ -13,9 +13,10 @@ package li.picking.overview.src
 			super();
 		}
 
-		override protected function onSetup():void {
-			super.onSetup();
+		override protected function initAway3d():void {
+			super.initAway3d();
 			_light = new PointLight();
+			_lightPicker.lights = [ _light ];
 			_view.scene.addChild( _light );
 		}
 
