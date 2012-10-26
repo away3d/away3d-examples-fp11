@@ -312,18 +312,18 @@ package
 			
 			sunMaterial = new TextureMaterial(Cast.bitmapTexture(Flare10));
 			sunMaterial.blendMode = BlendMode.ADD;
-			
-			groundMaterial = new TextureMaterial(Cast.bitmapTexture(EarthDiffuse));
-//			groundMaterial.specularMethod = specular;
-//			groundMaterial.specularMap = new BitmapTexture(specBitmap);
-//			groundMaterial.normalMap = Cast.bitmapTexture(EarthNormals);
-//			groundMaterial.ambientTexture = Cast.bitmapTexture(EarthNight);
-			groundMaterial.lightPicker = lightPicker;
-//			groundMaterial.gloss = 5;
-//			groundMaterial.specular = 1;
-//			groundMaterial.ambientColor = 0xFFFFFF;
-			groundMaterial.ambient = 0;
-			
+
+ 			groundMaterial = new TextureMaterial(Cast.bitmapTexture(EarthDiffuse));
+			groundMaterial.specularMethod = specular;
+			groundMaterial.specularMap = new BitmapTexture(specBitmap);
+			groundMaterial.normalMap = Cast.bitmapTexture(EarthNormals);
+			groundMaterial.ambientTexture = Cast.bitmapTexture(EarthNight);
+ 			groundMaterial.lightPicker = lightPicker;
+			groundMaterial.gloss = 5;
+			groundMaterial.specular = 1;
+			groundMaterial.ambientColor = 0xFFFFFF;
+			groundMaterial.ambient = 1;
+
 			var skyBitmap:BitmapData = new BitmapData(2048, 1024, true, 0xFFFFFFFF);
 			skyBitmap.copyChannel(Cast.bitmapData(SkyDiffuse), skyBitmap.rect, new Point(), BitmapDataChannel.RED, BitmapDataChannel.ALPHA);
 			
@@ -392,12 +392,10 @@ package
 			earth = new Mesh(new SphereGeometry(200, 200, 100), groundMaterial);
 			
 			clouds = new Mesh(new SphereGeometry(202, 200, 100), cloudMaterial);
-			clouds.visible = false;
-			
+
 			atmosphere = new Mesh(new SphereGeometry(210, 200, 100), atmosphereMaterial);
 			atmosphere.scaleX = -1;
-			atmosphere.visible = false;
-			
+
 			tiltContainer = new ObjectContainer3D();
 			tiltContainer.rotationX = -23;
 			tiltContainer.addChild(earth);
