@@ -48,8 +48,8 @@ package
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.*;
+	import away3d.materials.compilation.*;
 	import away3d.materials.methods.*;
-	import away3d.materials.utils.*;
 	import away3d.primitives.*;
 	import away3d.textures.*;
 	import away3d.utils.*;
@@ -351,8 +351,8 @@ package
 		
 		private function modulateDiffuseMethod(vo : MethodVO, t:ShaderRegisterElement, regCache:ShaderRegisterCache):String
 		{
-			var viewDirFragmentReg:ShaderRegisterElement = atmosphereDiffuseMethod.viewDirFragmentReg;
-			var normalFragmentReg:ShaderRegisterElement = atmosphereDiffuseMethod.normalFragmentReg;
+			var viewDirFragmentReg:ShaderRegisterElement = atmosphereDiffuseMethod.sharedRegisters.viewDirFragment;
+			var normalFragmentReg:ShaderRegisterElement = atmosphereDiffuseMethod.sharedRegisters.normalFragment;
 			
 			var code:String = "dp3 " + t + ".w, " + viewDirFragmentReg + ".xyz, " + normalFragmentReg + ".xyz\n" + 
 							"mul " + t + ".w, " + t + ".w, " + t + ".w\n";
@@ -362,8 +362,8 @@ package
 		
 		private function modulateSpecularMethod(vo : MethodVO, t:ShaderRegisterElement, regCache:ShaderRegisterCache):String
 		{
-			var viewDirFragmentReg:ShaderRegisterElement = atmosphereDiffuseMethod.viewDirFragmentReg;
-			var normalFragmentReg:ShaderRegisterElement = atmosphereDiffuseMethod.normalFragmentReg;
+			var viewDirFragmentReg:ShaderRegisterElement = atmosphereDiffuseMethod.sharedRegisters.viewDirFragment;
+			var normalFragmentReg:ShaderRegisterElement = atmosphereDiffuseMethod.sharedRegisters.normalFragment;
 			var temp:ShaderRegisterElement = regCache.getFreeFragmentSingleTemp();
 			regCache.addFragmentTempUsages(temp, 1);
 			

@@ -356,7 +356,7 @@ package
 				//create animation objects for each animation node encountered
 				var animationNode:SkeletonClipNode = event.asset as SkeletonClipNode;
 				trace(animationNode.name)
-				animationSet.addAnimation(animationNode.name, animationNode);
+				animationSet.addAnimation(animationNode);
 				if (animationNode.name == ANIM_BREATHE)
 					stop();
 			} else if (event.asset.assetType == AssetType.MESH) {

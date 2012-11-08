@@ -521,7 +521,7 @@ package
             } else if (event.asset.assetType == AssetType.ANIMATION_NODE) {
                 //add each animation node to the animation set
                 var animationNode:SkeletonClipNode = event.asset as SkeletonClipNode;
-                animationSet.addAnimation(animationNode.name, animationNode);
+                animationSet.addAnimation(animationNode);
 				
                 if (animationNode.name == ANIM_BREATHE)
 					stop();
