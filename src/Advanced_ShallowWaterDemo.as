@@ -47,6 +47,7 @@ package
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
+	import away3d.core.base.CompactSubGeometry;
 	import away3d.core.pick.*;
 	import away3d.debug.*;
 	import away3d.entities.*;
@@ -69,9 +70,7 @@ package
 	
 	import uk.co.soulwire.gui.*;
 
-	
-	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
-	
+	[SWF(backgroundColor="#000000", frameRate="30")]
 	public class Advanced_ShallowWaterDemo extends Sprite
 	{
 		//signature swf
@@ -576,11 +575,9 @@ package
 			fluidDisturb.updateMemoryDisturbances();
 
 			// Update plane to fluid.
-			plane.geometry.subGeometries[0].updateVertexData(fluid.points);
-			plane.geometry.subGeometries[0].updateVertexNormalData(fluid.normals);
-			plane.geometry.subGeometries[0].updateVertexTangentData(fluid.tangents);
+			var compactSubGeometry:CompactSubGeometry = plane.geometry.subGeometries[ 0 ] as CompactSubGeometry;
+			evaluateInterleavedBuffer( compactSubGeometry );
 
-			
 			if (planeDisturb) {
 				if (mouseBrushLife == 0)
 					fluidDisturb.disturbBitmapInstant(planeX, planeY, -mouseBrushStrength, mouseBrush.bitmapData);
@@ -599,6 +596,46 @@ package
 			skyLight.transform = camera.transform.clone();
 			
 			view.render();
+		}
+
+		private function evaluateInterleavedBuffer( compactSubGeom:CompactSubGeometry ):void {
+
+			var i:uint, len:uint, compIndex:uint, interleavedCompIndex:uint;
+			var interleavedBuffer:Vector.<Number>;
+			var points:Vector.<Number>;
+			var normals:Vector.<Number>;
+			var tangents:Vector.<Number>;
+
+			points = fluid.points;
+			normals =  fluid.normals;
+			tangents = fluid.tangents;
+
+			len = points.length / 3;
+
+			interleavedBuffer = compactSubGeom.vertexData;
+
+			/**
+			 * 0 - 2: vertex position X, Y, Z
+			 * 3 - 5: normal X, Y, Z
+			 * 6 - 8: tangent X, Y, Z
+			 * 9 - 10: U V
+			 * 11 - 12: Secondary U V
+			 */
+			for( i = 0; i < len; ++i ) {
+				compIndex = i * 3;
+				interleavedCompIndex = i * 13;
+				interleavedBuffer[ interleavedCompIndex     ] = points[   compIndex 	  ];
+				interleavedBuffer[ interleavedCompIndex + 1 ] = points[   compIndex + 1 ];
+				interleavedBuffer[ interleavedCompIndex + 2 ] = points[   compIndex + 2 ];
+				interleavedBuffer[ interleavedCompIndex + 3 ] = normals[  compIndex 	  ];
+				interleavedBuffer[ interleavedCompIndex + 4 ] = normals[  compIndex + 1 ];
+				interleavedBuffer[ interleavedCompIndex + 5 ] = normals[  compIndex + 2 ];
+				interleavedBuffer[ interleavedCompIndex + 6 ] = tangents[ compIndex     ];
+				interleavedBuffer[ interleavedCompIndex + 7 ] = tangents[ compIndex + 1 ];
+				interleavedBuffer[ interleavedCompIndex + 8 ] = tangents[ compIndex + 2 ];
+			}
+
+			compactSubGeom.updateData( interleavedBuffer );
 		}
 		
 		/**
