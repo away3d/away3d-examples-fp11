@@ -1,4 +1,4 @@
-﻿﻿/*
+﻿/*
 
 Vertex animation example in Away3d using the MD2 format
 
