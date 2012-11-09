@@ -8,6 +8,7 @@ How to load an AWD file with bones animation from external resources.
 How to map animation data after loading in order to playback an animation sequence.
 How to control the movement of a game character using the mouse.
 How to use a skybox with a fog method to create a seamless play area.
+How to create a snow effect with the particle system.
 
 Code by Rob Bateman
 rob@infiniteturtles.co.uk
@@ -335,15 +336,6 @@ package
 			if (polarBearMesh)
 				polarBearMesh.rotationY += currentRotationInc;
 			
-			//TODO:fix bounds bug for particles
-			if (polarBearMesh && particleMesh) {
-				var position:Vector3D = polarBearMesh.position;
-				position.normalize()
-				position.scaleBy(50);
-				position.y = 470;
-				particleMesh.position = position;
-			}
-			
 			view.render();
 		}
 		
@@ -428,9 +420,9 @@ package
 					particleAnimationSet.initParticleFunc = initParticleFunc;
 					
 					var material:ColorMaterial = new ColorMaterial();
-					//material.addMethod(fogMethod);
 					material.lightPicker = lightPicker;
 					particleMesh = new Mesh(particleGeometry, material);
+					particleMesh.bounds.fromSphere(new Vector3D(), 2000);
 					var particleAnimator:ParticleAnimator = new ParticleAnimator(particleAnimationSet);
 					particleMesh.animator = particleAnimator;
 					particleAnimator.start();
