@@ -2,7 +2,8 @@ package away3d.primitives
 {
 	import away3d.core.base.*;
 	import away3d.primitives.*;
-	
+	import away3d.utils.GeometryUtil;
+
 	import flash.geom.*;
 	
 	public class FractalTreeRound extends PrimitiveBase
@@ -12,6 +13,7 @@ package away3d.primitives
 	    private var _rawIndices:Vector.<uint>;
 	    private var _rawUvs:Vector.<Number>;
 	    private var _rawTangents:Vector.<Number>;
+		private var _bufferData:Vector.<Number>;
 	    private var _size:Number;
 	    private var _off:uint;
 	    private var _level:uint;
@@ -51,10 +53,10 @@ package away3d.primitives
 	
 	        _leafPositions = new Vector.<Number>();
 	
-	        buildGeometry(subGeometries[0]);
+	        buildGeometry( subGeometries[0] as CompactSubGeometry );
 	    }
 	
-	    override protected function buildGeometry(target:SubGeometry):void
+	    override protected function buildGeometry( target:CompactSubGeometry ):void
 	    {
 	        if(_built)
 	            return;
@@ -67,6 +69,7 @@ package away3d.primitives
 	        _rawIndices = new Vector.<uint>();
 	        _rawUvs = new Vector.<Number>();
 	        _rawTangents = new Vector.<Number>();
+			_bufferData = new Vector.<Number>();
 	
 	        // Start recursive method.
 	        buildOpenBox(Vector.<Number>([-_size/2, 0, -_size/2,
@@ -76,10 +79,7 @@ package away3d.primitives
 	        step(1);
 	
 	        // Report geom data.
-	        target.updateVertexData(_rawVertices);
-	        target.updateVertexNormalData(_rawNormals);
 	        target.updateIndexData(_rawIndices);
-	        target.updateVertexTangentData(_rawTangents);
 	    }
 	
 	    private function step(level:uint):void
@@ -219,9 +219,9 @@ package away3d.primitives
 	                          normLeft.x, normLeft.y, normLeft.z);
 	    }
 	
-	    override protected function buildUVs(target:SubGeometry):void
+	    override protected function buildUVs( target:CompactSubGeometry ):void
 	    {
-	        target.updateUVData(_rawUvs);
+			target.updateData( GeometryUtil.interleaveBuffers( _rawVertices.length / 3, _rawVertices, _rawNormals, _rawTangents, _rawUvs ) );
 	    }
 	
 	    private function rand(min:Number, max:Number):Number
