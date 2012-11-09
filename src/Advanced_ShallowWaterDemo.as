@@ -69,8 +69,7 @@ package
 	
 	import shallowwater.*;
 
-	// TODO
-	/*import uk.co.soulwire.gui.*;*/
+	import uk.co.soulwire.gui.*;
 
 	[SWF(backgroundColor="#000000", frameRate="30")]
 	public class Advanced_ShallowWaterDemo extends Sprite
@@ -147,8 +146,7 @@ package
 		public var fluid:ShallowFluid;
 		private var plane:Mesh;
 		private var fluidDisturb:FluidDisturb;
-		// TODO
-		/*private var gui:SimpleGUI;*/
+		private var gui:SimpleGUI;
 		
 		//gui variables
 		
@@ -512,8 +510,7 @@ package
 			dropTmr = new Timer(50);
 			dropTmr.addEventListener(TimerEvent.TIMER, onRainTimer);
 
-			// TODO
-			/*gui = new SimpleGUI(this, "");
+			gui = new SimpleGUI(this, "");
 			
 			gui.addColumn("Instructions");
 			var instr:String = "Click and drag on the stage to rotate camera.\n";
@@ -542,7 +539,7 @@ package
 			gui.addToggle("toggleLiquidImage", {label:"away"});
 			gui.addToggle("toggleLiquidImage2", {label:"mustang"});
 			gui.addToggle("toggleLiquidImage1", {label:"winston"});
-			gui.show();*/
+			gui.show();
 		}
 		
 		/**
