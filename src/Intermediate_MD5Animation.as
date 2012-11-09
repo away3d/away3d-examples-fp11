@@ -439,6 +439,7 @@ package
 
 				var node:SkeletonClipNode = event.asset as SkeletonClipNode;
 				var name:String = event.asset.assetNamespace;
+				node.name = name;
 				animationSet.addAnimation(node);
 				
 				if (name == IDLE_NAME || name == WALK_NAME) {
