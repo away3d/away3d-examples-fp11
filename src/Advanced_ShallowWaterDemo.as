@@ -19,7 +19,7 @@ http://www.lidev.com.ar/
 
 This code is distributed under the MIT License
 
-Copyright (c)  
+Copyright (c) The Away Foundation http://www.theawayfoundation.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the “Software”), to deal
