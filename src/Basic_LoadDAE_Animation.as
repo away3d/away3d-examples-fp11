@@ -21,6 +21,7 @@ package
 	import away3d.controllers.HoverController;
 	import away3d.core.pick.PickingType;
 	import away3d.debug.AwayStats;
+	import away3d.debug.Debug;
 	import away3d.entities.Mesh;
 	import away3d.entities.SegmentSet;
 	import away3d.events.AssetEvent;
@@ -128,7 +129,7 @@ package
 			view.scene.addChild(mesh);
 			
 			//debug purpose
-			DAEParser.IS_DEBUG = true;
+			Debug.active = true;
 
 			//Parsers.enableAllBundled();
 			var context:AssetLoaderContext = new AssetLoaderContext();
