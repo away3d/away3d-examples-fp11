@@ -16,7 +16,7 @@
 
  This code is distributed under the MIT License
 
- Copyright (c)
+ Copyright (c) The Away Foundation http://www.theawayfoundation.org
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the “Software”), to deal
@@ -439,7 +439,8 @@ package
 
 				var node:SkeletonClipNode = event.asset as SkeletonClipNode;
 				var name:String = event.asset.assetNamespace;
-				animationSet.addAnimation(name, node);
+				node.name = name;
+				animationSet.addAnimation(node);
 				
 				if (name == IDLE_NAME || name == WALK_NAME) {
 					node.looping = true;

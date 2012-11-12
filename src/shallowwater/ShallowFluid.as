@@ -68,7 +68,7 @@ package shallowwater
 			_normalsShader = new Shader( new NormalsShaderClass() as ByteArray );
 			_normalsShader.data.dd.value = [-2.0 * d];
 
-			// Initialize normals shader.
+			// Initialize tangents shader.
 			_tangentsShader = new Shader( new TangentsShaderClass() as ByteArray );
 			_tangentsShader.data.dd.value = [-2.0 * d];
 

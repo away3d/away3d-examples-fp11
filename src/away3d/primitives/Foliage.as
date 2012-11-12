@@ -1,10 +1,11 @@
 package away3d.primitives
 {
+
 	import away3d.core.base.*;
-	import away3d.primitives.*;
-	
+	import away3d.utils.GeometryUtil;
+
 	import flash.geom.*;
-	
+
 	public class Foliage extends PrimitiveBase
 	{
 	    private var _rawVertices:Vector.<Number>;
@@ -12,6 +13,7 @@ package away3d.primitives
 	    private var _rawIndices:Vector.<uint>;
 	    private var _rawUvs:Vector.<Number>;
 	    private var _rawTangents:Vector.<Number>;
+		private var _bufferData:Vector.<Number>;
 	
 	    private var _off:uint;
 	    private var _leafSize:Number;
@@ -29,8 +31,8 @@ package away3d.primitives
 	        _radius = radius;
 	        _positions = positions;
 	    }
-	
-	    override protected function buildGeometry(target:SubGeometry):void
+
+	    override protected function buildGeometry( target:CompactSubGeometry ):void
 	    {
 	        // Init raw buffers.
 	        _rawVertices = new Vector.<Number>();
@@ -38,6 +40,7 @@ package away3d.primitives
 	        _rawIndices = new Vector.<uint>();
 	        _rawUvs = new Vector.<Number>();
 	        _rawTangents = new Vector.<Number>();
+			_bufferData = new Vector.<Number>();
 	
 	        // Create clusters.
 	        var i:uint, j:uint, index:uint;
@@ -59,12 +62,9 @@ package away3d.primitives
 	                createRandomDoubleSidedTriangleAt(leafPoint, _leafSize);
 	            }
 	        }
-	
+
 	        // Report geom data.
-	        target.updateVertexData(_rawVertices);
-	        target.updateVertexNormalData(_rawNormals);
 	        target.updateIndexData(_rawIndices);
-	        target.updateVertexTangentData(_rawTangents);
 	    }
 	
 	    private function createRandomDoubleSidedTriangleAt(p0:Vector3D, radius:Number):void
@@ -123,11 +123,11 @@ package away3d.primitives
 	        return cartesianCoords;
 	    }
 	
-	    override protected function buildUVs(target:SubGeometry):void
+	    override protected function buildUVs( target:CompactSubGeometry ):void
 	    {
-	        target.updateUVData(_rawUvs);
+			target.updateData( GeometryUtil.interleaveBuffers( _rawVertices.length / 3, _rawVertices, _rawNormals, _rawTangents, _rawUvs ) );
 	    }
-	
+
 	    private function rand(min:Number, max:Number):Number
 	    {
 	        return (max - min)*Math.random() + min;

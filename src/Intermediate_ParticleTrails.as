@@ -1,20 +1,17 @@
 ﻿/*
 
-3D Head scan example in Away3d
+Particle trails in Away3D
 
 Demonstrates:
 
-How to use the AssetLibrary to load an internal OBJ model.
-How to set custom material methods on a model.
-How a natural skin texture can be achived with sub-surface diffuse shading and fresnel specular shading.
+How to create a complex static parrticle behaviour
+How to reuse a particle animation set and particle geometry in multiple animators and meshes
+How to create a particle trail
 
-Code by Rob Bateman & David Lenaerts
+Code by Rob Bateman & Liao Cheng
 rob@infiniteturtles.co.uk
 http://www.infiniteturtles.co.uk
-david.lenaerts@gmail.com
-http://www.derschmale.com
-
-Model by Lee Perry-Smith, based on a work at triplegangers.com,  licensed under CC
+liaocheng210@126.com
 
 This code is distributed under the MIT License
 
@@ -42,48 +39,38 @@ THE SOFTWARE.
 
 package
 {
+	import flash.display.*;
+	import flash.events.*;
+	import flash.geom.*;
+	
+	import away3d.animators.*;
+	import away3d.animators.data.*;
+	import away3d.animators.nodes.*;
+	import away3d.animators.states.*;
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
+	import away3d.core.base.*;
 	import away3d.debug.*;
-	import away3d.entities.Mesh;
-	import away3d.events.*;
-	import away3d.library.*;
-	import away3d.library.assets.*;
-	import away3d.lights.*;
-	import away3d.loaders.parsers.*;
+	import away3d.entities.*;
 	import away3d.materials.*;
-	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
+	import away3d.primitives.*;
+	import away3d.tools.helpers.*;
+	import away3d.tools.helpers.data.*;
 	import away3d.utils.*;
 	
-	import flash.display.*;
-	import flash.events.*;
-	import flash.utils.*;
+	[SWF(backgroundColor="#000000", frameRate="60", quality="LOW")]
 	
-	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
-	
-	public class Intermediate_Head extends Sprite
+	public class Intermediate_ParticleTrails extends Sprite
 	{
 		//signature swf
 		[Embed(source="/../embeds/signature.swf", symbol="Signature")]
 		public var SignatureSwf:Class;
 		
-		//Infinite, 3D head model
-		[Embed(source="/../embeds/head.obj", mimeType="application/octet-stream")]
-		private var HeadModel:Class;
-		
-		//Diffuse map texture
-		[Embed(source="/../embeds/head_diffuse.jpg")]
-		private var Diffuse:Class;
-		
-		//Specular map texture
-		[Embed(source="/../embeds/head_specular.jpg")]
-		private var Specular:Class;
-		
-		//Normal map texture
-		[Embed(source="/../embeds/head_normals.jpg")]
-		private var Normal:Class;
+		//Particle texture
+		[Embed(source="../embeds/cards_suit.png")]
+		private var ParticleTexture:Class;
 		
 		//engine variables
 		private var scene:Scene3D;
@@ -96,19 +83,26 @@ package
 		private var SignatureBitmap:Bitmap;
 		
 		//material objects
-		private var headMaterial:TextureMaterial;
+		private var particleMaterial:TextureMaterial;
 		private var subsurfaceMethod:SubsurfaceScatteringDiffuseMethod;
 		private var fresnelMethod:FresnelSpecularMethod;
 		private var diffuseMethod:BasicDiffuseMethod;
 		private var specularMethod:BasicSpecularMethod;
 		
+		//particle objects
+		private var particleAnimationSet:ParticleAnimationSet;
+		private var particleGeometry:ParticleGeometry;
+		
 		//scene objects
-		private var light:PointLight;
-		private var lightPicker:StaticLightPicker;
-		private var headModel:Mesh;
-		private var advancedMethod:Boolean = true;
+		private var followTarget1:Object3D;
+		private var followTarget2:Object3D;
+		private var particleMesh1:Mesh;
+		private var particleMesh2:Mesh;
+		private var animator1:ParticleAnimator;
+		private var animator2:ParticleAnimator;
 		
 		//navigation variables
+		private var angle:Number = 0;
 		private var move:Boolean = false;
 		private var lastPanAngle:Number;
 		private var lastTiltAngle:Number;
@@ -118,7 +112,7 @@ package
 		/**
 		 * Constructor
 		 */
-		public function Intermediate_Head()
+		public function Intermediate_ParticleTrails()
 		{
 			init();
 		}
@@ -129,8 +123,8 @@ package
 		private function init():void
 		{
 			initEngine();
-			initLights();
 			initMaterials();
+			initParticles();
 			initObjects();
 			initListeners();
 		}
@@ -153,7 +147,7 @@ package
 			view.camera = camera;
 			
 			//setup controller to be used on the camera
-			cameraController = new HoverController(camera, null, 45, 10, 800);
+			cameraController = new HoverController(camera, null, 45, 20, 1000, 5);
 			
 			view.addSourceURL("srcview/index.html");
 			addChild(view);
@@ -170,51 +164,54 @@ package
 		}
 		
 		/**
-		 * Initialise the lights in a scene
-		 */
-		private function initLights():void
-		{
-			light = new PointLight();
-			light.x = 15000;
-			light.z = 15000;
-			light.color = 0xffddbb;
-			light.ambient = 1;
-			lightPicker = new StaticLightPicker([light]);
-			
-			scene.addChild(light);
-		}
-		
-		/**
 		 * Initialise the materials
 		 */
 		private function initMaterials():void
 		{
-			//setup custom bitmap material
-			headMaterial = new TextureMaterial(Cast.bitmapTexture(Diffuse));
-			headMaterial.normalMap = Cast.bitmapTexture(Normal);
-			headMaterial.specularMap = Cast.bitmapTexture(Specular);
-			headMaterial.lightPicker = lightPicker;
-			headMaterial.gloss = 10;
-			headMaterial.specular = 3;
-			headMaterial.ambientColor = 0x303040;
-			headMaterial.ambient = 1;
+			//setup particle material
+			particleMaterial = new TextureMaterial(Cast.bitmapTexture(ParticleTexture));
+			particleMaterial.blendMode = BlendMode.ADD;
+		}
+		
+		/**
+		 * Initialise the particles
+		 */
+		private function initParticles():void
+		{
+			//setup the base geometry for one particle
+			var plane:Geometry = new PlaneGeometry(30, 30, 1, 1, false);
 			
-			//create subscattering diffuse method
-			subsurfaceMethod = new SubsurfaceScatteringDiffuseMethod(2048, 2);
-			subsurfaceMethod.scatterColor = 0xff7733;
-			subsurfaceMethod.scattering = .05;
-			subsurfaceMethod.translucency = 4;
-			headMaterial.diffuseMethod = subsurfaceMethod;
+			//create the particle geometry
+			var geometrySet:Vector.<Geometry> = new Vector.<Geometry>();
+			var setTransforms:Vector.<ParticleGeometryTransform> = new Vector.<ParticleGeometryTransform>();
+			var particleTransform:ParticleGeometryTransform;
+			var uvTransform:Matrix;
+			for (var i:int = 0; i < 1000; i++)
+			{
+				geometrySet.push(plane);
+				particleTransform = new ParticleGeometryTransform();
+				uvTransform = new Matrix();
+				uvTransform.scale(0.5, 0.5);
+				uvTransform.translate(int(Math.random() * 2) / 2, int(Math.random() * 2) / 2);
+				particleTransform.UVTransform = uvTransform;
+				setTransforms.push(particleTransform);
+			}
 			
-			//create fresnel specular method
-			fresnelMethod = new FresnelSpecularMethod(true);
-			headMaterial.specularMethod = fresnelMethod;
+			particleGeometry = ParticleGeometryHelper.generateGeometry(geometrySet, setTransforms);
 			
-			//add default diffuse method
-			diffuseMethod = new BasicDiffuseMethod();
 			
-			//add default specular method
-			specularMethod = new BasicSpecularMethod();
+			//create the particle animation set
+			particleAnimationSet = new ParticleAnimationSet();
+			particleAnimationSet.loop = true;
+			particleAnimationSet.hasDuration = true;
+			particleAnimationSet.hasDelay = true;
+			
+			//define the particle animations and init function
+			particleAnimationSet.addAnimation(new ParticleBillboardNode());
+			particleAnimationSet.addAnimation(new ParticleVelocityNode(ParticlePropertiesMode.LOCAL));
+			particleAnimationSet.addAnimation(new ParticleColorNode(ParticlePropertiesMode.GLOBAL, true, false, false, false, new ColorTransform(), new ColorTransform(1, 1, 1, 0)));
+			particleAnimationSet.addAnimation(new ParticleFollowNode(true, false));
+			particleAnimationSet.initParticleFunc = initParticleProperties;
 		}
 		
 		/**
@@ -222,11 +219,32 @@ package
 		 */
 		private function initObjects():void
 		{
-			//default available parsers to all
-			Parsers.enableAllBundled();
+			//create wireframe axes
+			scene.addChild(new WireframeAxesGrid(10,1500));
 			
-			AssetLibrary.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetComplete);
-			AssetLibrary.loadData(new HeadModel());
+			//create follow targets
+			followTarget1 = new Object3D();
+			followTarget2 = new Object3D();
+			
+			//create the particle meshes
+			particleMesh1 = new Mesh(particleGeometry, particleMaterial);
+			particleMesh1.y = 300;
+			scene.addChild(particleMesh1);
+			
+			particleMesh2 = particleMesh1.clone() as Mesh;
+			particleMesh2.y = 300;
+			scene.addChild(particleMesh2);
+			
+			//create and start the particle animators
+			animator1 = new ParticleAnimator(particleAnimationSet);
+			particleMesh1.animator = animator1;
+			animator1.start();
+			ParticleFollowState(animator1.getAnimationStateByName("ParticleFollowNode")).followTarget = followTarget1;
+			
+			animator2 = new ParticleAnimator(particleAnimationSet);
+			particleMesh2.animator = animator2;
+			animator2.start();
+			ParticleFollowState(animator2.getAnimationStateByName("ParticleFollowNode")).followTarget = followTarget2;
 		}
 		
 		/**
@@ -237,9 +255,19 @@ package
 			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
-			stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
 			stage.addEventListener(Event.RESIZE, onResize);
 			onResize();
+		}
+		
+		
+		/**
+		 * Initialiser function for particle properties
+		 */
+		private function initParticleProperties(properties:ParticleProperties):void
+		{
+			properties.startTime = Math.random()*4.1;
+			properties.duration = 4;
+			properties[ParticleVelocityNode.VELOCITY_VECTOR3D] = new Vector3D(Math.random() * 100 - 50, Math.random() * 100 - 200, Math.random() * 100 - 50);
 		}
 		
 		/**
@@ -252,27 +280,12 @@ package
 				cameraController.tiltAngle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;
 			}
 			
-			light.x = Math.sin(getTimer()/10000)*150000;
-			light.y = 1000;
-			light.z = Math.cos(getTimer()/10000)*150000;
+			angle += 0.04;
+			followTarget1.x = Math.cos(angle) * 500;
+			followTarget1.z = Math.sin(angle) * 500;
+			followTarget2.x = Math.sin(angle) * 500;
 			
 			view.render();
-		}
-		
-		/**
-		 * Listener function for asset complete event on loader
-		 */
-		private function onAssetComplete(event:AssetEvent):void
-		{
-			if (event.asset.assetType == AssetType.MESH) {
-				headModel = event.asset as Mesh;
-				headModel.geometry.scale(100); //TODO scale cannot be performed on mesh when using sub-surface diffuse method
-				headModel.y = -50;
-				headModel.rotationY = 180;
-				headModel.material = headMaterial;
-				
-				scene.addChild(headModel);
-			}
 		}
 		
 		/**
@@ -295,19 +308,6 @@ package
 		{
 			move = false;
 			stage.removeEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
-		}
-		
-		/**
-		 * Key up listener for swapping between standard diffuse & specular shading, and sub-surface diffuse shading with fresnel specular shading
-		 */
-		private function onKeyUp(event:KeyboardEvent):void
-		{
-			advancedMethod = !advancedMethod;
-			
-			headMaterial.gloss = (advancedMethod)? 10 : 50;
-			headMaterial.specular = (advancedMethod)? 3 : 1;
-			headMaterial.diffuseMethod = (advancedMethod)? subsurfaceMethod : diffuseMethod;
-			headMaterial.specularMethod = (advancedMethod)? fresnelMethod : specularMethod;
 		}
 		
 		/**

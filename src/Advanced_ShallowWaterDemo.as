@@ -19,7 +19,7 @@ http://www.lidev.com.ar/
 
 This code is distributed under the MIT License
 
-Copyright (c)  
+Copyright (c) The Away Foundation http://www.theawayfoundation.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the “Software”), to deal
@@ -47,6 +47,8 @@ package
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
+	import away3d.core.base.CompactSubGeometry;
+	import away3d.core.base.SubGeometry;
 	import away3d.core.pick.*;
 	import away3d.debug.*;
 	import away3d.entities.*;
@@ -66,12 +68,10 @@ package
 	import flash.utils.*;
 	
 	import shallowwater.*;
-	
+
 	import uk.co.soulwire.gui.*;
 
-	
-	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
-	
+	[SWF(backgroundColor="#000000", frameRate="30")]
 	public class Advanced_ShallowWaterDemo extends Sprite
 	{
 		//signature swf
@@ -431,6 +431,7 @@ package
 			plane.z -= planeSize/2;
 			plane.mouseEnabled = true;
 			plane.pickingCollider = PickingColliderType.BOUNDS_ONLY;
+			plane.geometry.convertToSeparateBuffers();
 			plane.geometry.subGeometries[0].autoDeriveVertexNormals = false;
 			plane.geometry.subGeometries[0].autoDeriveVertexTangents = false;
 			scene.addChild(plane);
@@ -508,7 +509,7 @@ package
 			// Rain.
 			dropTmr = new Timer(50);
 			dropTmr.addEventListener(TimerEvent.TIMER, onRainTimer);
-			
+
 			gui = new SimpleGUI(this, "");
 			
 			gui.addColumn("Instructions");
@@ -576,11 +577,11 @@ package
 			fluidDisturb.updateMemoryDisturbances();
 
 			// Update plane to fluid.
-			plane.geometry.subGeometries[0].updateVertexData(fluid.points);
-			plane.geometry.subGeometries[0].updateVertexNormalData(fluid.normals);
-			plane.geometry.subGeometries[0].updateVertexTangentData(fluid.tangents);
+			var subGeometry:SubGeometry = plane.geometry.subGeometries[0] as SubGeometry;
+			subGeometry.updateVertexData(fluid.points);
+			subGeometry.updateVertexNormalData(fluid.normals);
+			subGeometry.updateVertexTangentData(fluid.tangents);
 
-			
 			if (planeDisturb) {
 				if (mouseBrushLife == 0)
 					fluidDisturb.disturbBitmapInstant(planeX, planeY, -mouseBrushStrength, mouseBrush.bitmapData);
@@ -600,7 +601,7 @@ package
 			
 			view.render();
 		}
-		
+
 		/**
 		 * Key down listener for camera control
 		 */

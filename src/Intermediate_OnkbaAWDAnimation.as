@@ -20,7 +20,7 @@ http://3dflashlo.wordpress.com
 
 This code is distributed under the MIT License
 
-Copyright (c)
+Copyright (c) The Away Foundation http://www.theawayfoundation.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the “Software”), to deal
@@ -521,7 +521,7 @@ package
             } else if (event.asset.assetType == AssetType.ANIMATION_NODE) {
                 //add each animation node to the animation set
                 var animationNode:SkeletonClipNode = event.asset as SkeletonClipNode;
-                animationSet.addAnimation(animationNode.name, animationNode);
+                animationSet.addAnimation(animationNode);
 				
                 if (animationNode.name == ANIM_BREATHE)
 					stop();

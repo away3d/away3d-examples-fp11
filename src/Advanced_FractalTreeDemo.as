@@ -16,7 +16,7 @@ http://www.lidev.com.ar/
 
 This code is distributed under the MIT License
 
-Copyright (c)  
+Copyright (c) The Away Foundation http://www.theawayfoundation.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the “Software”), to deal
@@ -54,7 +54,7 @@ package
 	import away3d.primitives.*;
 	import away3d.textures.*;
 	import away3d.utils.*;
-	
+
 	import com.bit101.components.Label;
 	
 	import flash.display.*;
@@ -63,7 +63,7 @@ package
 	import flash.geom.*;
 	import flash.ui.*;
 	import flash.utils.*;
-	
+
 	import uk.co.soulwire.gui.*;
 	
 	
@@ -401,8 +401,7 @@ package
 			}
 			
 			createTreeShadow(0, 0);
-			
-			
+
 			// Create tree.
 			var treeGeometry:FractalTreeRound = new FractalTreeRound(treeSize, 10, 3, minAperture, maxAperture, minTwist, maxTwist, treeLevel);
 			tree = new Mesh(treeGeometry, trunkMaterial);

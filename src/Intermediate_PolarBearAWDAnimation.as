@@ -4,18 +4,23 @@ Bones animation loading and interaction example in Away3d
 
 Demonstrates:
 
-How to load an AWD file with bones animation frmo external resources.
+How to load an AWD file with bones animation from external resources.
 How to map animation data after loading in order to playback an animation sequence.
 How to control the movement of a game character using the mouse.
 How to use a skybox with a fog method to create a seamless play area.
+How to create a snow effect with the particle system.
 
 Code by Rob Bateman
 rob@infiniteturtles.co.uk
 http://www.infiniteturtles.co.uk
 
+Model by Billy Allison
+bli@blimation.com
+http://www.blimation.com/
+
 This code is distributed under the MIT License
 
-Copyright (c)  
+Copyright (c) The Away Foundation http://www.theawayfoundation.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the “Software”), to deal
@@ -39,27 +44,6 @@ THE SOFTWARE.
 
 package
 {
-	import away3d.animators.nodes.SkeletonClipNode;
-	import away3d.animators.*;
-	import away3d.animators.data.*;
-	import away3d.animators.transitions.*;
-	import away3d.cameras.*;
-	import away3d.containers.*;
-	import away3d.controllers.*;
-	import away3d.debug.*;
-	import away3d.entities.Mesh;
-	import away3d.events.*;
-	import away3d.library.*;
-	import away3d.library.assets.*;
-	import away3d.lights.*;
-	import away3d.loaders.parsers.*;
-	import away3d.materials.*;
-	import away3d.materials.lightpickers.*;
-	import away3d.materials.methods.*;
-	import away3d.primitives.*;
-	import away3d.textures.*;
-	import away3d.utils.*;
-	
 	import flash.display.*;
 	import flash.events.*;
 	import flash.filters.*;
@@ -67,6 +51,31 @@ package
 	import flash.net.*;
 	import flash.text.*;
 	import flash.ui.*;
+	
+	import away3d.animators.*;
+	import away3d.animators.data.*;
+	import away3d.animators.nodes.*;
+	import away3d.animators.transitions.*;
+	import away3d.cameras.*;
+	import away3d.containers.*;
+	import away3d.controllers.*;
+	import away3d.core.base.*;
+	import away3d.debug.*;
+	import away3d.entities.*;
+	import away3d.events.*;
+	import away3d.library.*;
+	import away3d.library.assets.*;
+	import away3d.lights.*;
+	import away3d.lights.shadowmaps.*;
+	import away3d.loaders.parsers.*;
+	import away3d.materials.*;
+	import away3d.materials.lightpickers.*;
+	import away3d.materials.methods.*;
+	import away3d.primitives.*;
+	import away3d.textures.*;
+	import away3d.tools.helpers.*;
+	import away3d.tools.helpers.data.*;
+	import away3d.utils.*;
 	
 	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
 	
@@ -122,8 +131,8 @@ package
 		private var awayStats:AwayStats;
 		
 		//animation variables
-		private var animator:SkeletonAnimator;
-		private var animationSet:SkeletonAnimationSet;
+		private var skeletonAnimator:SkeletonAnimator;
+		private var skeletonAnimationSet:SkeletonAnimationSet;
 		private var stateTransition:CrossfadeTransition = new CrossfadeTransition(0.5);
 		private var isRunning:Boolean;
 		private var isMoving:Boolean;
@@ -148,7 +157,7 @@ package
 		private var sunLight:DirectionalLight;
 		private var skyLight:PointLight;
 		private var lightPicker:StaticLightPicker;
-		private var filteredShadowMapMethod:TripleFilteredShadowMapMethod;
+		private var softShadowMapMethod:NearShadowMapMethod;
 		private var fogMethod:FogMethod;
 		
 		//material objects
@@ -158,9 +167,10 @@ package
 		
 		//scene objects
 		private var text:TextField;
-		private var mesh:Mesh;
+		private var polarBearMesh:Mesh;
 		private var ground:Mesh;
 		private var skyBox:SkyBox;
+		private var particleMesh:Mesh;
 		
 		/**
 		 * Constructor
@@ -249,6 +259,7 @@ package
 		{
 			//create a light for shadows that mimics the sun's position in the skybox
 			sunLight = new DirectionalLight(-1, -0.4, 1);
+			sunLight.shadowMapper = new NearDirectionalShadowMapper(0.5);
 			sunLight.color = 0xFFFFFF;
 			sunLight.castsShadows = true;
 			sunLight.ambient = 1;
@@ -269,8 +280,7 @@ package
 			lightPicker = new StaticLightPicker([sunLight, skyLight]);
 			
 			//create a global shadow method
-			filteredShadowMapMethod = new TripleFilteredShadowMapMethod(sunLight);
-			//filteredShadowMapMethod.epsilon = 0.1;
+			softShadowMapMethod = new NearShadowMapMethod(new SoftShadowMapMethod(sunLight, 10));
 			
 			//create a global fog method
 			fogMethod = new FogMethod(0, 3000, 0x5f5e6e);
@@ -281,18 +291,19 @@ package
 		 */
 		private function initObjects():void
 		{
-			
 			AssetLibrary.enableParser(AWDParser);
+			AssetLibrary.enableParser(OBJParser);
 			
 			AssetLibrary.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetComplete);
 			AssetLibrary.load(new URLRequest("assets/PolarBear.awd"));
+			AssetLibrary.load(new URLRequest("assets/snow.obj"));
 			
 			//create a snowy ground plane
 			groundMaterial = new TextureMaterial(Cast.bitmapTexture(SnowDiffuse), true, true, true);
 			groundMaterial.lightPicker = lightPicker;
 			groundMaterial.specularMap = Cast.bitmapTexture(SnowSpecular);
 			groundMaterial.normalMap = Cast.bitmapTexture(SnowNormal);
-			groundMaterial.shadowMethod = filteredShadowMapMethod;
+			groundMaterial.shadowMethod = softShadowMapMethod;
 			groundMaterial.addMethod(fogMethod);
 			groundMaterial.ambient = 0.5;
 			ground = new Mesh(new PlaneGeometry(50000, 50000), groundMaterial);
@@ -322,8 +333,8 @@ package
 		private function onEnterFrame(event:Event):void
 		{
 			//update character animation
-			if (mesh)
-				mesh.rotationY += currentRotationInc;
+			if (polarBearMesh)
+				polarBearMesh.rotationY += currentRotationInc;
 			
 			view.render();
 		}
@@ -335,19 +346,16 @@ package
 		{
 			if (event.asset.assetType == AssetType.SKELETON) {
 				//create a new skeleton animation set
-				animationSet = new SkeletonAnimationSet(3);
+				skeletonAnimationSet = new SkeletonAnimationSet(3);
 				
 				//wrap our skeleton animation set in an animator object and add our sequence objects
-				animator = new SkeletonAnimator(animationSet, event.asset as Skeleton, false);
+				skeletonAnimator = new SkeletonAnimator(skeletonAnimationSet, event.asset as Skeleton, false);
 				
 				//apply our animator to our mesh
-				mesh.animator = animator;
+				polarBearMesh.animator = skeletonAnimator;
 				
 				//register our mesh as the lookAt target
-				cameraController.lookAtObject = mesh;
-				
-				//default to breathe sequence
-				//stop();
+				cameraController.lookAtObject = polarBearMesh;
 				
 				//add key listeners
 				stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
@@ -355,33 +363,83 @@ package
 			} else if (event.asset.assetType == AssetType.ANIMATION_NODE) {
 				//create animation objects for each animation node encountered
 				var animationNode:SkeletonClipNode = event.asset as SkeletonClipNode;
-				trace(animationNode.name)
-				animationSet.addAnimation(animationNode.name, animationNode);
+				
+				skeletonAnimationSet.addAnimation(animationNode);
 				if (animationNode.name == ANIM_BREATHE)
 					stop();
 			} else if (event.asset.assetType == AssetType.MESH) {
-				//create material object and assign it to our mesh
-				bearMaterial = new TextureMaterial(Cast.bitmapTexture(BearDiffuse));
-				bearMaterial.shadowMethod = filteredShadowMapMethod;
-				bearMaterial.normalMap = Cast.bitmapTexture(BearNormal);
-				bearMaterial.specularMap = Cast.bitmapTexture(BearSpecular);
-				bearMaterial.addMethod(fogMethod);
-				bearMaterial.lightPicker = lightPicker;
-				bearMaterial.gloss = 50;
-				bearMaterial.specular = 0.5;
-				bearMaterial.ambientColor = 0xAAAAAA;
-				bearMaterial.ambient = 0.5;
-				
-				//create mesh object and assign our animation object and material object
-				mesh = event.asset as Mesh;
-				mesh.material = bearMaterial;
-				mesh.castsShadows = true;
-				mesh.scale(1.5);
-				mesh.z = 1000;
-				mesh.rotationY = -45;
-				scene.addChild(mesh);
+				if (event.asset.name == "PolarBear") {
+					//create material object and assign it to our mesh
+					bearMaterial = new TextureMaterial(Cast.bitmapTexture(BearDiffuse));
+					bearMaterial.shadowMethod = softShadowMapMethod;
+					bearMaterial.normalMap = Cast.bitmapTexture(BearNormal);
+					bearMaterial.specularMap = Cast.bitmapTexture(BearSpecular);
+					bearMaterial.addMethod(fogMethod);
+					bearMaterial.lightPicker = lightPicker;
+					bearMaterial.gloss = 50;
+					bearMaterial.specular = 0.5;
+					bearMaterial.ambientColor = 0xAAAAAA;
+					bearMaterial.ambient = 0.5;
+					
+					//create mesh object and assign our animation object and material object
+					polarBearMesh = event.asset as Mesh;
+					polarBearMesh.material = bearMaterial;
+					polarBearMesh.castsShadows = true;
+					polarBearMesh.scale(1.5);
+					polarBearMesh.z = 1000;
+					polarBearMesh.rotationY = -45;
+					scene.addChild(polarBearMesh);
+				} else {
+					//create particle system and add it to our scene
+					var geometry:Geometry = (event.asset as Mesh).geometry;
+					var geometrySet:Vector.<Geometry> = new Vector.<Geometry>;
+					var transforms:Vector.<ParticleGeometryTransform> = new Vector.<ParticleGeometryTransform>();
+					var scale:Number;
+					var vertexTransform:Matrix3D;
+					var particleTransform:ParticleGeometryTransform;
+					for (var i:int = 0; i < 3000; i++)
+					{
+						geometrySet.push(geometry);
+						particleTransform = new ParticleGeometryTransform();
+						scale = Math.random()  + 1;
+						vertexTransform = new Matrix3D();
+						vertexTransform.appendScale(scale, scale, scale);
+						particleTransform.vertexTransform = vertexTransform;
+						transforms.push(particleTransform);
+					}
+					
+					var particleGeometry:Geometry = ParticleGeometryHelper.generateGeometry(geometrySet,transforms);
+					
+					
+					var particleAnimationSet:ParticleAnimationSet = new ParticleAnimationSet();
+					particleAnimationSet.loop = true;
+					particleAnimationSet.addAnimation(new ParticleVelocityNode(ParticlePropertiesMode.GLOBAL, new Vector3D(0, -100, 0)));
+					particleAnimationSet.addAnimation(new ParticlePositionNode(ParticlePropertiesMode.LOCAL));
+					particleAnimationSet.addAnimation(new ParticleOscillatorNode(ParticlePropertiesMode.LOCAL));
+					particleAnimationSet.addAnimation(new ParticleRotationalVelocityNode(ParticlePropertiesMode.LOCAL));
+					particleAnimationSet.initParticleFunc = initParticleFunc;
+					
+					var material:ColorMaterial = new ColorMaterial();
+					material.lightPicker = lightPicker;
+					particleMesh = new Mesh(particleGeometry, material);
+					particleMesh.bounds.fromSphere(new Vector3D(), 2000);
+					var particleAnimator:ParticleAnimator = new ParticleAnimator(particleAnimationSet);
+					particleMesh.animator = particleAnimator;
+					particleAnimator.start();
+					particleAnimator.resetTime(-10000);
+					scene.addChild(particleMesh);
+				}
 				
 			}
+		}
+		
+		private function initParticleFunc(param:ParticleProperties):void
+		{
+			param.startTime = Math.random()*20 - 10;
+			param.duration = 20;
+			param[ParticleOscillatorNode.OSCILLATOR_VECTOR3D] = new Vector3D(Math.random() * 100 - 50, 0, Math.random() * 100 - 50, Math.random() * 2 + 3);
+			param[ParticlePositionNode.POSITION_VECTOR3D] = new Vector3D(Math.random() * 10000 - 5000, 1200, Math.random() * 10000 - 5000);
+			param[ParticleRotationalVelocityNode.ROTATIONALVELOCITY_VECTOR3D] = new Vector3D(Math.random(), Math.random(), Math.random(), Math.random() * 2 + 2);
 		}
 		
 		/**
@@ -442,7 +500,7 @@ package
 			isMoving = true;
 			
 			//update animator speed
-			animator.playbackSpeed = dir*(isRunning? RUN_SPEED : WALK_SPEED);
+			skeletonAnimator.playbackSpeed = dir*(isRunning? RUN_SPEED : WALK_SPEED);
 			
 			//update animator sequence
 			var anim:String = isRunning? ANIM_RUN : ANIM_WALK;
@@ -451,7 +509,7 @@ package
 			
 			currentAnim = anim;
 			
-			animator.play(currentAnim, stateTransition);
+			skeletonAnimator.play(currentAnim, stateTransition);
 		}
 		
 		private function stop():void
@@ -459,7 +517,7 @@ package
 			isMoving = false;
 			
 			//update animator speed
-			animator.playbackSpeed = BREATHE_SPEED;
+			skeletonAnimator.playbackSpeed = BREATHE_SPEED;
 			
 			//update animator sequence
 			if (currentAnim == ANIM_BREATHE)
@@ -467,7 +525,7 @@ package
 			
 			currentAnim = ANIM_BREATHE;
 			
-			animator.play(currentAnim, stateTransition);
+			skeletonAnimator.play(currentAnim, stateTransition);
 		}
 		
 		/**
