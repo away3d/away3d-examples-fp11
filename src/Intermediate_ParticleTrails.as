@@ -4,7 +4,9 @@ Particle trails in Away3D
 
 Demonstrates:
 
-How to 
+How to create a complex static parrticle behaviour
+How to reuse a particle animation set and particle geometry in multiple animators and meshes
+How to create a particle trail
 
 Code by Rob Bateman & Liao Cheng
 rob@infiniteturtles.co.uk
