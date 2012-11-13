@@ -4,11 +4,14 @@ Creating fire effects with particles in Away3D
 
 Demonstrates:
 
-How to 
+How to setup a particle geometry and particle animationset in order to simulate fire.
+How to stagger particle animation instances with different animator objects running on different timers.
+How to apply fire lighting to a floor mesh using a multipass material.
 
 Code by Rob Bateman & Liao Cheng
 rob@infiniteturtles.co.uk
 http://www.infiniteturtles.co.uk
+liaocheng210@126.com
 
 This code is distributed under the MIT License
 
@@ -61,6 +64,7 @@ package
 	public class Basic_Fire extends Sprite
 	{
 		private static const NUM_FIRES:uint = 10;
+		
 		//signature swf
     	[Embed(source="/../embeds/signature.swf", symbol="Signature")]
     	private var SignatureSwf:Class;
@@ -299,7 +303,7 @@ package
 		}
 		
 		/**
-		 * 
+		 * Returns an array of active lights in the scene
 		 */
 		private function getAllLights():Array
 		{
@@ -315,7 +319,7 @@ package
 		}
 		
 		/**
-		 * 
+		 * Timer event handler
 		 */
 		private function onTimer(e:TimerEvent):void
 		{
@@ -324,14 +328,14 @@ package
 			//start the animator
 			fireObject.animator.start();
 			
-			//start the light
+			//create the lightsource
 			var light:PointLight = new PointLight();
 			light.color = 0xFF3301;
 			light.diffuse = 0;
 			light.specular = 0;
 			light.position = fireObject.mesh.position;
 			
-			//add the light to the fire object and the lightpicker
+			//add the lightsource to the fire object
 			fireObject.light = light;
 			
 			//update the lightpicker
