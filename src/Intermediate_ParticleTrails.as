@@ -201,7 +201,7 @@ package
 			
 			//define the particle animations and init function
 			particleAnimationSet.addAnimation(new ParticleBillboardNode());
-			particleAnimationSet.addAnimation(new ParticleVelocityNode(ParticlePropertiesMode.LOCAL));
+			particleAnimationSet.addAnimation(new ParticleVelocityNode(ParticlePropertiesMode.LOCAL_STATIC));
 			particleAnimationSet.addAnimation(new ParticleColorNode(ParticlePropertiesMode.GLOBAL, true, false, false, false, new ColorTransform(), new ColorTransform(1, 1, 1, 0)));
 			particleAnimationSet.addAnimation(new ParticleFollowNode(true, false));
 			particleAnimationSet.initParticleFunc = initParticleProperties;

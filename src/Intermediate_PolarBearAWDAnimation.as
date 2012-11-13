@@ -413,9 +413,9 @@ package
 					
 					var particleAnimationSet:ParticleAnimationSet = new ParticleAnimationSet(true, true);
 					particleAnimationSet.addAnimation(new ParticleVelocityNode(ParticlePropertiesMode.GLOBAL, new Vector3D(0, -100, 0)));
-					particleAnimationSet.addAnimation(new ParticlePositionNode(ParticlePropertiesMode.LOCAL));
-					particleAnimationSet.addAnimation(new ParticleOscillatorNode(ParticlePropertiesMode.LOCAL));
-					particleAnimationSet.addAnimation(new ParticleRotationalVelocityNode(ParticlePropertiesMode.LOCAL));
+					particleAnimationSet.addAnimation(new ParticlePositionNode(ParticlePropertiesMode.LOCAL_STATIC));
+					particleAnimationSet.addAnimation(new ParticleOscillatorNode(ParticlePropertiesMode.LOCAL_STATIC));
+					particleAnimationSet.addAnimation(new ParticleRotationalVelocityNode(ParticlePropertiesMode.LOCAL_STATIC));
 					particleAnimationSet.initParticleFunc = initParticleFunc;
 					
 					var material:ColorMaterial = new ColorMaterial();

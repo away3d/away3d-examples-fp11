@@ -124,7 +124,7 @@ package
 			_particleAnimationSet = new ParticleAnimationSet();
 			_particleAnimationSet.loop = true;
 			_particleAnimationSet.addAnimation(new ParticleBillboardNode());
-			_particleAnimationSet.addAnimation(new ParticleVelocityNode(ParticlePropertiesMode.LOCAL));
+			_particleAnimationSet.addAnimation(new ParticleVelocityNode(ParticlePropertiesMode.LOCAL_STATIC));
 			_particleAnimationSet.initParticleFunc = initParticleFunc;
 			
 			//setup the particle material
