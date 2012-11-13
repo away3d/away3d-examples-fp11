@@ -268,10 +268,10 @@ package
 				case AssetType.ANIMATION_NODE:
 				{
 					var node:SkeletonClipNode = event.asset as SkeletonClipNode;
-					var name:String = event.asset.assetNamespace;
+					node.name = event.asset.assetNamespace;
 
 					if (_animationSet)
-						_animationSet.addAnimation(name, node);
+						_animationSet.addAnimation(node);
 
 					break;
 				}
