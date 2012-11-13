@@ -197,10 +197,7 @@ package
 			
 			
 			//create the particle animation set
-			particleAnimationSet = new ParticleAnimationSet();
-			particleAnimationSet.loop = true;
-			particleAnimationSet.hasDuration = true;
-			particleAnimationSet.hasDelay = true;
+			particleAnimationSet = new ParticleAnimationSet(true, true, true);
 			
 			//define the particle animations and init function
 			particleAnimationSet.addAnimation(new ParticleBillboardNode());

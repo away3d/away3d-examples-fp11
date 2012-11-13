@@ -285,16 +285,14 @@ package
 			whiteGeometry = ParticleGeometryHelper.generateGeometry(whiteGeometrySet);
 			
 			//define the red particle animations and init function
-			redAnimationSet = new ParticleAnimationSet();
-			redAnimationSet.hasDuration = true;
+			redAnimationSet = new ParticleAnimationSet(true);
 			redAnimationSet.addAnimation(new ParticleBillboardNode());
 			redAnimationSet.addAnimation(new ParticleBezierCurveNode(ParticlePropertiesMode.LOCAL));
 			redAnimationSet.addAnimation(new ParticlePositionNode(ParticlePropertiesMode.LOCAL));
 			redAnimationSet.initParticleFunc = initRedParticleFunc;
 			
 			//define the white particle animations and init function
-			whiteAnimationSet = new ParticleAnimationSet();
-			whiteAnimationSet.hasDuration = false;
+			whiteAnimationSet = new ParticleAnimationSet(true);
 			whiteAnimationSet.addAnimation(new ParticleBillboardNode());
 			whiteAnimationSet.addAnimation(new ParticleBezierCurveNode(ParticlePropertiesMode.LOCAL));
 			whiteAnimationSet.addAnimation(new ParticlePositionNode(ParticlePropertiesMode.LOCAL));

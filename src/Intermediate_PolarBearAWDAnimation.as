@@ -411,8 +411,7 @@ package
 					var particleGeometry:Geometry = ParticleGeometryHelper.generateGeometry(geometrySet,transforms);
 					
 					
-					var particleAnimationSet:ParticleAnimationSet = new ParticleAnimationSet();
-					particleAnimationSet.loop = true;
+					var particleAnimationSet:ParticleAnimationSet = new ParticleAnimationSet(true, true);
 					particleAnimationSet.addAnimation(new ParticleVelocityNode(ParticlePropertiesMode.GLOBAL, new Vector3D(0, -100, 0)));
 					particleAnimationSet.addAnimation(new ParticlePositionNode(ParticlePropertiesMode.LOCAL));
 					particleAnimationSet.addAnimation(new ParticleOscillatorNode(ParticlePropertiesMode.LOCAL));
