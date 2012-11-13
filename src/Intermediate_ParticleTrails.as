@@ -54,7 +54,6 @@ package
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.materials.*;
-	import away3d.materials.methods.*;
 	import away3d.primitives.*;
 	import away3d.tools.helpers.*;
 	import away3d.tools.helpers.data.*;
@@ -87,6 +86,7 @@ package
 		
 		//particle objects
 		private var particleAnimationSet:ParticleAnimationSet;
+		private var particleFollowNode:ParticleFollowNode;
 		private var particleGeometry:ParticleGeometry;
 		
 		//scene objects
@@ -203,7 +203,7 @@ package
 			particleAnimationSet.addAnimation(new ParticleBillboardNode());
 			particleAnimationSet.addAnimation(new ParticleVelocityNode(ParticlePropertiesMode.LOCAL_STATIC));
 			particleAnimationSet.addAnimation(new ParticleColorNode(ParticlePropertiesMode.GLOBAL, true, false, false, false, new ColorTransform(), new ColorTransform(1, 1, 1, 0)));
-			particleAnimationSet.addAnimation(new ParticleFollowNode(true, false));
+			particleAnimationSet.addAnimation(particleFollowNode = new ParticleFollowNode(true, false));
 			particleAnimationSet.initParticleFunc = initParticleProperties;
 		}
 		
@@ -232,12 +232,12 @@ package
 			animator1 = new ParticleAnimator(particleAnimationSet);
 			particleMesh1.animator = animator1;
 			animator1.start();
-			ParticleFollowState(animator1.getAnimationStateByName("ParticleFollowNode")).followTarget = followTarget1;
+			particleFollowNode.getAnimationState(animator1).followTarget = followTarget1;
 			
 			animator2 = new ParticleAnimator(particleAnimationSet);
 			particleMesh2.animator = animator2;
 			animator2.start();
-			ParticleFollowState(animator2.getAnimationStateByName("ParticleFollowNode")).followTarget = followTarget2;
+			particleFollowNode.getAnimationState(animator2).followTarget = followTarget2;
 		}
 		
 		/**
