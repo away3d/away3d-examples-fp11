@@ -292,7 +292,7 @@ package
 			redAnimationSet.initParticleFunc = initRedParticleFunc;
 			
 			//define the white particle animations and init function
-			whiteAnimationSet = new ParticleAnimationSet(true);
+			whiteAnimationSet = new ParticleAnimationSet();
 			whiteAnimationSet.addAnimation(new ParticleBillboardNode());
 			whiteAnimationSet.addAnimation(new ParticleBezierCurveNode(ParticlePropertiesMode.LOCAL_STATIC));
 			whiteAnimationSet.addAnimation(new ParticlePositionNode(ParticlePropertiesMode.LOCAL_STATIC));

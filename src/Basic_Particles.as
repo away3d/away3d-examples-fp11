@@ -121,8 +121,7 @@ package
 				geometrySet.push(plane);
 			
 			//setup the particle animation set
-			_particleAnimationSet = new ParticleAnimationSet();
-			_particleAnimationSet.loop = true;
+			_particleAnimationSet = new ParticleAnimationSet(true, true);
 			_particleAnimationSet.addAnimation(new ParticleBillboardNode());
 			_particleAnimationSet.addAnimation(new ParticleVelocityNode(ParticlePropertiesMode.LOCAL_STATIC));
 			_particleAnimationSet.initParticleFunc = initParticleFunc;

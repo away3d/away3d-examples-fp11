@@ -1,6 +1,6 @@
 /*
 
-Shadind example in Away3d
+Shading example in Away3d
 
 Demonstrates:
 
