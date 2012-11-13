@@ -84,10 +84,6 @@ package
 		
 		//material objects
 		private var particleMaterial:TextureMaterial;
-		private var subsurfaceMethod:SubsurfaceScatteringDiffuseMethod;
-		private var fresnelMethod:FresnelSpecularMethod;
-		private var diffuseMethod:BasicDiffuseMethod;
-		private var specularMethod:BasicSpecularMethod;
 		
 		//particle objects
 		private var particleAnimationSet:ParticleAnimationSet;
