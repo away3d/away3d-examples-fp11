@@ -331,21 +331,17 @@ package
 			stage.scaleMode = StageScaleMode.NO_SCALE;
             stage.align = StageAlign.TOP_LEFT;
 			stage.quality = StageQuality.LOW;
-            
-			
-			//Debug.active = true;
 			
 			//create the view
 			_view = new View3D();
 			_view.camera.y = 150;
 			_view.camera.z = 0;
+			
+			_view.addSourceURL("srcview/index.html");
 			addChild(_view);
 			
 			//setup controller to be used on the camera
-			_cameraController = new FirstPersonController(_view.camera, 90, 0, -80, 80);
-			
-			_lights = new Array();
-			
+			_cameraController = new FirstPersonController(_view.camera, 90, 0, -80, 80);			
 			
 			//add signature
 			Signature = Sprite(new SignatureSwf());
@@ -383,7 +379,10 @@ package
          */
 		private function initLights():void
 		{
+			//create lights array
+			_lights = new Array();
 			
+			//create global directional light
 			_cascadeShadowMapper = new CascadeShadowMapper(3);
 			_cascadeShadowMapper.lightOffset = 10000;
 			_directionalLight = new DirectionalLight(-1, -15, 1);
@@ -409,9 +408,11 @@ package
 				_lights.push(light);
 			}
 			
+			//create our global light picker
 			_lightPicker = new StaticLightPicker(_lights);
 			_baseShadowMethod = new FilteredShadowMapMethod(_directionalLight);
 			
+			//create our global fog method
 			_fogMethod = new FogMethod(0, 4000, 0x9090e7);
 			_cascadeMethod = new CascadeShadowMapMethod(_baseShadowMethod);
 		}
@@ -609,8 +610,8 @@ package
 		{
             var P:int = int(e.bytesLoaded / e.bytesTotal * 100);
             if (P != 100) {
-                log(_loadingText + '\n' + ((_loadingText = "Loading Model")? int((e.bytesLoaded / 1024) << 0) + 'kb | ' + int((e.bytesTotal / 1024) << 0) + 'kb' : _currentTexture + ' | ' + _numTextures));
-			} else {
+                log(_loadingText + '\n' + ((_loadingText == "Loading Model")? int((e.bytesLoaded / 1024) << 0) + 'kb | ' + int((e.bytesTotal / 1024) << 0) + 'kb' : _currentTexture + ' | ' + _numTextures));
+			} else if (_loadingText == "Loading Model") {
 				_text.visible = false;
 			}
         }
@@ -701,7 +702,7 @@ package
 				_loadingTextureStrings = _specularTextureStrings;
 				load(_loadingTextureStrings[_n]);
 			} else {
-            	load("sponza.awd");
+            	load("sponza/sponza.awd");
             }
         }
 		
@@ -923,6 +924,7 @@ package
 					break;
 				case Keyboard.F:
 					stage.displayState = StageDisplayState.FULL_SCREEN;
+					break;
 				case Keyboard.C:
 					_cameraController.fly = !_cameraController.fly;
 			}
