@@ -101,9 +101,9 @@ package
 		[Embed(source="/../embeds/desertHeightmap.jpg")]
 		public static var HeightMap:Class;
 
-		// t800
+		// head
 		[Embed(source="/../embeds/head.obj", mimeType="application/octet-stream")]
-		public static var T800:Class;
+		public static var HeadModel:Class;
 
 		public static const MAX_SPEED : Number = 1;
 		public static const MAX_ROTATION_SPEED : Number = 10;
@@ -310,7 +310,7 @@ package
 
 			// init external models
 			AssetLibrary.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetComplete);
-			AssetLibrary.loadData(new T800());
+			AssetLibrary.loadData(new HeadModel());
 			AssetLibrary.loadData(new R2D2_Obj());
 		}
 
@@ -385,13 +385,13 @@ package
 		{
 			if (event.asset.assetType == AssetType.MESH) {
 			trace( "asset complete: " + event.asset.name );
-				if( event.asset.name == "g0" ) { // T800
-					var t800:Mesh = event.asset as Mesh;
-					t800.scale(60);
-					t800.y = 180;
-					t800.rotationY = -90;
-					t800.material = reflectiveMaterial;
-					scene.addChild(t800);
+				if( event.asset.name == "g0" ) { // Head
+					var head:Mesh = event.asset as Mesh;
+					head.scale(60);
+					head.y = 180;
+					head.rotationY = -90;
+					head.material = reflectiveMaterial;
+					scene.addChild(head);
 				}
 				else { // R2D2
 					r2d2 = event.asset as Mesh;
