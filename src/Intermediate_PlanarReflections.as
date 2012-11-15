@@ -73,7 +73,7 @@ package
 		[Embed(source="/../embeds/signature.swf", symbol="Signature")]
 		public var SignatureSwf:Class;
 
-		[Embed(source="/../embeds/r2d2 texture.jpg")]
+		[Embed(source="/../embeds/r2d2_diffuse.jpg")]
 		public static var R2D2Albedo:Class;
 
 		[Embed(source="/../embeds/skybox/space_negX.jpg")]
