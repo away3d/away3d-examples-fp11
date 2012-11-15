@@ -1,4 +1,4 @@
-﻿﻿/*
+﻿/*
 
 Real time environment map reflections
 
@@ -102,7 +102,7 @@ package
 		public static var HeightMap:Class;
 
 		// t800
-		[Embed(source="/../embeds/terminator/t800.obj", mimeType="application/octet-stream")]
+		[Embed(source="/../embeds/head.obj", mimeType="application/octet-stream")]
 		public static var T800:Class;
 
 		public static const MAX_SPEED : Number = 1;
@@ -383,12 +383,12 @@ package
 		 */
 		private function onAssetComplete(event:AssetEvent):void
 		{
-			trace( "asset complete: " + event.asset.name );
 			if (event.asset.assetType == AssetType.MESH) {
-				if( event.asset.name == "Mesh_g0" ) { // T800
+			trace( "asset complete: " + event.asset.name );
+				if( event.asset.name == "g0" ) { // T800
 					var t800:Mesh = event.asset as Mesh;
-					t800.scale(3);
-					t800.y = -180;
+					t800.scale(60);
+					t800.y = 180;
 					t800.rotationY = -90;
 					t800.material = reflectiveMaterial;
 					scene.addChild(t800);
