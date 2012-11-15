@@ -187,7 +187,8 @@ package
 
 			//setup controller to be used on the camera
 			cameraController = new HoverController(camera, null, 45, 10, 600, 5, 90);
-
+			cameraController.lookAtPosition = new Vector3D(0, 120, 0);
+			cameraController.wrapPanAngle = true;
 			view.addSourceURL("srcview/index.html");
 			addChild(view);
 
@@ -239,7 +240,7 @@ package
 		private function initReflectionCube() : void
 		{
 			// create the cube with a dimension of 128
-			reflectionTexture = new CubeReflectionTexture(128);
+			reflectionTexture = new CubeReflectionTexture(256);
 			reflectionTexture.farPlaneDistance = 1000;
 			reflectionTexture.nearPlaneDistance = 50;
 			// center the reflection at (0, 100, 0) where our reflective object will be
@@ -354,8 +355,10 @@ package
 				cameraController.tiltAngle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;
 			}
 
-			if (r2d2)
+			if (r2d2) {
 				updateR2D2();
+				cameraController.panAngle = 90-180*Math.atan2(r2d2.z, r2d2.x)/Math.PI;
+			}
 
 			// render the view's scene to the reflection texture (view is required to use the correct stage3DProxy)
 			reflectionTexture.render(view);
@@ -376,6 +379,9 @@ package
 
 			r2d2.moveForward(_speed);
 			r2d2.rotationY += _rotationSpeed;
+			
+			//if (r2d2.x*r2d2.x + r2d2.z*r2d2.z < 300)
+				
 		}
 		
 		/**
