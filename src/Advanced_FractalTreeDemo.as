@@ -307,15 +307,14 @@ package
 			heightMapData.draw(createGradientSprite(512, 512, 1, 0));
 			
 			//create terrain diffuse method
-			blendBitmapData = heightMapData.clone();
-			blendBitmapData.threshold(blendBitmapData, blendBitmapData.rect, destPoint, ">", 0x444444, 0xFF00FF00, 0xFFFFFF, true);
-			blendBitmapData.colorTransform(blendBitmapData.rect, new ColorTransform(1, 1, 1, 1, 255, 0, 0, 0));
+			blendBitmapData = new BitmapData(heightMapData.width, heightMapData.height, false, 0x000000);
+			blendBitmapData.threshold(heightMapData, blendBitmapData.rect, destPoint, ">", 0x444444, 0xFFFF0000, 0xFFFFFF, false);
 			blendBitmapData.applyFilter(blendBitmapData, blendBitmapData.rect, destPoint, new BlurFilter(16, 16, 3));
 			blendTexture = new BitmapTexture(blendBitmapData);
-			terrainMethod = new TerrainDiffuseMethod([Cast.bitmapTexture(Grass), Cast.bitmapTexture(Rock), new BitmapTexture(new BitmapData(512, 512, false, 0x000000))], blendTexture, [1, 20, 20, 1]);
-			
+			terrainMethod = new TerrainDiffuseMethod([Cast.bitmapTexture(Rock)], blendTexture, [20, 20]);
+
 			//create terrain material
-			terrainMaterial = new TextureMaterial(new BitmapTexture(heightMapData));
+			terrainMaterial = new TextureMaterial(Cast.bitmapTexture(Grass));
 			terrainMaterial.diffuseMethod = terrainMethod;
 			terrainMaterial.addMethod(new FogMethod(0, 200000, 0x000000)); //TODO: global fog method affects splats when updated
 			terrainMaterial.lightPicker = lightPicker;
