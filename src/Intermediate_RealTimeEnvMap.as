@@ -64,7 +64,7 @@ package
 	import away3d.primitives.*;
 	import away3d.textures.*;
 	import away3d.utils.*;
-
+	
 	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
 	
 	public class Intermediate_RealTimeEnvMap extends Sprite
@@ -79,7 +79,7 @@ package
 		// signature swf
 		[Embed(source="/../embeds/signature.swf", symbol="Signature")]
 		public var SignatureSwf:Class;
-
+		
 		// R2D2 Model
 		[Embed(source="/../embeds/R2D2.obj", mimeType="application/octet-stream")]
 		public static var R2D2Model:Class;
@@ -87,29 +87,29 @@ package
 		// R2D2 Texture
 		[Embed(source="/../embeds/r2d2_diffuse.jpg")]
 		public static var R2D2Texture:Class;
-
-		// skybox
-		[Embed(source="/../embeds/skybox/sky_negX.jpg")]
-		public static var SkyBoxMinX:Class;
+		
+		//skybox textures
 		[Embed(source="/../embeds/skybox/sky_posX.jpg")]
-		public static var SkyBoxMaxX:Class;
-		[Embed(source="/../embeds/skybox/sky_negY.jpg")]
-		public static var SkyBoxMinY:Class;
+		private var PosX:Class;
+		[Embed(source="/../embeds/skybox/sky_negX.jpg")]
+		private var NegX:Class;
 		[Embed(source="/../embeds/skybox/sky_posY.jpg")]
-		public static var SkyBoxMaxY:Class;
-		[Embed(source="/../embeds/skybox/sky_negZ.jpg")]
-		public static var SkyBoxMinZ:Class;
+		private var PosY:Class;
+		[Embed(source="/../embeds/skybox/sky_negY.jpg")]
+		private var NegY:Class;
 		[Embed(source="/../embeds/skybox/sky_posZ.jpg")]
-		public static var SkyBoxMaxZ:Class;
-
+		private var PosZ:Class;
+		[Embed(source="/../embeds/skybox/sky_negZ.jpg")]
+		private var NegZ:Class;
+		
 		// desert texture
 		[Embed(source="/../embeds/arid.jpg")]
 		public static var DesertTexture:Class;
 		
-		//desert heightmap
+		//desert height map
 		[Embed(source="/../embeds/desertHeightMap.jpg")]
 		public static var DesertHeightMap:Class;
-
+		
 		// head Model
 		[Embed(source="/../embeds/head.obj", mimeType="application/octet-stream")]
 		public static var HeadModel:Class;
@@ -124,36 +124,35 @@ package
 		private var SignatureBitmap:Bitmap;
 		
 		//material objects
+		private var skyboxTexture : BitmapCubeTexture;
+		private var reflectionTexture:CubeReflectionTexture;
 		private var floorMaterial : TextureMaterial;
 		private var desertMaterial : TextureMaterial;
 		private var reflectiveMaterial : ColorMaterial;
 		private var r2d2Material : TextureMaterial;
 		private var lightPicker : StaticLightPicker;
 		private var fogMethod : FogMethod;
-		private var skyboxTexture : BitmapCubeTexture;
-
-
+		
 		//scene objects
 		private var light:DirectionalLight;
 		private var head:Mesh;
 		private var r2d2:Mesh;
-
+		
 		//navigation variables
 		private var move:Boolean = false;
 		private var lastPanAngle:Number;
 		private var lastTiltAngle:Number;
 		private var lastMouseX:Number;
 		private var lastMouseY:Number;
+		
+		//R2D2 motion variables
 		private var _drag : Number = 0.95;
 		private var _acceleration : Number = 0;
 		private var _rotationDrag : Number = 0.95;
 		private var _rotationAccel : Number = 0;
 		private var _speed : Number = 0;
 		private var _rotationSpeed : Number = 0;
-
-		// reflection variables
-		private var reflectionTexture:CubeReflectionTexture;
-
+		
 		/**
 		 * Constructor
 		 */
@@ -175,7 +174,7 @@ package
 			initObjects();
 			initListeners();
 		}
-
+		
 		/**
 		 * Initialise the engine
 		 */
@@ -270,9 +269,9 @@ package
 			
 			//setup the skybox texture
 			skyboxTexture = new BitmapCubeTexture(
-				Cast.bitmapData(SkyBoxMaxX), Cast.bitmapData(SkyBoxMinX),
-				Cast.bitmapData(SkyBoxMaxY), Cast.bitmapData(SkyBoxMinY),
-				Cast.bitmapData(SkyBoxMaxZ), Cast.bitmapData(SkyBoxMinZ)
+				Cast.bitmapData(PosX), Cast.bitmapData(NegX),
+				Cast.bitmapData(PosY), Cast.bitmapData(NegY),
+				Cast.bitmapData(PosZ), Cast.bitmapData(NegZ)
 			);
 			
 			// setup desert floor material
