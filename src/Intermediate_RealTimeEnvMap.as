@@ -1,4 +1,4 @@
-﻿/*
+﻿﻿/*
 
 Real time environment map reflections
 
@@ -13,7 +13,7 @@ http://www.derschmale.com
 
 This code is distributed under the MIT License
 
-Copyright (c) The Away Foundation http://www.theawayfoundation.org
+Copyright (c)  
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the “Software”), to deal
@@ -37,6 +37,7 @@ THE SOFTWARE.
 
 package
 {
+
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
@@ -53,7 +54,6 @@ package
 	import away3d.materials.methods.*;
 	import away3d.primitives.PlaneGeometry;
 	import away3d.primitives.SkyBox;
-	import away3d.primitives.SphereGeometry;
 	import away3d.textures.BitmapCubeTexture;
 	import away3d.textures.BitmapTexture;
 	import away3d.textures.CubeReflectionTexture;
@@ -71,39 +71,39 @@ package
 	
 	public class Intermediate_RealTimeEnvMap extends Sprite
 	{
-		//signature swf
+		// signature swf
 		[Embed(source="/../embeds/signature.swf", symbol="Signature")]
 		public var SignatureSwf:Class;
 
+		// r2d2
+		[Embed(source="/../embeds/R2D2.obj", mimeType="application/octet-stream")]
+		public static var R2D2_Obj:Class;
 		[Embed(source="/../embeds/r2d2 texture.jpg")]
 		public static var R2D2Albedo:Class;
 
+		// skybox
 		[Embed(source="/../embeds/skybox/space_negX.jpg")]
 		public static var SkyBoxMinX:Class;
-
 		[Embed(source="/../embeds/skybox/space_posX.jpg")]
 		public static var SkyBoxMaxX:Class;
-
 		[Embed(source="/../embeds/skybox/space_negY.jpg")]
 		public static var SkyBoxMinY:Class;
-
 		[Embed(source="/../embeds/skybox/space_posY.jpg")]
 		public static var SkyBoxMaxY:Class;
-
 		[Embed(source="/../embeds/skybox/space_negZ.jpg")]
 		public static var SkyBoxMinZ:Class;
-
 		[Embed(source="/../embeds/skybox/space_posZ.jpg")]
 		public static var SkyBoxMaxZ:Class;
 
+		// dessert
 		[Embed(source="/../embeds/desertsand.jpg")]
 		public static var DesertAlbedo:Class;
-
 		[Embed(source="/../embeds/desertHeightmap.jpg")]
 		public static var HeightMap:Class;
 
-		[Embed(source="/../embeds/R2D2.obj", mimeType="application/octet-stream")]
-		public static var R2D2_Obj:Class;
+		// t800
+		[Embed(source="/../embeds/terminator/t800.obj", mimeType="application/octet-stream")]
+		public static var T800:Class;
 
 		public static const MAX_SPEED : Number = 1;
 		public static const MAX_ROTATION_SPEED : Number = 10;
@@ -148,7 +148,6 @@ package
 		// reflection variables
 		private var reflectionTexture:CubeReflectionTexture;
 
-
 		/**
 		 * Constructor
 		 */
@@ -187,7 +186,7 @@ package
 			camera.lens.far = 4000;
 
 			//setup controller to be used on the camera
-			cameraController = new HoverController(camera, null, 45, 10, 400, 3, 90);
+			cameraController = new HoverController(camera, null, 45, 10, 600, 5, 90);
 
 			view.addSourceURL("srcview/index.html");
 			addChild(view);
@@ -305,12 +304,13 @@ package
 		private function initObjects():void
 		{
 			initDesert();
-			initSphere();
 
 			//default available parsers to all
 			Parsers.enableAllBundled();
-			
+
+			// init external models
 			AssetLibrary.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetComplete);
+			AssetLibrary.loadData(new T800());
 			AssetLibrary.loadData(new R2D2_Obj());
 		}
 
@@ -328,18 +328,6 @@ package
 			var floor:Mesh = new Mesh(new PlaneGeometry(800, 800, 1, 1), floorMaterial);
 			floor.geometry.scaleUV(800 / 5000 * 25, 800 / 5000 * 25);	// match uv coords with that of the desert
 			scene.addChild(floor);
-		}
-
-		/**
-		 * Creates the sphere that will reflect its environment
-		 */
-		private function initSphere() : void
-		{
-			// a Sphere displays the inaccuracies of the environment map reflections. Complex models will look more convincing.
-			var geometry:SphereGeometry = new SphereGeometry(100, 20, 16);
-			var mesh:Mesh = new Mesh(geometry, reflectiveMaterial);
-			mesh.y = 100;
-			scene.addChild(mesh);
 		}
 
 		/**
@@ -395,17 +383,28 @@ package
 		 */
 		private function onAssetComplete(event:AssetEvent):void
 		{
+			trace( "asset complete: " + event.asset.name );
 			if (event.asset.assetType == AssetType.MESH) {
-				r2d2 = event.asset as Mesh;
-				r2d2.scale(5);
-				r2d2.material = r2d2Material;
-				r2d2.x = 200;
-				r2d2.y = 30;
-				r2d2.z = 0;
-				scene.addChild(r2d2);
+				if( event.asset.name == "Mesh_g0" ) { // T800
+					var t800:Mesh = event.asset as Mesh;
+					t800.scale(3);
+					t800.y = -180;
+					t800.rotationY = -90;
+					t800.material = reflectiveMaterial;
+					scene.addChild(t800);
+				}
+				else { // R2D2
+					r2d2 = event.asset as Mesh;
+					r2d2.scale( 5 );
+					r2d2.material = r2d2Material;
+					r2d2.x = 200;
+					r2d2.y = 30;
+					r2d2.z = 0;
+					scene.addChild( r2d2 );
+				}
 			}
 		}
-		
+
 		/**
 		 * Mouse down listener for navigation
 		 */
