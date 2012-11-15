@@ -4,16 +4,19 @@ Real time environment map reflections
 
 Demonstrates:
 
-How to use the CubeReflectionTexture to dynamically render environment maps
-How to use EnvMapMethod to apply the dynamic environment map to a material
+How to use the CubeReflectionTexture to dynamically render environment maps.
+How to use EnvMapMethod to apply the dynamic environment map to a material.
+How to use the Elevation extrusions class to create a terrain from a heightmap.
 
-Code by David Lenaerts
+Code by David Lenaerts & Rob Bateman
 david.lenaerts@gmail.com
 http://www.derschmale.com
+rob@infiniteturtles.co.uk
+http://www.infiniteturtles.co.uk
 
 This code is distributed under the MIT License
 
-Copyright (c)  
+Copyright (c) The Away Foundation http://www.theawayfoundation.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the “Software”), to deal
@@ -38,83 +41,83 @@ THE SOFTWARE.
 package
 {
 
-	import away3d.cameras.*;
+	import flash.display.*;
+	import flash.events.*;
+	import flash.filters.*;
+	import flash.geom.*;
+	import flash.text.*;
+	import flash.ui.*;
+	
 	import away3d.containers.*;
 	import away3d.controllers.*;
 	import away3d.debug.*;
-	import away3d.entities.Mesh;
+	import away3d.entities.*;
 	import away3d.events.*;
-	import away3d.extrusions.Elevation;
-	import away3d.library.AssetLibrary;
+	import away3d.extrusions.*;
+	import away3d.library.*;
 	import away3d.library.assets.*;
 	import away3d.lights.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
-	import away3d.primitives.PlaneGeometry;
-	import away3d.primitives.SkyBox;
-	import away3d.textures.BitmapCubeTexture;
-	import away3d.textures.BitmapTexture;
-	import away3d.textures.CubeReflectionTexture;
+	import away3d.primitives.*;
+	import away3d.textures.*;
 	import away3d.utils.*;
-
-	import flash.display.*;
-	import flash.events.*;
-	import flash.filters.DropShadowFilter;
-	import flash.geom.Vector3D;
-	import flash.text.TextField;
-	import flash.text.TextFormat;
-	import flash.ui.Keyboard;
 
 	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
 	
 	public class Intermediate_RealTimeEnvMap extends Sprite
 	{
+		//constants for R2D2 movement
+		public static const MAX_SPEED : Number = 1;
+		public static const MAX_ROTATION_SPEED : Number = 10;
+		public static const DRAG : Number = .95;
+		public static const ACCELERATION : Number = .5;
+		public static const ROTATION : Number = .5;
+		
 		// signature swf
 		[Embed(source="/../embeds/signature.swf", symbol="Signature")]
 		public var SignatureSwf:Class;
 
-		// r2d2
+		// R2D2 Model
 		[Embed(source="/../embeds/R2D2.obj", mimeType="application/octet-stream")]
-		public static var R2D2_Obj:Class;
-		[Embed(source="/../embeds/r2d2 texture.jpg")]
-		public static var R2D2Albedo:Class;
+		public static var R2D2Model:Class;
+		
+		// R2D2 Texture
+		[Embed(source="/../embeds/r2d2_diffuse.jpg")]
+		public static var R2D2Texture:Class;
 
 		// skybox
-		[Embed(source="/../embeds/skybox/space_negX.jpg")]
+		[Embed(source="/../embeds/skybox/sky_negX.jpg")]
 		public static var SkyBoxMinX:Class;
-		[Embed(source="/../embeds/skybox/space_posX.jpg")]
+		[Embed(source="/../embeds/skybox/sky_posX.jpg")]
 		public static var SkyBoxMaxX:Class;
-		[Embed(source="/../embeds/skybox/space_negY.jpg")]
+		[Embed(source="/../embeds/skybox/sky_negY.jpg")]
 		public static var SkyBoxMinY:Class;
-		[Embed(source="/../embeds/skybox/space_posY.jpg")]
+		[Embed(source="/../embeds/skybox/sky_posY.jpg")]
 		public static var SkyBoxMaxY:Class;
-		[Embed(source="/../embeds/skybox/space_negZ.jpg")]
+		[Embed(source="/../embeds/skybox/sky_negZ.jpg")]
 		public static var SkyBoxMinZ:Class;
-		[Embed(source="/../embeds/skybox/space_posZ.jpg")]
+		[Embed(source="/../embeds/skybox/sky_posZ.jpg")]
 		public static var SkyBoxMaxZ:Class;
 
-		// dessert
-		[Embed(source="/../embeds/desertsand.jpg")]
-		public static var DesertAlbedo:Class;
-		[Embed(source="/../embeds/desertHeightmap.jpg")]
-		public static var HeightMap:Class;
+		// desert texture
+		[Embed(source="/../embeds/arid.jpg")]
+		public static var DesertTexture:Class;
+		
+		//desert heightmap
+		[Embed(source="/../embeds/desertHeightMap.jpg")]
+		public static var DesertHeightMap:Class;
 
-		// head
+		// head Model
 		[Embed(source="/../embeds/head.obj", mimeType="application/octet-stream")]
 		public static var HeadModel:Class;
-
-		public static const MAX_SPEED : Number = 1;
-		public static const MAX_ROTATION_SPEED : Number = 10;
-		public static const ACCELERATION : Number = .5;
-		public static const ROTATION : Number = .5;
-
+		
 		//engine variables
-		private var scene:Scene3D;
-		private var camera:Camera3D;
 		private var view:View3D;
 		private var cameraController:HoverController;
+		private var awayStats:AwayStats;
 		
 		//signature variables
 		private var Signature:Sprite;
@@ -132,6 +135,7 @@ package
 
 		//scene objects
 		private var light:DirectionalLight;
+		private var head:Mesh;
 		private var r2d2:Mesh;
 
 		//navigation variables
@@ -140,8 +144,10 @@ package
 		private var lastTiltAngle:Number;
 		private var lastMouseX:Number;
 		private var lastMouseY:Number;
-		private var _rotationAccel : Number = 0;
+		private var _drag : Number = 0.95;
 		private var _acceleration : Number = 0;
+		private var _rotationDrag : Number = 0.95;
+		private var _rotationAccel : Number = 0;
 		private var _speed : Number = 0;
 		private var _rotationSpeed : Number = 0;
 
@@ -165,7 +171,6 @@ package
 			initText();
 			initLights();
 			initReflectionCube();
-			initSkyBox();
 			initMaterials();
 			initObjects();
 			initListeners();
@@ -178,19 +183,18 @@ package
 		{
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
-
+			
+			//setup view
 			view = new View3D();
-
-			scene = view.scene;
-			camera = view.camera;
-			camera.lens.far = 4000;
-
-			//setup controller to be used on the camera
-			cameraController = new HoverController(camera, null, 45, 10, 600, 5, 90);
-			cameraController.lookAtPosition = new Vector3D(0, 120, 0);
-			cameraController.wrapPanAngle = true;
+			view.camera.lens.far = 4000;
+			
 			view.addSourceURL("srcview/index.html");
 			addChild(view);
+
+			//setup controller to be used on the camera
+			cameraController = new HoverController(view.camera, null, 90, 10, 600, 2, 90);
+			cameraController.lookAtPosition = new Vector3D(0, 120, 0);
+			cameraController.wrapPanAngle = true;
 
 			//add signature
 			Signature = Sprite(new SignatureSwf());
@@ -200,7 +204,7 @@ package
 			stage.quality = StageQuality.LOW;
 			addChild(SignatureBitmap);
 
-			addChild(new AwayStats(view));
+			addChild(awayStats = new AwayStats(view));
 		}
 
 		/**
@@ -210,9 +214,11 @@ package
 		{
 			var text : TextField = new TextField();
 			text.defaultTextFormat = new TextFormat("Verdana", 11, 0xFFFFFF);
+			text.embedFonts = true;
+			text.antiAliasType = AntiAliasType.ADVANCED;
+			text.gridFitType = GridFitType.PIXEL;
 			text.width = 240;
 			text.height = 100;
-			text.y = 100;
 			text.selectable = false;
 			text.mouseEnabled = false;
 			text.text = "Cursor keys / WSAD - Move R2D2\n";
@@ -227,11 +233,18 @@ package
 		 */
 		private function initLights():void
 		{
+			//create global light
 			light = new DirectionalLight(-1, -2, 1);
 			light.color = 0xeedddd;
 			light.ambient = 1;
 			light.ambientColor = 0x808090;
-			scene.addChild(light);
+			view.scene.addChild(light);
+			
+			//create global lightpicker
+			lightPicker = new StaticLightPicker([light]);
+			
+			//create global fog method
+			fogMethod = new FogMethod(500, 2000, 0x5f5e6e);
 		}
 
 		/**
@@ -239,12 +252,6 @@ package
 		 */
 		private function initReflectionCube() : void
 		{
-			// create the cube with a dimension of 128
-			reflectionTexture = new CubeReflectionTexture(256);
-			reflectionTexture.farPlaneDistance = 1000;
-			reflectionTexture.nearPlaneDistance = 50;
-			// center the reflection at (0, 100, 0) where our reflective object will be
-			reflectionTexture.position = new Vector3D(0, 100, 0);
 		}
 
 
@@ -253,50 +260,43 @@ package
 		 */
 		private function initMaterials():void
 		{
-			var desertTexture : BitmapTexture = Cast.bitmapTexture(DesertAlbedo);
-			lightPicker = new StaticLightPicker([light]);
-			fogMethod = new FogMethod(0, 2000, 0x100215);
-
-			floorMaterial = new TextureMaterial(desertTexture);
-			floorMaterial.lightPicker = lightPicker;
-			floorMaterial.addMethod(fogMethod);
-			floorMaterial.repeat = true;
-			floorMaterial.gloss = 5;
-			floorMaterial.specular = .1;
-
-			desertMaterial = new TextureMaterial(desertTexture);
+			// create reflection texture with a dimension of 256x256x256
+			reflectionTexture = new CubeReflectionTexture(256);
+			reflectionTexture.farPlaneDistance = 3000;
+			reflectionTexture.nearPlaneDistance = 50;
+			
+			// center the reflection at (0, 100, 0) where our reflective object will be
+			reflectionTexture.position = new Vector3D(0, 100, 0);
+			
+			//setup the skybox texture
+			skyboxTexture = new BitmapCubeTexture(
+				Cast.bitmapData(SkyBoxMaxX), Cast.bitmapData(SkyBoxMinX),
+				Cast.bitmapData(SkyBoxMaxY), Cast.bitmapData(SkyBoxMinY),
+				Cast.bitmapData(SkyBoxMaxZ), Cast.bitmapData(SkyBoxMinZ)
+			);
+			
+			// setup desert floor material
+			desertMaterial = new TextureMaterial(Cast.bitmapTexture(DesertTexture));
 			desertMaterial.lightPicker = lightPicker;
 			desertMaterial.addMethod(fogMethod);
 			desertMaterial.repeat = true;
 			desertMaterial.gloss = 5;
 			desertMaterial.specular = .1;
-
-			r2d2Material = new TextureMaterial(Cast.bitmapTexture(R2D2Albedo));
+			
+			//setup R2D2 material
+			r2d2Material = new TextureMaterial(Cast.bitmapTexture(R2D2Texture));
 			r2d2Material.lightPicker = lightPicker;
 			r2d2Material.addMethod(fogMethod);
 			r2d2Material.addMethod(new EnvMapMethod(skyboxTexture,.2));
 
-			// using reflective textures is the same as static environment maps
-			// can also use plain EnvMapMethod
+			// setup fresnel method using our reflective texture in the place of a static environment map
 			var fresnelMethod : FresnelEnvMapMethod = new FresnelEnvMapMethod(reflectionTexture);
 			fresnelMethod.normalReflectance = .6;
 			fresnelMethod.fresnelPower = 2;
+			
+			//setup the reflective material
 			reflectiveMaterial = new ColorMaterial(0x000000);
 			reflectiveMaterial.addMethod(fresnelMethod);
-		}
-
-		/**
-		 * Initialise the skybox
-		 */
-		private function initSkyBox() : void
-		{
-			skyboxTexture = new BitmapCubeTexture(
-					Cast.bitmapData(SkyBoxMaxX), Cast.bitmapData(SkyBoxMinX),
-					Cast.bitmapData(SkyBoxMaxY), Cast.bitmapData(SkyBoxMinY),
-					Cast.bitmapData(SkyBoxMaxZ), Cast.bitmapData(SkyBoxMinZ)
-			);
-
-			scene.addChild(new SkyBox(skyboxTexture));
 		}
 		
 		/**
@@ -304,31 +304,22 @@ package
 		 */
 		private function initObjects():void
 		{
-			initDesert();
-
-			//default available parsers to all
-			Parsers.enableAllBundled();
-
-			// init external models
-			AssetLibrary.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetComplete);
-			AssetLibrary.loadData(new HeadModel());
-			AssetLibrary.loadData(new R2D2_Obj());
-		}
-
-		/**
-		 * Creates the objects forming the desert, including a small "floor" patch able to receive shadows.
-		 */
-		private function initDesert() : void
-		{
-			var desert:Elevation = new Elevation(desertMaterial, Cast.bitmapData(HeightMap), 5000, 600, 5000, 75, 75);
+			//create the skybox
+			view.scene.addChild(new SkyBox(skyboxTexture));
+			
+			//create the desert ground
+			var desert:Elevation = new Elevation(desertMaterial, Cast.bitmapData(DesertHeightMap), 5000, 300, 5000, 250, 250);
 			desert.y = -3;
 			desert.geometry.scaleUV(25, 25);
-			scene.addChild(desert);
-
-			// small desert patch that can receive shadows
-			var floor:Mesh = new Mesh(new PlaneGeometry(800, 800, 1, 1), floorMaterial);
-			floor.geometry.scaleUV(800 / 5000 * 25, 800 / 5000 * 25);	// match uv coords with that of the desert
-			scene.addChild(floor);
+			view.scene.addChild(desert);
+			
+			//enabled the obj parser
+			AssetLibrary.enableParser(OBJParser);
+			
+			// load model data
+			AssetLibrary.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetComplete);
+			AssetLibrary.loadData(new HeadModel());
+			AssetLibrary.loadData(new R2D2Model());
 		}
 
 		/**
@@ -354,34 +345,53 @@ package
 				cameraController.panAngle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
 				cameraController.tiltAngle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;
 			}
-
+			
 			if (r2d2) {
-				updateR2D2();
-				cameraController.panAngle = 90-180*Math.atan2(r2d2.z, r2d2.x)/Math.PI;
+				//drag
+				_speed *= DRAG;
+				
+				//acceleration
+				_speed += _acceleration;
+				
+				//speed bounds
+				if (_speed > MAX_SPEED)
+					_speed = MAX_SPEED;
+				else if (_speed < -MAX_SPEED)
+					_speed = -MAX_SPEED;
+				
+				//rotational drag
+				_rotationSpeed *= DRAG;
+				
+				//rotational acceleration
+				_rotationSpeed += _rotationAccel;
+				
+				//rotational speed bounds
+				if (_rotationSpeed > MAX_ROTATION_SPEED)
+					_rotationSpeed = MAX_ROTATION_SPEED;
+				else if (_rotationSpeed < -MAX_ROTATION_SPEED)
+					_rotationSpeed = -MAX_ROTATION_SPEED;
+				
+				//apply motion to R2D2
+				r2d2.moveForward(_speed);
+				r2d2.rotationY += _rotationSpeed;
+				
+				//keep R2D2 within max and min radius
+				var radius:Number = Math.sqrt(r2d2.x*r2d2.x + r2d2.z*r2d2.z);
+				if (radius < 200) {
+					r2d2.x = 200*r2d2.x/radius;
+					r2d2.z = 200*r2d2.z/radius;
+				} else if (radius > 500) {
+					r2d2.x = 500*r2d2.x/radius;
+					r2d2.z = 500*r2d2.z/radius;
+				}
+				
+				//pan angle overridden by R2D2 position
+				cameraController.panAngle = 90 - 180*Math.atan2(r2d2.z, r2d2.x)/Math.PI;
 			}
 
 			// render the view's scene to the reflection texture (view is required to use the correct stage3DProxy)
 			reflectionTexture.render(view);
 			view.render();
-		}
-
-		private function updateR2D2() : void
-		{
-			_speed *= .95;
-			_speed += _acceleration;
-			if (_speed > MAX_SPEED) _speed = MAX_SPEED;
-			else if (_speed < -MAX_SPEED) _speed = -MAX_SPEED;
-
-			_rotationSpeed += _rotationAccel;
-			_rotationSpeed *= .9;
-			if (_rotationSpeed > MAX_ROTATION_SPEED) _rotationSpeed = MAX_ROTATION_SPEED;
-			else if (_rotationSpeed < -MAX_ROTATION_SPEED) _rotationSpeed = -MAX_ROTATION_SPEED;
-
-			r2d2.moveForward(_speed);
-			r2d2.rotationY += _rotationSpeed;
-			
-			//if (r2d2.x*r2d2.x + r2d2.z*r2d2.z < 300)
-				
 		}
 		
 		/**
@@ -390,14 +400,13 @@ package
 		private function onAssetComplete(event:AssetEvent):void
 		{
 			if (event.asset.assetType == AssetType.MESH) {
-			trace( "asset complete: " + event.asset.name );
 				if( event.asset.name == "g0" ) { // Head
-					var head:Mesh = event.asset as Mesh;
+					head = event.asset as Mesh;
 					head.scale(60);
 					head.y = 180;
 					head.rotationY = -90;
 					head.material = reflectiveMaterial;
-					scene.addChild(head);
+					view.scene.addChild(head);
 				}
 				else { // R2D2
 					r2d2 = event.asset as Mesh;
@@ -406,7 +415,7 @@ package
 					r2d2.x = 200;
 					r2d2.y = 30;
 					r2d2.z = 0;
-					scene.addChild( r2d2 );
+					view.scene.addChild(r2d2);
 				}
 			}
 		}
@@ -440,16 +449,6 @@ package
 		{
 			move = false;
 			stage.removeEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
-		}
-		
-		/**
-		 * stage listener for resize events
-		 */
-		private function onResize(event:Event = null):void
-		{
-			view.width = stage.stageWidth;
-			view.height = stage.stageHeight;
-			SignatureBitmap.y = stage.stageHeight - Signature.height;
 		}
 
 		/**
@@ -496,6 +495,17 @@ package
 					_rotationAccel = 0;
 					break;
 			}
+		}
+		
+		/**
+		 * stage listener for resize events
+		 */
+		private function onResize(event:Event = null):void
+		{
+			view.width = stage.stageWidth;
+			view.height = stage.stageHeight;
+			SignatureBitmap.y = stage.stageHeight - Signature.height;
+			awayStats.x = stage.stageWidth - awayStats.width;
 		}
 	}
 }
