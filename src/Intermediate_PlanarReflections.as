@@ -97,7 +97,7 @@ package
 		[Embed(source="/../embeds/desertsand.jpg")]
 		public static var DesertAlbedo:Class;
 
-		[Embed(source="/../embeds/desertHeightmap.jpg")]
+		[Embed(source="/../embeds/desertHeightMap.jpg")]
 		public static var HeightMap:Class;
 
 		[Embed(source="/../embeds/R2D2.obj", mimeType="application/octet-stream")]
