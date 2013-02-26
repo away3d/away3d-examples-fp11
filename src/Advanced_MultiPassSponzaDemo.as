@@ -46,15 +46,6 @@ THE SOFTWARE.
 */
 package
 {
-	import flash.display.*;
-	import flash.events.*;
-	import flash.filters.*;
-	import flash.geom.*;
-	import flash.net.*;
-	import flash.text.*;
-	import flash.ui.*;
-	import flash.utils.*;
-	
 	import away3d.containers.*;
 	import away3d.controllers.*;
 	import away3d.core.base.*;
@@ -74,6 +65,15 @@ package
 	import away3d.textures.*;
 	import away3d.tools.commands.*;
 	import away3d.utils.*;
+	
+	import flash.display.*;
+	import flash.events.*;
+	import flash.filters.*;
+	import flash.geom.*;
+	import flash.net.*;
+	import flash.text.*;
+	import flash.ui.*;
+	import flash.utils.*;
 	
 	import uk.co.soulwire.gui.*;
 	
@@ -106,6 +106,8 @@ package
 		private const _diffuseTextureStrings:Vector.<String> = Vector.<String>(["arch_diff.jpg", "background.jpg", "bricks_a_diff.jpg", "ceiling_a_diff.jpg", "chain_texture.png", "column_a_diff.jpg", "column_b_diff.jpg", "column_c_diff.jpg", "curtain_blue_diff.jpg", "curtain_diff.jpg", "curtain_green_diff.jpg", "details_diff.jpg", "fabric_blue_diff.jpg", "fabric_diff.jpg", "fabric_green_diff.jpg", "flagpole_diff.jpg", "floor_a_diff.jpg", "gi_flag.jpg", "lion.jpg", "roof_diff.jpg", "thorn_diff.png", "vase_dif.jpg", "vase_hanging.jpg", "vase_plant.png", "vase_round.jpg"]);
 		private const _normalTextureStrings:Vector.<String> = Vector.<String>(["arch_ddn.jpg", "background_ddn.jpg", "bricks_a_ddn.jpg", null,                "chain_texture_ddn.jpg", "column_a_ddn.jpg", "column_b_ddn.jpg", "column_c_ddn.jpg", null,                   null,               null,                     null,               null,                   null,              null,                    null,                null,               null,          "lion2_ddn.jpg", null,       "thorn_ddn.jpg", "vase_ddn.jpg",  null,               null,             "vase_round_ddn.jpg"]);
 		private const _specularTextureStrings:Vector.<String> = Vector.<String>(["arch_spec.jpg", null,            "bricks_a_spec.jpg", "ceiling_a_spec.jpg", null,                "column_a_spec.jpg", "column_b_spec.jpg", "column_c_spec.jpg", "curtain_spec.jpg",      "curtain_spec.jpg", "curtain_spec.jpg",       "details_spec.jpg", "fabric_spec.jpg",      "fabric_spec.jpg", "fabric_spec.jpg",       "flagpole_spec.jpg", "floor_a_spec.jpg", null,          null,       null,            "thorn_spec.jpg", null,           null,               "vase_plant_spec.jpg", "vase_round_spec.jpg"]);
+		private var _numTexStrings:Vector.<uint> = Vector.<uint>([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+		private var _meshReference:Vector.<Mesh> = new Vector.<Mesh>(25);
 		
 		//flame data objects
 		private const _flameData:Vector.<FlameVO> = Vector.<FlameVO>([new FlameVO(new Vector3D(-625, 165, 219), 0xffaa44), new FlameVO(new Vector3D(485, 165, 219), 0xffaa44), new FlameVO(new Vector3D(-625, 165, -148), 0xffaa44), new FlameVO(new Vector3D(485, 165, -148), 0xffaa44)]);
@@ -114,6 +116,11 @@ package
 		private var _textureDictionary:Dictionary = new Dictionary();
 		private var _multiMaterialDictionary:Dictionary = new Dictionary();
 		private var _singleMaterialDictionary:Dictionary = new Dictionary();
+		
+		private var meshDictionary:Dictionary = new Dictionary();
+		private var vaseMeshes:Vector.<Mesh> = new Vector.<Mesh>();
+		private var poleMeshes:Vector.<Mesh> = new Vector.<Mesh>();
+		private var colMeshes:Vector.<Mesh> = new Vector.<Mesh>();
 		
 		//engien variables
 		private var _view:View3D;
@@ -759,10 +766,66 @@ package
 				if (mesh.name == "sponza_04" || mesh.name == "sponza_379")
 					continue;
 				
+				var num:Number = Number(mesh.name.substring(7));
+				
 				name = mesh.material.name;
+				
+				if (name == "column_c" && (num < 22 || num > 33))
+					continue;
+				
+				var colNum:Number = (num - 125)
+				if (name == "column_b") {
+					if (colNum  >=0 && colNum < 132 && (colNum % 11) < 10) {
+						colMeshes.push(mesh);
+						continue;
+					} else {
+						colMeshes.push(mesh);
+						var colMerge:Merge = new Merge();
+						var colMesh:Mesh = new Mesh(new Geometry());
+						colMerge.applyToMeshes(colMesh, colMeshes);
+						mesh = colMesh;
+						colMeshes = new Vector.<Mesh>();
+					}
+				}
+				
+				var vaseNum:Number = (num - 334);
+				if (name == "vase_hanging" && (vaseNum % 9) < 5) {
+					if (vaseNum  >=0 && vaseNum < 370 && (vaseNum % 9) < 4) {
+						vaseMeshes.push(mesh);
+						continue;
+					} else {
+						vaseMeshes.push(mesh);
+						var vaseMerge:Merge = new Merge();
+						var vaseMesh:Mesh = new Mesh(new Geometry());
+						vaseMerge.applyToMeshes(vaseMesh, vaseMeshes);
+						mesh = vaseMesh;
+						vaseMeshes = new Vector.<Mesh>();
+					}
+				}
+				
+				var poleNum:Number = num - 290;
+				if (name == "flagpole") {
+					if (poleNum >=0 && poleNum < 320 && (poleNum % 3) < 2) {
+						poleMeshes.push(mesh);
+						continue;
+					} else if (poleNum >=0) {
+						poleMeshes.push(mesh);
+						var poleMerge:Merge = new Merge();
+						var poleMesh:Mesh = new Mesh(new Geometry());
+						poleMerge.applyToMeshes(poleMesh, poleMeshes);
+						mesh = poleMesh;
+						poleMeshes = new Vector.<Mesh>();
+					}
+				}
+				
+				if (name == "flagpole" && (num == 260 || num == 261 || num == 263 || num == 265 || num == 268 || num == 269 || num == 271 || num == 273))
+					continue;
+				
 				var textureIndex:int = _materialNameStrings.indexOf(name);
 				if (textureIndex == -1 || textureIndex >= _materialNameStrings.length)
 					continue;
+				
+				_numTexStrings[textureIndex]++;
 				
 				var textureName:String = _diffuseTextureStrings[textureIndex];
 				var normalTextureName:String;
@@ -834,11 +897,28 @@ package
 					//add to material dictionary
 					_multiMaterialDictionary[name] = multiMaterial;
 				}
-				
+				/*
+				if (_meshReference[textureIndex]) {
+					var m:Mesh = mesh.clone() as Mesh;
+					m.material = multiMaterial;
+					_view.scene.addChild(m);
+					continue;
+				}
+				*/
 				//default to multipass material
 				mesh.material = multiMaterial;
 				
 				_view.scene.addChild(mesh);
+				
+				_meshReference[textureIndex] = mesh;
+			}
+			
+			var z:uint = 0;
+			
+			while (z < _numTexStrings.length)
+			{
+				trace(_diffuseTextureStrings[z], _numTexStrings[z]);
+				z++;
 			}
 			
 			initMaterials();
