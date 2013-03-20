@@ -394,7 +394,6 @@ package {
 			_cascadeShadowMapper.lightOffset = 20000;
 			_directionalLight = new DirectionalLight(-1, -15, 1);
 			_directionalLight.shadowMapper = _cascadeShadowMapper;
-			_directionalLight.castsShadows = false;
 			_directionalLight.color = 0xeedddd;
 			_directionalLight.ambient = .35;
 			_directionalLight.ambientColor = 0x808090;
