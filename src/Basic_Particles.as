@@ -39,13 +39,7 @@ THE SOFTWARE.
 
 */
 
-package
-{
-	import flash.display.*;
-	import flash.events.*;
-	import flash.geom.*;
-	import flash.text.*;
-	
+package {
 	import away3d.animators.*;
 	import away3d.animators.data.*;
 	import away3d.animators.nodes.*;
@@ -58,6 +52,10 @@ package
 	import away3d.primitives.*;
 	import away3d.tools.helpers.*;
 	import away3d.utils.*;
+
+	import flash.display.*;
+	import flash.events.*;
+	import flash.geom.*;
 	
 	[SWF(backgroundColor="#000000", frameRate="60")]
 	public class Basic_Particles extends Sprite

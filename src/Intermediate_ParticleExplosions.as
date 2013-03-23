@@ -92,8 +92,8 @@ package
 		//light variables
 		private var greenLight:PointLight;
 		private var blueLight:PointLight;
-		private var whitelight:DirectionalLight;
-		private var direction:Vector3D = new Vector3D();
+		//private var whitelight:DirectionalLight;
+		//private var direction:Vector3D = new Vector3D();
 		private var lightPicker:StaticLightPicker;
 		
 		//data variables
@@ -104,7 +104,7 @@ package
 		
 		//material objects
 		private var whiteMaterial:ColorMaterial;
-		private var redMaterial:ColorMaterial
+		private var redMaterial:ColorMaterial;
 		
 		//particle objects
 		private var redGeometry:ParticleGeometry;

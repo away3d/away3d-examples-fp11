@@ -117,7 +117,7 @@ package
 		private var _multiMaterialDictionary:Dictionary = new Dictionary();
 		private var _singleMaterialDictionary:Dictionary = new Dictionary();
 		
-		private var meshDictionary:Dictionary = new Dictionary();
+		//private var meshDictionary:Dictionary = new Dictionary();
 		private var vaseMeshes:Vector.<Mesh> = new Vector.<Mesh>();
 		private var poleMeshes:Vector.<Mesh> = new Vector.<Mesh>();
 		private var colMeshes:Vector.<Mesh> = new Vector.<Mesh>();
@@ -751,7 +751,8 @@ package
         private function onResourceComplete(e:LoaderEvent):void
 		{
 			var merge:Merge = new Merge(false, false, true);
-				
+			merge=merge;
+			
 			_text.visible = false;
 			
             var loader3d:Loader3D = e.target as Loader3D;
@@ -773,7 +774,7 @@ package
 				if (name == "column_c" && (num < 22 || num > 33))
 					continue;
 				
-				var colNum:Number = (num - 125)
+				var colNum:Number = (num - 125);
 				if (name == "column_b") {
 					if (colNum  >=0 && colNum < 132 && (colNum % 11) < 10) {
 						colMeshes.push(mesh);
@@ -856,7 +857,7 @@ package
 						singleMaterial.normalMap = _textureDictionary[normalTextureName];
 					
 					//add specular map if it exists
-					specularTextureName = _specularTextureStrings[textureIndex]
+					specularTextureName = _specularTextureStrings[textureIndex];
 					if (specularTextureName)
 						singleMaterial.specularMap = _textureDictionary[specularTextureName];
 					
@@ -890,7 +891,7 @@ package
 						multiMaterial.normalMap = _textureDictionary[normalTextureName];
 					
 					//add specular map if it exists
-					specularTextureName = _specularTextureStrings[textureIndex]
+					specularTextureName = _specularTextureStrings[textureIndex];
 					if (specularTextureName)
 						multiMaterial.specularMap = _textureDictionary[specularTextureName];
 					

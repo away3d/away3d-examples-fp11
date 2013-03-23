@@ -1,17 +1,13 @@
-package
-{
-	import away3d.debug.Debug;
+package {
 	import away3d.entities.Mesh;
 	import away3d.materials.ColorMaterial;
 	import away3d.primitives.CubeGeometry;
 	import away3d.stereo.StereoCamera3D;
 	import away3d.stereo.StereoView3D;
 	import away3d.stereo.methods.AnaglyphStereoRenderMethod;
-	import away3d.stereo.methods.InterleavedStereoRenderMethod;
-	
+
 	import flash.display.Sprite;
 	import flash.events.Event;
-	import flash.geom.Vector3D;
 	
 	[SWF(width="960", height="540")]
 	public class Basic_Stereo extends Sprite

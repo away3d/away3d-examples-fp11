@@ -269,7 +269,7 @@ package
 
 			if (mesh) {
 				if (mouseDown) {
-					mesh.rotationY += (referenceMouseX - stage.mouseX)/5
+					mesh.rotationY += (referenceMouseX - stage.mouseX)/5;
 					referenceMouseX = stage.mouseX;
 				}
 				mesh.x += xDir*speed;

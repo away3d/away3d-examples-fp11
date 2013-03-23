@@ -100,7 +100,7 @@ package
 		private var lightPicker:StaticLightPicker;
 		
 		//particle objects
-		private var fireAnimationSet:ParticleAnimationSet
+		private var fireAnimationSet:ParticleAnimationSet;
 		private var particleGeometry:ParticleGeometry;
 		private var timer:Timer;
 		

@@ -43,11 +43,9 @@ THE SOFTWARE.
 
 package
 {
-
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
-	import away3d.core.base.CompactSubGeometry;
 	import away3d.core.base.SubGeometry;
 	import away3d.core.pick.*;
 	import away3d.debug.*;
@@ -60,16 +58,16 @@ package
 	import away3d.primitives.*;
 	import away3d.textures.*;
 	import away3d.utils.*;
-	
+
+	import shallowwater.*;
+
+	import uk.co.soulwire.gui.*;
+
 	import flash.display.*;
 	import flash.events.*;
 	import flash.geom.*;
 	import flash.ui.*;
 	import flash.utils.*;
-	
-	import shallowwater.*;
-
-	import uk.co.soulwire.gui.*;
 
 	[SWF(backgroundColor="#000000", frameRate="30")]
 	public class Advanced_ShallowWaterDemo extends Sprite

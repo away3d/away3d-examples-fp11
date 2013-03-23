@@ -37,16 +37,10 @@ THE SOFTWARE.
 
 */
 
-package
-{
-	import flash.display.*;
-	import flash.events.*;
-	import flash.geom.*;
-	
+package {
 	import away3d.animators.*;
 	import away3d.animators.data.*;
 	import away3d.animators.nodes.*;
-	import away3d.animators.states.*;
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
@@ -58,6 +52,10 @@ package
 	import away3d.tools.helpers.*;
 	import away3d.tools.helpers.data.*;
 	import away3d.utils.*;
+
+	import flash.display.*;
+	import flash.events.*;
+	import flash.geom.*;
 	
 	[SWF(backgroundColor="#000000", frameRate="60", quality="LOW")]
 	

@@ -62,6 +62,8 @@ package utils
 		
 		static public function outline(sourceBitmap:BitmapData, differenceMin:Number = 0.15, differenceMax:Number = 1, outputColor:uint = 0xFFFFFF, backgroundColor:uint = 0x000000):BitmapData
 		{
+			differenceMin=differenceMin;
+			differenceMax=differenceMax;
 			var returnBitmap:BitmapData = new BitmapData(sourceBitmap.width, sourceBitmap.height, sourceBitmap.transparent, 0x0);
 			
             _outlineShader.data.difference.value = [1, 0.15];

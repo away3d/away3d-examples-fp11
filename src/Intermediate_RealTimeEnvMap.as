@@ -126,7 +126,7 @@ package
 		//material objects
 		private var skyboxTexture : BitmapCubeTexture;
 		private var reflectionTexture:CubeReflectionTexture;
-		private var floorMaterial : TextureMaterial;
+		//private var floorMaterial : TextureMaterial;
 		private var desertMaterial : TextureMaterial;
 		private var reflectiveMaterial : ColorMaterial;
 		private var r2d2Material : TextureMaterial;
@@ -146,9 +146,9 @@ package
 		private var lastMouseY:Number;
 		
 		//R2D2 motion variables
-		private var _drag : Number = 0.95;
+		//private var _drag : Number = 0.95;
 		private var _acceleration : Number = 0;
-		private var _rotationDrag : Number = 0.95;
+		//private var _rotationDrag : Number = 0.95;
 		private var _rotationAccel : Number = 0;
 		private var _speed : Number = 0;
 		private var _rotationSpeed : Number = 0;
