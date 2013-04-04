@@ -67,6 +67,7 @@ package
 	import away3d.utils.*;
 	
 	import flash.display.*;
+	import flash.display3D.Context3DProfile;
 	import flash.events.*;
 	import flash.filters.*;
 	import flash.geom.*;
@@ -341,7 +342,7 @@ package
 			stage.quality = StageQuality.LOW;
 			
 			//create the view
-			_view = new View3D();
+			_view = new View3D(null, null, null, false, Context3DProfile.BASELINE_CONSTRAINED);
 			_view.camera.y = 150;
 			_view.camera.z = 0;
 			

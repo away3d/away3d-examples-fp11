@@ -47,6 +47,8 @@ package
 	import away3d.debug.*;
 	import away3d.entities.Mesh;
 	import away3d.extrusions.*;
+	import away3d.filters.BlurFilter3D;
+	import away3d.filters.DepthOfFieldFilter3D;
 	import away3d.lights.*;
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.*;
@@ -192,13 +194,15 @@ package
 			camera.lens.far = 14000;
 			camera.lens.near = .05;
 			camera.y = 300;
-			
+
 			//setup controller to be used on the camera
 			cameraController = new FirstPersonController(camera, 180, 0, -80, 80);
 			
 			view.addSourceURL("srcview/index.html");
 			addChild(view);
-			
+
+			view.filters3d = [ new BlurFilter3D(50, 50) ];
+
 			//add signature
 			Signature = Sprite(new SignatureSwf());
 			SignatureBitmap = new Bitmap(new BitmapData(Signature.width, Signature.height, true, 0));
