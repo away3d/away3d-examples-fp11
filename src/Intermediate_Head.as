@@ -252,9 +252,9 @@ package
 				cameraController.tiltAngle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;
 			}
 			
-			light.x = Math.sin(getTimer()/10000)*150000;
+			light.x = Math.sin(getTimer()/10000)*15000;
 			light.y = 1000;
-			light.z = Math.cos(getTimer()/10000)*150000;
+			light.z = Math.cos(getTimer()/10000)*15000;
 			
 			view.render();
 		}
