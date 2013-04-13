@@ -342,7 +342,7 @@ package
 			stage.quality = StageQuality.LOW;
 			
 			//create the view
-			_view = new View3D(null, null, null, false, Context3DProfile.BASELINE_CONSTRAINED);
+			_view = new View3D(null, null, null, false);
 			_view.camera.y = 150;
 			_view.camera.z = 0;
 			
@@ -393,7 +393,7 @@ package
 			
 			//create global directional light
 			_cascadeShadowMapper = new CascadeShadowMapper(3);
-			_cascadeShadowMapper.lightOffset = 10000;
+			_cascadeShadowMapper.lightOffset = 20000;
 			_directionalLight = new DirectionalLight(-1, -15, 1);
 			_directionalLight.shadowMapper = _cascadeShadowMapper;
 			_directionalLight.castsShadows = false;
