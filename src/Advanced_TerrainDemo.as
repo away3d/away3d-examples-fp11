@@ -47,8 +47,7 @@ package
 	import away3d.debug.*;
 	import away3d.entities.Mesh;
 	import away3d.extrusions.*;
-	import away3d.filters.BlurFilter3D;
-	import away3d.filters.DepthOfFieldFilter3D;
+	import away3d.filters.BloomFilter3D;
 	import away3d.lights.*;
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.*;
@@ -186,13 +185,13 @@ package
 		{
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
-			
+
 			view = new View3D();
 			scene = view.scene;
 			camera = view.camera;
 			
-			camera.lens.far = 14000;
-			camera.lens.near = .05;
+			camera.lens.far = 4000;
+			camera.lens.near = 1;
 			camera.y = 300;
 
 			//setup controller to be used on the camera
@@ -201,7 +200,7 @@ package
 			view.addSourceURL("srcview/index.html");
 			addChild(view);
 
-			view.filters3d = [ new BlurFilter3D(50, 50) ];
+			view.filters3d = [ new BloomFilter3D(200, 200, .85, 15, 2) ];
 
 			//add signature
 			Signature = Sprite(new SignatureSwf());
@@ -346,10 +345,10 @@ package
 			}
 			
 			//animate our lake material
-			waterMethod.water1OffsetX += .001;
-			waterMethod.water1OffsetY += .001;
-			waterMethod.water2OffsetX += .0007;
-			waterMethod.water2OffsetY += .0006;
+			waterMethod.water1OffsetX += .005;
+			waterMethod.water1OffsetY += .007;
+			waterMethod.water2OffsetX += .003;
+			waterMethod.water2OffsetY += .004;
 			
 			view.render();
 		}
