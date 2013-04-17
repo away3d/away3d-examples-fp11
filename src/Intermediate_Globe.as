@@ -38,7 +38,7 @@ THE SOFTWARE.
 
 package 
 {
-	import away3d.arcane;
+	import away3d.*;
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
@@ -47,8 +47,8 @@ package
 	import away3d.lights.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
-	import away3d.materials.lightpickers.*;
 	import away3d.materials.compilation.*;
+	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
 	import away3d.primitives.*;
 	import away3d.textures.*;
@@ -305,10 +305,9 @@ package
 			var specBitmap:BitmapData = Cast.bitmapData(EarthSpecular); 
 			specBitmap.colorTransform(specBitmap.rect, new ColorTransform(1, 1, 1, 1, 64, 64, 64));
 			
-			var specular:FresnelSpecularMethod = new FresnelSpecularMethod(true);
+			var specular:FresnelSpecularMethod = new FresnelSpecularMethod(true, new PhongSpecularMethod());
 			specular.fresnelPower = 1;
 			specular.normalReflectance = 0.1;
-			specular.shadingModel = SpecularShadingModel.PHONG;
 			
 			sunMaterial = new TextureMaterial(Cast.bitmapTexture(Flare10));
 			sunMaterial.blendMode = BlendMode.ADD;
@@ -335,8 +334,7 @@ package
 			cloudMaterial.ambient = 1;
 			
 			atmosphereDiffuseMethod =  new CompositeDiffuseMethod(modulateDiffuseMethod);
-			atmosphereSpecularMethod =  new CompositeSpecularMethod(modulateSpecularMethod);
-			atmosphereSpecularMethod.shadingModel = SpecularShadingModel.PHONG;
+			atmosphereSpecularMethod =  new CompositeSpecularMethod(modulateSpecularMethod, new PhongSpecularMethod());
 			
 			atmosphereMaterial = new ColorMaterial(0x1671cc);
 			atmosphereMaterial.diffuseMethod = atmosphereDiffuseMethod;
