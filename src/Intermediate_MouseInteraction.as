@@ -16,7 +16,7 @@ package
 	import away3d.materials.lightpickers.*;
 	import away3d.primitives.*;
 	import away3d.textures.*;
-
+	
 	import flash.display.*;
 	import flash.events.*;
 	import flash.filters.*;
@@ -57,7 +57,11 @@ package
 		//scene objects
 		private var text:TextField;
 		private var pickingPositionTracer:Mesh;
+		private var scenePositionTracer:Mesh;
 		private var pickingNormalTracer:SegmentSet;
+		private var sceneNormalTracer:SegmentSet;
+		private var previoiusCollidingObject:PickingCollisionVO;
+		private var raycastPicker:RaycastPicker = new RaycastPicker(false);
 		private var head:Mesh;
 		private var cubeGeometry:CubeGeometry;
 		private var sphereGeometry:SphereGeometry;
@@ -211,15 +215,29 @@ package
 			pickingPositionTracer.visible = false;
 			pickingPositionTracer.mouseEnabled = false;
 			scene.addChild(pickingPositionTracer);
-
+			
+			scenePositionTracer = new Mesh( new SphereGeometry( 2 ), new ColorMaterial( 0x0000FF, 0.5 ) );
+			scenePositionTracer.visible = false;
+			scenePositionTracer.mouseEnabled = false;
+			scene.addChild(scenePositionTracer);
+			
+			
 			// To trace picking normals.
 			pickingNormalTracer = new SegmentSet();
 			pickingNormalTracer.mouseEnabled = pickingNormalTracer.mouseChildren = false;
-			var lineSegment:LineSegment = new LineSegment( new Vector3D(), new Vector3D(), 0xFFFFFF, 0xFFFFFF, 3 );
-			pickingNormalTracer.addSegment( lineSegment );
+			var lineSegment1:LineSegment = new LineSegment( new Vector3D(), new Vector3D(), 0xFFFFFF, 0xFFFFFF, 3 );
+			pickingNormalTracer.addSegment( lineSegment1 );
 			pickingNormalTracer.visible = false;
 			view.scene.addChild( pickingNormalTracer );
-
+			
+			sceneNormalTracer = new SegmentSet();
+			sceneNormalTracer.mouseEnabled = sceneNormalTracer.mouseChildren = false;
+			var lineSegment2:LineSegment = new LineSegment( new Vector3D(), new Vector3D(), 0xFFFFFF, 0xFFFFFF, 3 );
+			sceneNormalTracer.addSegment( lineSegment2 );
+			sceneNormalTracer.visible = false;
+			view.scene.addChild( sceneNormalTracer );
+			
+			
 			// Load a head model that we will be able to paint on on mouse down.
 			var parser:OBJParser = new OBJParser( 25 );
 			parser.addEventListener( AssetEvent.ASSET_COMPLETE, onAssetComplete );
@@ -227,6 +245,9 @@ package
 
 			// Produce a bunch of objects to be around the scene.
 			createABunchOfObjects();
+			
+			raycastPicker.setIgnoreList([sceneNormalTracer, scenePositionTracer]);
+			raycastPicker.onlyMouseEnabled = false;
 		}
 
 		private function onAssetComplete( event:AssetEvent ):void {
@@ -395,7 +416,34 @@ package
 
 			// Move light with camera.
 			pointLight.position = camera.position;
-
+			
+			var collidingObject:PickingCollisionVO = raycastPicker.getSceneCollision(camera.position, view.camera.forwardVector, view.scene);
+			var mesh:Mesh;
+			
+			if (previoiusCollidingObject && previoiusCollidingObject != collidingObject) { //equivalent to mouse out
+				scenePositionTracer.visible = sceneNormalTracer.visible = false;
+				scenePositionTracer.position = new Vector3D();
+			}
+			
+			if (collidingObject) {
+				// Show tracers.
+				scenePositionTracer.visible = sceneNormalTracer.visible = true;
+				
+				// Update position tracer.
+				scenePositionTracer.position = collidingObject.entity.sceneTransform.transformVector(collidingObject.localPosition);
+				
+				// Update normal tracer.
+				sceneNormalTracer.position = scenePositionTracer.position;
+				var normal:Vector3D = collidingObject.entity.sceneTransform.deltaTransformVector(collidingObject.localNormal);
+				normal.normalize();
+				normal.scaleBy( 25 );
+				var lineSegment:LineSegment = sceneNormalTracer.getSegment( 0 ) as LineSegment;
+				lineSegment.end = normal.clone();
+			}
+			
+			
+			previoiusCollidingObject = collidingObject;
+			
 			// Render 3D.
 			view.render();
 		}
