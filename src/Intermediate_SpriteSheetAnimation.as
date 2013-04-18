@@ -69,7 +69,7 @@ package
 	import flash.net.URLRequest;
 	import flash.geom.Vector3D;
 
-	//This tweener is provided in the 'libs' package
+	//The tweener swc is provided in the 'libs' package
 	import caurina.transitions.Tweener;
 
 	[SWF(backgroundColor="#000000", frameRate="60", quality="LOW")]
