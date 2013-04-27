@@ -418,7 +418,7 @@ package
 			pointLight.position = camera.position;
 			
 			var collidingObject:PickingCollisionVO = raycastPicker.getSceneCollision(camera.position, view.camera.forwardVector, view.scene);
-			var mesh:Mesh;
+			//var mesh:Mesh;
 			
 			if (previoiusCollidingObject && previoiusCollidingObject != collidingObject) { //equivalent to mouse out
 				scenePositionTracer.visible = sceneNormalTracer.visible = false;

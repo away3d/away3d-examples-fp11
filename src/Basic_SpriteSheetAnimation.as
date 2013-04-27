@@ -37,18 +37,16 @@ THE SOFTWARE.
 
 */
 
-package
-{
+package {
+	import away3d.animators.SpriteSheetAnimationSet;
+	import away3d.animators.SpriteSheetAnimator;
 	import away3d.containers.*;
 	import away3d.entities.*;
 	import away3d.materials.*;
 	import away3d.primitives.*;
-	import away3d.utils.*;
 	import away3d.tools.helpers.SpriteSheetHelper;
-	import away3d.materials.SpriteSheetMaterial;
-	import away3d.animators.SpriteSheetAnimationSet;
-	import away3d.animators.SpriteSheetAnimator;
-	
+	import away3d.utils.*;
+
 	import flash.display.*;
 	import flash.events.*;
 	import flash.geom.Vector3D;

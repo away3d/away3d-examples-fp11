@@ -41,36 +41,32 @@ THE SOFTWARE.
 
 */
 
-package
-{
-	import away3d.containers.*;
-	import away3d.entities.*;
-	import away3d.materials.*;
-	import away3d.primitives.*;
-	import away3d.utils.*;
-	import away3d.tools.helpers.SpriteSheetHelper;
-	import away3d.materials.SpriteSheetMaterial;
+package {
 	import away3d.animators.SpriteSheetAnimationSet;
 	import away3d.animators.SpriteSheetAnimator;
-	import away3d.loaders.Loader3D;
-	import away3d.loaders.parsers.AWD2Parser;
+	import away3d.containers.*;
+	import away3d.entities.*;
 	import away3d.events.AssetEvent;
 	import away3d.events.LoaderEvent;
 	import away3d.library.assets.AssetType;
 	import away3d.lights.PointLight;
+	import away3d.loaders.Loader3D;
+	import away3d.loaders.parsers.AWD2Parser;
+	import away3d.materials.*;
 	import away3d.materials.lightpickers.StaticLightPicker;
-	import away3d.textures.BitmapTexture;
-	import away3d.textures.BitmapCubeTexture;
 	import away3d.materials.methods.EnvMapMethod;
 	import away3d.materials.methods.FogMethod;
-	
+	import away3d.textures.BitmapCubeTexture;
+	import away3d.tools.helpers.SpriteSheetHelper;
+
+	import caurina.transitions.Tweener;
+
 	import flash.display.*;
 	import flash.events.*;
-	import flash.net.URLRequest;
 	import flash.geom.Vector3D;
+	import flash.net.URLRequest;
 
-	//The tweener swc is provided in the 'libs' package
-	import caurina.transitions.Tweener;
+	// The tweener swc is provided in the 'libs' package
 
 	[SWF(backgroundColor="#000000", frameRate="60", quality="LOW")]
 	

@@ -108,8 +108,8 @@ package
 		private var _headMaterial:TextureMultiPassMaterial;
 		private var _softShadowMethod:SoftShadowMapMethod;
 		private var _fresnelMethod:FresnelSpecularMethod;
-		private var _diffuseMethod:BasicDiffuseMethod;
-		private var _specularMethod:BasicSpecularMethod;
+		//private var _diffuseMethod:BasicDiffuseMethod;
+		//private var _specularMethod:BasicSpecularMethod;
 		
 		//scene objects
 		private var _blueLight:PointLight;
@@ -268,8 +268,8 @@ package
 		 */
 		private function initLights():void
 		{
-			var initialAzimuth : Number = .6;
-			var initialArc : Number = 2;
+			//var initialAzimuth : Number = .6;
+			//var initialArc : Number = 2;
 			var x : Number = Math.sin(_lightElevation)*Math.cos(_lightDirection);
 			var y : Number = -Math.cos(_lightElevation);
 			var z : Number = Math.sin(_lightElevation)*Math.sin(_lightDirection);

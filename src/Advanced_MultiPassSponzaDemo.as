@@ -44,8 +44,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-package
-{
+package {
 	import away3d.containers.*;
 	import away3d.controllers.*;
 	import away3d.core.base.*;
@@ -65,9 +64,10 @@ package
 	import away3d.textures.*;
 	import away3d.tools.commands.*;
 	import away3d.utils.*;
-	
+
+	import uk.co.soulwire.gui.*;
+
 	import flash.display.*;
-	import flash.display3D.Context3DProfile;
 	import flash.events.*;
 	import flash.filters.*;
 	import flash.geom.*;
@@ -75,8 +75,6 @@ package
 	import flash.text.*;
 	import flash.ui.*;
 	import flash.utils.*;
-	
-	import uk.co.soulwire.gui.*;
 	
 	[SWF(frameRate="30", backgroundColor="#000000")]
 	
@@ -1091,11 +1089,10 @@ package
         }
 	}
 }
-
-import flash.geom.*;
-
 import away3d.entities.*;
 import away3d.lights.*;
+
+import flash.geom.*;
 
 /**
  * Data class for the Flame objects
