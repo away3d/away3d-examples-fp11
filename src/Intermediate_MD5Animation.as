@@ -63,7 +63,6 @@ package
 	import away3d.utils.*;
 
 	import flash.display.*;
-	import flash.display3D.Context3DProfile;
 	import flash.events.*;
 	import flash.filters.*;
 	import flash.text.*;
@@ -239,7 +238,7 @@ package
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
 
-			view = new View3D(null, null, null, false, Context3DProfile.BASELINE_CONSTRAINED);
+			view = new View3D();
 			scene = view.scene;
 			camera = view.camera;
 
@@ -314,7 +313,7 @@ package
 			whiteLight.shadowMapper = new NearDirectionalShadowMapper(.2);
 			scene.addChild(whiteLight);
 
-			lightPicker = new StaticLightPicker([whiteLight]);
+			lightPicker = new StaticLightPicker([redLight, blueLight, whiteLight]);
 
 
 			//create a global shadow method
@@ -347,19 +346,19 @@ package
 			groundMaterial.mipmap = true;
 			groundMaterial.lightPicker = lightPicker;
 			groundMaterial.normalMap = Cast.bitmapTexture(FloorNormals);
-//			groundMaterial.specularMap = Cast.bitmapTexture(FloorSpecular);
-//			groundMaterial.shadowMethod = shadowMapMethod;
+			groundMaterial.specularMap = Cast.bitmapTexture(FloorSpecular);
+			groundMaterial.shadowMethod = shadowMapMethod;
 			groundMaterial.addMethod(fogMethod);
 
 			//body material
 			bodyMaterial = new TextureMaterial(Cast.bitmapTexture(BodyDiffuse));
 			bodyMaterial.gloss = 20;
 			bodyMaterial.specular = 1.5;
-//			bodyMaterial.specularMap = Cast.bitmapTexture(BodySpecular);
+			bodyMaterial.specularMap = Cast.bitmapTexture(BodySpecular);
 			bodyMaterial.normalMap = Cast.bitmapTexture(BodyNormals);
 			bodyMaterial.addMethod(fogMethod);
 			bodyMaterial.lightPicker = lightPicker;
-//			bodyMaterial.shadowMethod = shadowMapMethod;
+			bodyMaterial.shadowMethod = shadowMapMethod;
 		}
 
 		/**
@@ -442,7 +441,7 @@ package
 				var name:String = event.asset.assetNamespace;
 				node.name = name;
 				animationSet.addAnimation(node);
-				
+
 				if (name == IDLE_NAME || name == WALK_NAME) {
 					node.looping = true;
 				} else {
@@ -481,9 +480,9 @@ package
 		{
 			if (animator.activeState != event.animationState)
 				return;
-			
+
 			onceAnim = null;
-			
+
 			animator.play(currentAnim, stateTransition);
 			animator.playbackSpeed = isMoving? movementDirection*(isRunning? RUN_SPEED : WALK_SPEED) : IDLE_SPEED;
 		}
