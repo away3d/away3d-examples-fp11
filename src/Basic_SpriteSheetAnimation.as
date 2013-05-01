@@ -38,6 +38,7 @@ THE SOFTWARE.
 */
 
 package {
+
 	import away3d.animators.SpriteSheetAnimationSet;
 	import away3d.animators.SpriteSheetAnimator;
 	import away3d.containers.*;
@@ -46,7 +47,13 @@ package {
 	import away3d.primitives.*;
 	import away3d.tools.helpers.SpriteSheetHelper;
 	import away3d.utils.*;
-
+	import away3d.materials.SpriteSheetMaterial;
+	import away3d.animators.SpriteSheetAnimationSet;
+	import away3d.animators.SpriteSheetAnimator;
+	import away3d.animators.nodes.SpriteSheetClipNode;
+	import away3d.textures.BitmapTexture;
+	import away3d.textures.Texture2DBase;
+	
 	import flash.display.*;
 	import flash.events.*;
 	import flash.geom.Vector3D;
@@ -105,12 +112,16 @@ package {
 			var animID:String = "mySingleMapAnim";
 			// to simplify the generation of the required nodes for the animator, away3d has an helper class.
 			var spriteSheetHelper:SpriteSheetHelper = new SpriteSheetHelper();
+			// first we make our SpriteSheetAnimationSet, which will hold one or more spriteSheetClipNode
+			var spriteSheetAnimationSet:SpriteSheetAnimationSet = new SpriteSheetAnimationSet();
 			// in this case our simple map is composed of 4 cells: 2 rows, 2 colums
-			var spriteSheetAnimationSet:SpriteSheetAnimationSet = spriteSheetHelper.generateAnimationSet(animID, 2, 2);
-			// the animator
+			var spriteSheetClipNode:SpriteSheetClipNode = spriteSheetHelper.generateSpriteSheetClipNode(animID, 2, 2);
+			//we can now add the animation to the set.
+			spriteSheetAnimationSet.addAnimation(spriteSheetClipNode);
+			// Finally we can build the animator and add the animation set to it.
 			var spriteSheetAnimator:SpriteSheetAnimator = new SpriteSheetAnimator(spriteSheetAnimationSet);
 
-			// construct the reciever geometry, in this case a plane;
+			// construct the receiver geometry, in this case a plane;
 			var mesh:Mesh = new Mesh(new PlaneGeometry(700, 700, 1, 1, false), material);
 			mesh.x = -400;
 			//asign the animator
@@ -130,21 +141,27 @@ package {
 		private function prepareMultipleMaps():void
 		{
 			//the first map, we the beginning of the animation
-			var map1:BitmapData = Bitmap(new testSheet1()).bitmapData;
-			//the rest of teh animation
-			var map2:BitmapData = Bitmap(new testSheet2()).bitmapData;
+			var bmd1:BitmapData = Bitmap(new testSheet1()).bitmapData;
+			var texture1:BitmapTexture = new BitmapTexture(bmd1);
 
-			var diffuses:Vector.<BitmapData> = Vector.<BitmapData>([map1, map2]);
+			//the rest of teh animation
+			var bmd2:BitmapData = Bitmap(new testSheet2()).bitmapData;
+			var texture2:BitmapTexture = new BitmapTexture(bmd2);
+
+			var diffuses:Vector.<Texture2DBase> = Vector.<Texture2DBase>([texture1, texture2]);
 			var material:SpriteSheetMaterial = new SpriteSheetMaterial(diffuses);
 
 			// the name of the animation
 			var animID:String = "myMultipleMapsAnim";
 			// to simplify the generation of the required nodes for the animator, away3d has an helper class.
 			var spriteSheetHelper:SpriteSheetHelper = new SpriteSheetHelper();
+			// first we make our SpriteSheetAnimationSet, which will hold one or more spriteSheetClipNode
+			var spriteSheetAnimationSet:SpriteSheetAnimationSet = new SpriteSheetAnimationSet();
 			// in this case our simple map is composed of 4 cells: 2 rows, 2 colums
 			// note compared to the above "prepareSingleMap" method, we now pass a third parameter (2): how many maps are used inthis animation
-			var spriteSheetAnimationSet:SpriteSheetAnimationSet = spriteSheetHelper.generateAnimationSet(animID, 2, 2, 2);
-			// the animator
+			var spriteSheetClipNode:SpriteSheetClipNode = spriteSheetHelper.generateSpriteSheetClipNode(animID, 2, 2, 2);
+			//we can now add the animation to the set and build the animator
+			spriteSheetAnimationSet.addAnimation(spriteSheetClipNode);
 			var spriteSheetAnimator:SpriteSheetAnimator = new SpriteSheetAnimator(spriteSheetAnimationSet);
 
 			// construct the reciever geometry, in this case a plane;

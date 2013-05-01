@@ -42,10 +42,14 @@ THE SOFTWARE.
 */
 
 package {
+
 	import away3d.animators.SpriteSheetAnimationSet;
 	import away3d.animators.SpriteSheetAnimator;
 	import away3d.containers.*;
 	import away3d.entities.*;
+	import away3d.animators.nodes.SpriteSheetClipNode;
+	import away3d.loaders.Loader3D;
+	import away3d.loaders.parsers.AWD2Parser;
 	import away3d.events.AssetEvent;
 	import away3d.events.LoaderEvent;
 	import away3d.library.assets.AssetType;
@@ -54,6 +58,9 @@ package {
 	import away3d.loaders.parsers.AWD2Parser;
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.StaticLightPicker;
+	import away3d.textures.BitmapTexture;
+	import away3d.textures.Texture2DBase;
+	import away3d.textures.BitmapCubeTexture;
 	import away3d.materials.methods.EnvMapMethod;
 	import away3d.materials.methods.FogMethod;
 	import away3d.textures.BitmapCubeTexture;
@@ -233,7 +240,7 @@ package {
 
 			var spriteSheetHelper:SpriteSheetHelper = new SpriteSheetHelper();
 			//the spriteSheetHelper has a build method, that will return us one or more maps from our movieclips.
-			var diffuseSpriteSheets:Vector.<BitmapData> = spriteSheetHelper.generateFromMovieClip(sourceMC, cols, rows, 512, 512, false);
+			var diffuseSpriteSheets:Vector.<Texture2DBase> = spriteSheetHelper.generateFromMovieClip(sourceMC, cols, rows, 512, 512, false);
 
 			//We do not have yet geometry to apply on, but we can declare the materials.
 			//As they need to be async from each other, we cannot share them in this clock case
@@ -242,7 +249,10 @@ package {
 			_secondsDigits = new SpriteSheetMaterial(diffuseSpriteSheets);
 
 			//we declare 3 different animators, as we will need to drive the time animations independantly. Reusing the same set.
-			var digitsSet:SpriteSheetAnimationSet = spriteSheetHelper.generateAnimationSet(animID, cols, rows, 2, 0, 60);
+			var digitsSet:SpriteSheetAnimationSet = new SpriteSheetAnimationSet();
+			var spriteSheetClipNode:SpriteSheetClipNode = spriteSheetHelper.generateSpriteSheetClipNode(animID, cols, rows, 2, 0, 60);
+			digitsSet.addAnimation(spriteSheetClipNode);
+
 			_hoursAnimator = new SpriteSheetAnimator(digitsSet);
 			_minutesAnimator = new SpriteSheetAnimator(digitsSet);
 			_secondsAnimator = new SpriteSheetAnimator(digitsSet);
@@ -254,7 +264,9 @@ package {
 			rows = 3;
 			sourceMC = sourceSwf[animID];
 			diffuseSpriteSheets = spriteSheetHelper.generateFromMovieClip(sourceMC, cols, rows, 256, 256, false);
-			var pulseAnimationSet:SpriteSheetAnimationSet = spriteSheetHelper.generateAnimationSet(animID, cols, rows, 1, 0, 12);
+			var pulseAnimationSet:SpriteSheetAnimationSet = new SpriteSheetAnimationSet();
+			spriteSheetClipNode = spriteSheetHelper.generateSpriteSheetClipNode(animID, cols, rows, 1, 0, 12);
+			pulseAnimationSet.addAnimation(spriteSheetClipNode);
 			_pulseAnimator = new SpriteSheetAnimator(pulseAnimationSet);
 			_pulseAnimator.fps = 12;
 			// to make it interresting, it will loop back and fourth. So a full iteration will take 2 seconds
@@ -268,7 +280,9 @@ package {
 			rows = 2;
 			sourceMC = sourceSwf[animID];
 			diffuseSpriteSheets = spriteSheetHelper.generateFromMovieClip(sourceMC, cols, rows, 256, 256, false);
-			var delimiterAnimationSet:SpriteSheetAnimationSet = spriteSheetHelper.generateAnimationSet(animID, cols, rows, 1, 0, sourceMC.totalFrames);
+			var delimiterAnimationSet:SpriteSheetAnimationSet = new SpriteSheetAnimationSet();
+			spriteSheetClipNode = spriteSheetHelper.generateSpriteSheetClipNode(animID, cols, rows, 1, 0, sourceMC.totalFrames);
+			delimiterAnimationSet.addAnimation(spriteSheetClipNode);
 			_delimiterAnimator = new SpriteSheetAnimator(delimiterAnimationSet);
 			_delimiterAnimator.fps = 6;
 			_delimiterMaterial = new SpriteSheetMaterial(diffuseSpriteSheets);
