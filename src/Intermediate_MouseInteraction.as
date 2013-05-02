@@ -214,6 +214,7 @@ package
 			pickingPositionTracer = new Mesh( new SphereGeometry( 2 ), new ColorMaterial( 0x00FF00, 0.5 ) );
 			pickingPositionTracer.visible = false;
 			pickingPositionTracer.mouseEnabled = false;
+			pickingPositionTracer.mouseChildren = false;
 			scene.addChild(pickingPositionTracer);
 			
 			scenePositionTracer = new Mesh( new SphereGeometry( 2 ), new ColorMaterial( 0x0000FF, 0.5 ) );
