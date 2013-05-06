@@ -4,9 +4,10 @@ Monster Head example in Away3d
 
 Demonstrates:
 
-How to use the AssetLibrary to load an internal OBJ model.
+How to use the AssetLibrary to load an internal AWD model.
 How to set custom material methods on a model.
-How a natural skin texture can be achived with sub-surface diffuse shading and fresnel specular shading.
+How to setup soft shadows and multiple lightsources with a multipass texture
+How to use a diffuse gradient method as a cheap way to simulate sub-surface scattering
 
 Code by Rob Bateman & David Lenaerts
 rob@infiniteturtles.co.uk
