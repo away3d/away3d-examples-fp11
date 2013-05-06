@@ -202,8 +202,8 @@ package
 			//create subscattering diffuse method
 			subsurfaceMethod = new SubsurfaceScatteringDiffuseMethod(2048, 2);
 			subsurfaceMethod.scatterColor = 0xff7733;
-			subsurfaceMethod.scattering = .05;
-			subsurfaceMethod.translucency = 4;
+			subsurfaceMethod.scattering = 50;
+			subsurfaceMethod.translucency = 0.001;
 			headMaterial.diffuseMethod = subsurfaceMethod;
 			
 			//create fresnel specular method

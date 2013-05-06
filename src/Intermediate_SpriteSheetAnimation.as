@@ -79,24 +79,25 @@ package {
 	
 	public class Intermediate_SpriteSheetAnimation extends Sprite
 	{
+		//signature swf
+		[Embed(source="/../embeds/signature.swf", symbol="Signature")]
+		public var SignatureSwf:Class;
+		
 		//the swf file holding timeline animations
-		[Embed(source="../embeds/spritesheets/digits.swf", mimeType="application/octet-stream")]
+		[Embed(source="/../embeds/spritesheets/digits.swf", mimeType="application/octet-stream")]
 		private var SourceSWF : Class;
- 
-		[Embed(source="../embeds/spritesheets/models/tictac/textures/furniture_NM.png")]
-		public static var WoodNormal:Class;
-
-		[Embed(source="../embeds/spritesheets/models/tictac/textures/back_CB0.jpg")]
+		
+		[Embed(source="/../embeds/spritesheets/textures/back_CB0.jpg")]
 		private var Back_CB0_Bitmap:Class;
-		[Embed(source="../embeds/spritesheets/models/tictac/textures/back_CB1.jpg")]
+		[Embed(source="/../embeds/spritesheets/textures/back_CB1.jpg")]
 		private var Back_CB1_Bitmap:Class;
-		[Embed(source="../embeds/spritesheets/models/tictac/textures/back_CB2.jpg")]
+		[Embed(source="/../embeds/spritesheets/textures/back_CB2.jpg")]
 		private var Back_CB2_Bitmap:Class;
-		[Embed(source="../embeds/spritesheets/models/tictac/textures/back_CB3.jpg")]
+		[Embed(source="/../embeds/spritesheets/textures/back_CB3.jpg")]
 		private var Back_CB3_Bitmap:Class;
-		[Embed(source="../embeds/spritesheets/models/tictac/textures/back_CB4.jpg")]
+		[Embed(source="/../embeds/spritesheets/textures/back_CB4.jpg")]
 		private var Back_CB4_Bitmap:Class;
-		[Embed(source="../embeds/spritesheets/models/tictac/textures/back_CB5.jpg")]
+		[Embed(source="/../embeds/spritesheets/textures/back_CB5.jpg")]
 		private var Back_CB5_Bitmap:Class;
 		
 		//engine variables
@@ -104,7 +105,11 @@ package {
 		private var _loader:Loader3D;
 		private var _origin:Vector3D;
 		private var _staticLightPicker:StaticLightPicker;
-
+		
+		//signature variables
+		private var Signature:Sprite;
+		private var SignatureBitmap:Bitmap;
+		
 		//demo variables
 		private var _hoursDigits:SpriteSheetMaterial;
 		private var _minutesDigits:SpriteSheetMaterial;
@@ -148,6 +153,7 @@ package {
 		{
 			//setup the view
 			_view = new View3D();
+			_view.addSourceURL("srcview/index.html");
 			addChild(_view);
 			
 			_view.antiAlias = 2;
@@ -159,9 +165,17 @@ package {
 			_view.camera.x = -17850;
 			_view.camera.y = 12390;
 			_view.camera.z = -9322;
-
+			
 			//saving the origin, as we look at it on enterframe
 			_origin = new Vector3D();
+			
+			//add signature
+			Signature = Sprite(new SignatureSwf());
+			SignatureBitmap = new Bitmap(new BitmapData(Signature.width, Signature.height, true, 0));
+			stage.quality = StageQuality.HIGH;
+			SignatureBitmap.bitmapData.draw(Signature);
+			stage.quality = StageQuality.LOW;
+			addChild(SignatureBitmap);
 		}
 
 		/**
@@ -304,7 +318,7 @@ package {
 			_loader.addEventListener(LoaderEvent.RESOURCE_COMPLETE, onLoadedComplete);
 			_loader.addEventListener(LoaderEvent.LOAD_ERROR, onLoadedError);
 			//the url must be relative to swf once published, change the url for your setup accordingly.
-			_loader.load(new URLRequest("../embeds/spritesheets/models/tictac/tictac.awd"), null, null, new AWD2Parser());
+			_loader.load(new URLRequest("assets/tictac/tictac.awd"), null, null, new AWD2Parser());
 		}
 
 		private function onLoadedError(event:LoaderEvent):void
@@ -354,10 +368,6 @@ package {
  
 
 					case "furniture":
-						// 
-						//var map:BitmapData = Bitmap(new WoodNormal()).bitmapData;
-						//var bt:BitmapTexture = new BitmapTexture(map);
-						//TextureMaterial(mesh.material).normalMap = bt;
 						mesh.material.lightPicker = _staticLightPicker;
 						break;
 
@@ -465,6 +475,8 @@ package {
 		{
 			_view.width = stage.stageWidth;
 			_view.height = stage.stageHeight;
+			
+			SignatureBitmap.y = stage.stageHeight - Signature.height;
 		}
 	}
 }

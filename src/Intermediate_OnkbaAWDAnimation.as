@@ -73,7 +73,7 @@ package
     import flash.net.*;
     import flash.text.*;
     import flash.ui.*;
-	
+    
     import utils.*;
 	
 	
@@ -783,7 +783,7 @@ package
             // materials
             _eyesClosedMaterial = new ColorMaterial(0xA13D1E);
             _eyesClosedMaterial.lightPicker = _lightPicker;
-            _eyesClosedMaterial.shadowMethod = new TripleFilteredShadowMapMethod(DirectionalLight(_sunLight));
+            _eyesClosedMaterial.shadowMethod = new SoftShadowMapMethod(DirectionalLight(_sunLight), 20);
             _eyesClosedMaterial.gloss = 12;
             _eyesClosedMaterial.specular = 0.6;
             _eyesClosedMaterial.ambient = 1;
@@ -794,7 +794,7 @@ package
             _eyesOpenMaterial = new TextureMaterial(Cast.bitmapTexture(b));
             _eyesOpenMaterial.lightPicker = _lightPicker;
             _eyesOpenMaterial.addMethod(new EnvMapMethod(_skyMap, 0.1));
-            _eyesOpenMaterial.shadowMethod = new TripleFilteredShadowMapMethod(DirectionalLight(_sunLight));
+            _eyesOpenMaterial.shadowMethod = new SoftShadowMapMethod(DirectionalLight(_sunLight), 20);
             _eyesOpenMaterial.gloss = 300;
             _eyesOpenMaterial.specular = 5;
             _eyesOpenMaterial.ambient = 1;
