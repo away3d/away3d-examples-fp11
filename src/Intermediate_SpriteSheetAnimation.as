@@ -42,14 +42,11 @@ THE SOFTWARE.
 */
 
 package {
-
 	import away3d.animators.SpriteSheetAnimationSet;
 	import away3d.animators.SpriteSheetAnimator;
+	import away3d.animators.nodes.SpriteSheetClipNode;
 	import away3d.containers.*;
 	import away3d.entities.*;
-	import away3d.animators.nodes.SpriteSheetClipNode;
-	import away3d.loaders.Loader3D;
-	import away3d.loaders.parsers.AWD2Parser;
 	import away3d.events.AssetEvent;
 	import away3d.events.LoaderEvent;
 	import away3d.library.assets.AssetType;
@@ -58,12 +55,10 @@ package {
 	import away3d.loaders.parsers.AWD2Parser;
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.StaticLightPicker;
-	import away3d.textures.BitmapTexture;
-	import away3d.textures.Texture2DBase;
-	import away3d.textures.BitmapCubeTexture;
 	import away3d.materials.methods.EnvMapMethod;
 	import away3d.materials.methods.FogMethod;
 	import away3d.textures.BitmapCubeTexture;
+	import away3d.textures.Texture2DBase;
 	import away3d.tools.helpers.SpriteSheetHelper;
 
 	import caurina.transitions.Tweener;
