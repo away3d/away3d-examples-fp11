@@ -294,7 +294,7 @@ package
             
 			//crete global shadow method
             _shadowMethod = new NearShadowMapMethod(new FilteredShadowMapMethod(_sunLight));
-            _shadowMethod.epsilon = .0007;
+            _shadowMethod.epsilon = .1;
 			
             //create the ground material
             _groundMaterial = new TextureMaterial(textureMaterials[0]);

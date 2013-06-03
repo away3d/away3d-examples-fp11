@@ -318,7 +318,7 @@ package
 
 			//create a global shadow method
 			shadowMapMethod = new NearShadowMapMethod(new FilteredShadowMapMethod(whiteLight));
-			shadowMapMethod.epsilon = .0007;
+			shadowMapMethod.epsilon = .1;
 
 			//create a global fog method
 			fogMethod = new FogMethod(0, camera.lens.far*0.5, 0x000000);
