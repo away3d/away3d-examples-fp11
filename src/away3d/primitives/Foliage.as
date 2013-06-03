@@ -2,8 +2,9 @@ package away3d.primitives
 {
 
 	import away3d.core.base.*;
-	import away3d.utils.GeometryUtil;
-
+	import away3d.tools.utils.*;
+	import away3d.utils.*;
+	
 	import flash.geom.*;
 
 	public class Foliage extends PrimitiveBase
@@ -125,7 +126,7 @@ package away3d.primitives
 	
 	    override protected function buildUVs( target:CompactSubGeometry ):void
 	    {
-			target.updateData( GeometryUtil.interleaveBuffers( _rawVertices.length / 3, _rawVertices, _rawNormals, _rawTangents, _rawUvs ) );
+			target.updateData( GeomUtil.interleaveBuffers( _rawVertices.length / 3, _rawVertices, _rawNormals, _rawTangents, _rawUvs ) );
 	    }
 
 	    private function rand(min:Number, max:Number):Number
