@@ -280,7 +280,7 @@ package
 			lightPicker = new StaticLightPicker([sunLight, skyLight]);
 			
 			//create a global shadow method
-			softShadowMapMethod = new NearShadowMapMethod(new SoftShadowMapMethod(sunLight, 10));
+			softShadowMapMethod = new NearShadowMapMethod(new SoftShadowMapMethod(sunLight, 10, 4));
 			
 			//create a global fog method
 			fogMethod = new FogMethod(0, 3000, 0x5f5e6e);
