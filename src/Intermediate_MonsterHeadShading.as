@@ -516,7 +516,7 @@ package
 			// create soft shadows with a lot of samples for best results. With the current method setup, any more samples would fail to compile
 			_softShadowMethod = new SoftShadowMapMethod(_directionalLight, 30);
 			_softShadowMethod.range = _shadowRange;	// the sample radius defines the softness of the shadows
-			_softShadowMethod.epsilon = .005;
+			_softShadowMethod.epsilon = .1;
 			_headMaterial.shadowMethod = _softShadowMethod;
 			
 			// create specular reflections that are stronger from the sides
