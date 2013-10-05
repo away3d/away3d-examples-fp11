@@ -420,20 +420,20 @@ package {
   		private function updateClock():void
 		{
 			var date:Date = new Date();
-
-			if(_lastHour != date.hours+1){
-				_lastHour = date.hours+1;
-				_hoursAnimator.gotoAndStop(_lastHour);
+			
+			if(_lastHour != date.hours){
+				_lastHour = date.hours;
+				_hoursAnimator.gotoAndStop(_lastHour + 1);
 			}
 
-			if(_lastMinute != date.minutes+1){
-				_lastMinute = date.minutes+1;
-				_minutesAnimator.gotoAndStop(_lastMinute);
+			if(_lastMinute != date.minutes){
+				_lastMinute = date.minutes;
+				_minutesAnimator.gotoAndStop(_lastMinute + 1);
 			}
 
-			if(_lastSecond != date.seconds+1){
-				_lastSecond = date.seconds+1;
-				_secondsAnimator.gotoAndStop(_lastSecond);
+			if(_lastSecond != date.seconds){
+				_lastSecond = date.seconds;
+				_secondsAnimator.gotoAndStop(_lastSecond + 1);
 				_delimiterAnimator.gotoAndPlay(1);
 			}
 		}
