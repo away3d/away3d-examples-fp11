@@ -131,9 +131,6 @@ package
 			_lightPicker = new StaticLightPicker([_light]);
 			_view.scene.addChild(_light);
 			
-			//setup parser to be used on Loader3D
-			Parsers.enableAllBundled();
-			
 			//setup the url map for textures in the 3ds file
 			var assetLoaderContext:AssetLoaderContext = new AssetLoaderContext();
 			assetLoaderContext.mapUrlToData("texture.jpg", new AntTexture());
@@ -141,6 +138,7 @@ package
 			//setup materials
 			_groundMaterial = new TextureMaterial(Cast.bitmapTexture(SandTexture));
 			_groundMaterial.shadowMethod = new FilteredShadowMapMethod(_light);
+			_groundMaterial.shadowMethod.epsilon = 0.2;
 			_groundMaterial.lightPicker = _lightPicker;
 			_groundMaterial.specular = 0;
 			_ground = new Mesh(new PlaneGeometry(1000, 1000), _groundMaterial);
@@ -151,7 +149,7 @@ package
 			_loader.scale(300);
 			_loader.z = -200;
 			_loader.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetComplete);
-			_loader.loadData(new AntModel(), assetLoaderContext);
+			_loader.loadData(new AntModel(), assetLoaderContext, null, new Max3DSParser(false));
 			_view.scene.addChild(_loader);
 			
 			
