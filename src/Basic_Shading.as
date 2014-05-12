@@ -37,15 +37,18 @@ THE SOFTWARE.
 
 package
 {
-	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
+	import away3d.core.render.DefaultRenderer;
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.lights.*;
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.StaticLightPicker;
-	import away3d.primitives.*;
+	import away3d.prefabs.PrimitiveCubePrefab;
+	import away3d.prefabs.PrimitivePlanePrefab;
+	import away3d.prefabs.PrimitiveSpherePrefab;
+	import away3d.prefabs.PrimitiveTorusPrefab;
 	import away3d.textures.BitmapTexture;
 	import away3d.utils.*;
 	
@@ -155,7 +158,7 @@ package
 			
 			camera = new Camera3D();
 			
-			view = new View3D();
+			view = new View3D(new DefaultRenderer());
 			view.antiAlias = 4;
 			view.scene = scene;
 			view.camera = camera;
@@ -240,32 +243,38 @@ package
 		 */
 		private function initObjects():void
 		{
-			plane = new Mesh(new PlaneGeometry(1000, 1000), planeMaterial);
+			var planePrefab:PrimitivePlanePrefab = new PrimitivePlanePrefab(1000,1000);
+
+			plane = planePrefab.getNewObject() as Mesh;
+			plane.material = planeMaterial;
 			plane.geometry.scaleUV(2, 2);
 			plane.y = -20;
 			
 			scene.addChild(plane);
-			
-	        sphere = new Mesh(new SphereGeometry(150, 40, 20), sphereMaterial);
+
+			var spherePrefab:PrimitiveSpherePrefab = new PrimitiveSpherePrefab(150,40,20);
+	        sphere = spherePrefab.getNewObject() as Mesh;
+			sphere.material = sphereMaterial;
 	        sphere.x = 300;
 	        sphere.y = 160;
 	        sphere.z = 300;
-	        
 			scene.addChild(sphere);
-			
-	        cube = new Mesh(new CubeGeometry(200, 200, 200, 1, 1, 1, false), cubeMaterial);
+
+			var cubePrefab:PrimitiveCubePrefab = new PrimitiveCubePrefab(200, 200, 200, 1, 1, 1, false);
+			cube = cubePrefab.getNewObject() as Mesh;
+			cube.material = cubeMaterial;
 	        cube.x = 300;
 	        cube.y = 160;
 	        cube.z = -250;
-	        
 			scene.addChild(cube);
-			
-	        torus = new Mesh(new TorusGeometry(150, 60, 40, 20), torusMaterial);
+
+			var torusPrefab:PrimitiveTorusPrefab = new PrimitiveTorusPrefab(150, 60, 40, 20);
+			torus = torusPrefab.getNewObject() as Mesh;
+			torus.material = torusMaterial;
 			torus.geometry.scaleUV(10, 5);
 	        torus.x = -250;
 	        torus.y = 160;
 	        torus.z = -250;
-			
 			scene.addChild(torus);
 		}
 		

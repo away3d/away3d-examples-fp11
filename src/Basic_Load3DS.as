@@ -40,6 +40,7 @@ package
 {
 	import away3d.containers.*;
 	import away3d.controllers.*;
+	import away3d.core.render.DefaultRenderer;
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.events.*;
@@ -51,6 +52,7 @@ package
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
+	import away3d.prefabs.PrimitivePlanePrefab;
 	import away3d.primitives.*;
 	import away3d.utils.*;
 	
@@ -115,12 +117,12 @@ package
 			stage.align = StageAlign.TOP_LEFT;
 			
 			//setup the view
-			_view = new View3D();
+			_view = new View3D(new DefaultRenderer());
 			_view.addSourceURL("srcview/index.html");
 			addChild(_view);
 			
 			//setup the camera for optimal shadow rendering
-			_view.camera.lens.far = 2100;
+			_view.camera.projection.far = 2100;
 			
 			//setup controller to be used on the camera
 			_cameraController = new HoverController(_view.camera, null, 45, 20, 1000, 10);
@@ -141,7 +143,10 @@ package
 			_groundMaterial.shadowMethod.epsilon = 0.2;
 			_groundMaterial.lightPicker = _lightPicker;
 			_groundMaterial.specular = 0;
-			_ground = new Mesh(new PlaneGeometry(1000, 1000), _groundMaterial);
+
+			var primitive:PrimitivePlanePrefab = new PrimitivePlanePrefab(1000, 1000);
+			_ground = primitive.getNewObject() as Mesh;
+			_ground.material = _groundMaterial;
 			_view.scene.addChild(_ground);
 			
 			//setup the scene

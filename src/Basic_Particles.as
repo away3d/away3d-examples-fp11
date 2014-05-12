@@ -46,9 +46,11 @@ package {
 	import away3d.containers.*;
 	import away3d.controllers.*;
 	import away3d.core.base.*;
+	import away3d.core.render.DefaultRenderer;
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.materials.*;
+	import away3d.prefabs.PrimitivePlanePrefab;
 	import away3d.primitives.*;
 	import away3d.tools.helpers.*;
 	import away3d.utils.*;
@@ -96,7 +98,7 @@ package {
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
 			
-			_view = new View3D();
+			_view = new View3D(new DefaultRenderer());
 			_view.addSourceURL("srcview/index.html");
 			addChild(_view);
 			
@@ -113,7 +115,8 @@ package {
 			addChild(new AwayStats(_view));
 			
 			//setup the particle geometry
-			var plane:Geometry = new PlaneGeometry(10, 10, 1, 1, false);
+			var planePrimititve:PrimitivePlanePrefab = new PrimitivePlanePrefab(10, 10, 1, 1, false);
+			var plane:Geometry =	planePrimititve.geometry;
 			var geometrySet:Vector.<Geometry> = new Vector.<Geometry>();
 			for (var i:int = 0; i < 20000; i++)
 				geometrySet.push(plane);

@@ -39,27 +39,47 @@ THE SOFTWARE.
 
 package
 {
-	import flash.display.*;
-	import flash.events.*;
-	import flash.geom.*;
-	import flash.utils.*;
-	
-	import away3d.animators.*;
-	import away3d.animators.data.*;
-	import away3d.animators.nodes.*;
-	import away3d.cameras.*;
-	import away3d.containers.*;
-	import away3d.controllers.*;
-	import away3d.core.base.*;
-	import away3d.debug.*;
-	import away3d.entities.*;
-	import away3d.lights.*;
-	import away3d.materials.*;
-	import away3d.materials.lightpickers.*;
-	import away3d.primitives.*;
-	import away3d.tools.helpers.*;
-	import away3d.utils.*;
-	
+	import away3d.animators.ParticleAnimationSet;
+	import away3d.animators.ParticleAnimator;
+	import away3d.animators.data.ParticleProperties;
+	import away3d.animators.data.ParticlePropertiesMode;
+	import away3d.animators.nodes.ParticleBillboardNode;
+	import away3d.animators.nodes.ParticleColorNode;
+	import away3d.animators.nodes.ParticleScaleNode;
+	import away3d.animators.nodes.ParticleVelocityNode;
+	import away3d.containers.Scene3D;
+	import away3d.containers.View3D;
+	import away3d.controllers.HoverController;
+	import away3d.core.base.Geometry;
+	import away3d.core.base.ParticleGeometry;
+	import away3d.core.render.DefaultRenderer;
+	import away3d.debug.AwayStats;
+	import away3d.entities.Camera3D;
+	import away3d.entities.Mesh;
+	import away3d.lights.DirectionalLight;
+	import away3d.lights.PointLight;
+	import away3d.materials.TextureMaterial;
+	import away3d.materials.TextureMultiPassMaterial;
+	import away3d.materials.lightpickers.StaticLightPicker;
+	import away3d.prefabs.PrimitivePlanePrefab;
+	import away3d.tools.helpers.ParticleGeometryHelper;
+	import away3d.utils.Cast;
+
+	import flash.display.Bitmap;
+	import flash.display.BitmapData;
+	import flash.display.BlendMode;
+
+	import flash.display.Sprite;
+	import flash.display.StageAlign;
+	import flash.display.StageQuality;
+	import flash.display.StageScaleMode;
+	import flash.events.Event;
+	import flash.events.MouseEvent;
+	import flash.events.TimerEvent;
+	import flash.geom.ColorTransform;
+	import flash.geom.Vector3D;
+	import flash.utils.Timer;
+
 	[SWF(backgroundColor="#000000", frameRate="60", quality="LOW")]
 	public class Basic_Fire extends Sprite
 	{
@@ -148,7 +168,7 @@ package
 			
 			camera = new Camera3D();
 			
-			view = new View3D();
+			view = new View3D(new DefaultRenderer());
 			view.antiAlias = 4;
 			view.scene = scene;
 			view.camera = camera;
@@ -232,7 +252,8 @@ package
 			fireAnimationSet.initParticleFunc = initParticleFunc;
 			
 			//create the original particle geometry
-			var particle:Geometry = new PlaneGeometry(10, 10, 1, 1, false);
+			var planePrefab:PrimitivePlanePrefab = new PrimitivePlanePrefab(10, 10, 1, 1, false);
+			var particle:Geometry = planePrefab.geometry;
 			
 			//combine them into a list
 			var geometrySet:Vector.<Geometry> = new Vector.<Geometry>;
@@ -240,6 +261,7 @@ package
 				geometrySet.push(particle);
 			
 			particleGeometry = ParticleGeometryHelper.generateGeometry(geometrySet);
+			trace("here");
 		}
 		
 		/**
@@ -247,7 +269,9 @@ package
 		 */
 		private function initObjects():void
 		{
-			plane = new Mesh(new PlaneGeometry(1000, 1000), planeMaterial);
+			var planePrefab:PrimitivePlanePrefab = new PrimitivePlanePrefab(1000, 1000);
+			plane = planePrefab.getNewObject() as Mesh;
+			plane.material = planeMaterial;
 			plane.geometry.scaleUV(2, 2);
 			plane.y = -20;
 			

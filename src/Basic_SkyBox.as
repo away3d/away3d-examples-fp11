@@ -37,13 +37,14 @@ THE SOFTWARE.
 
 package
 {
-	import away3d.cameras.lenses.*;
 	import away3d.containers.*;
+	import away3d.core.render.DefaultRenderer;
 	import away3d.entities.*;
 	import away3d.materials.*;
 	import away3d.materials.methods.*;
-	import away3d.primitives.*;
-	import away3d.textures.*;
+	import away3d.prefabs.PrimitiveTorusPrefab;
+	import away3d.projections.PerspectiveProjection;
+	import away3d.textures.BitmapCubeTexture;
 	import away3d.utils.*;
 	
 	import flash.display.*;
@@ -84,14 +85,14 @@ package
 			stage.align = StageAlign.TOP_LEFT;
 			
 			//setup the view
-			_view = new View3D();
+			_view = new View3D(new DefaultRenderer());
 			addChild(_view);
 			
 			//setup the camera
 			_view.camera.z = -600;
 			_view.camera.y = 0;
 			_view.camera.lookAt(new Vector3D());
-			_view.camera.lens = new PerspectiveLens(90);
+			_view.camera.projection = new PerspectiveProjection(90);
 			
 			//setup the cube texture
 			var cubeTexture:BitmapCubeTexture = new BitmapCubeTexture(Cast.bitmapData(EnvPosX), Cast.bitmapData(EnvNegX), Cast.bitmapData(EnvPosY), Cast.bitmapData(EnvNegY), Cast.bitmapData(EnvPosZ), Cast.bitmapData(EnvNegZ));
@@ -105,10 +106,12 @@ package
 			material.addMethod(new EnvMapMethod(cubeTexture, 1));
 			
 			//setup the scene
-			_torus = new Mesh(new TorusGeometry(150, 60, 40, 20), material);
+			var primitive:PrimitiveTorusPrefab = new PrimitiveTorusPrefab(150, 60, 40, 20)
+			_torus = primitive.getNewObject() as Mesh;
+			_torus.material = material;
 			_view.scene.addChild(_torus);
 			
-			_skyBox = new SkyBox(cubeTexture);
+			_skyBox = new SkyBox(new SkyBoxMaterial(cubeTexture));
 			_view.scene.addChild(_skyBox);
 			
 			//setup the render loop

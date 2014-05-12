@@ -41,17 +41,21 @@ THE SOFTWARE.
 
 package
 {
-	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
+	import away3d.core.render.DefaultRenderer;
 	import away3d.debug.*;
+	import away3d.entities.Camera3D;
 	import away3d.entities.Mesh;
+	import away3d.entities.SkyBox;
 	import away3d.extrusions.*;
 	import away3d.filters.BloomFilter3D;
+	import away3d.filters.Filter3DBase;
 	import away3d.lights.*;
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
+	import away3d.prefabs.PrimitivePlanePrefab;
 	import away3d.primitives.*;
 	import away3d.textures.*;
 	import away3d.utils.*;
@@ -186,12 +190,13 @@ package
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
 
-			view = new View3D();
+			var renderer:DefaultRenderer = new DefaultRenderer();
+			view = new View3D(renderer);
 			scene = view.scene;
 			camera = view.camera;
 			
-			camera.lens.far = 4000;
-			camera.lens.near = 1;
+			camera.projection.far = 4000;
+			camera.projection.near = 1;
 			camera.y = 300;
 
 			//setup controller to be used on the camera
@@ -200,7 +205,7 @@ package
 			view.addSourceURL("srcview/index.html");
 			addChild(view);
 
-			view.filters3d = [ new BloomFilter3D(200, 200, .85, 15, 2) ];
+			renderer.filters3d = Vector.<Filter3DBase>([new BloomFilter3D(200, 200, .85, 15, 2)]);
 
 			//add signature
 			Signature = Sprite(new SignatureSwf());
@@ -289,14 +294,16 @@ package
 		private function initObjects():void
 		{
 			//create skybox.
-			scene.addChild(new SkyBox(cubeTexture));
+			scene.addChild(new SkyBox(new SkyBoxMaterial(cubeTexture)));
 
 			//create mountain like terrain
 			terrain = new Elevation(terrainMaterial, Cast.bitmapData(HeightMap), 5000, 1300, 5000, 250, 250);
 			scene.addChild(terrain);
 			
 			//create water
-			plane = new Mesh(new PlaneGeometry(5000, 5000), waterMaterial);
+			var planePrefab:PrimitivePlanePrefab = new PrimitivePlanePrefab(5000,5000);
+			plane = planePrefab.getNewObject() as Mesh;
+			plane.material = waterMaterial;
 			plane.geometry.scaleUV(50, 50);
 			plane.y = 285;
 			scene.addChild(plane);
