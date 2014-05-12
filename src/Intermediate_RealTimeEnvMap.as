@@ -41,6 +41,8 @@ THE SOFTWARE.
 package
 {
 
+	import away3d.core.render.DefaultRenderer;
+
 	import flash.display.*;
 	import flash.events.*;
 	import flash.filters.*;
@@ -184,8 +186,8 @@ package
 			stage.align = StageAlign.TOP_LEFT;
 			
 			//setup view
-			view = new View3D();
-			view.camera.lens.far = 4000;
+			view = new View3D(new DefaultRenderer());
+			view.camera.projection.far = 4000;
 			
 			view.addSourceURL("srcview/index.html");
 			addChild(view);
@@ -304,7 +306,7 @@ package
 		private function initObjects():void
 		{
 			//create the skybox
-			view.scene.addChild(new SkyBox(skyboxTexture));
+			view.scene.addChild(new SkyBox(new SkyBoxMaterial(skyboxTexture)));
 			
 			//create the desert ground
 			var desert:Elevation = new Elevation(desertMaterial, Cast.bitmapData(DesertHeightMap), 5000, 300, 5000, 250, 250);

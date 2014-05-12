@@ -47,7 +47,9 @@ THE SOFTWARE.
 package {
 	import away3d.containers.*;
 	import away3d.controllers.*;
+	import away3d.core.TriangleSubMesh;
 	import away3d.core.base.*;
+	import away3d.core.render.DefaultRenderer;
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.events.*;
@@ -60,6 +62,7 @@ package {
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
+	import away3d.prefabs.PrimitivePlanePrefab;
 	import away3d.primitives.*;
 	import away3d.textures.*;
 	import away3d.tools.commands.*;
@@ -161,7 +164,7 @@ package {
 		
 		//scene variables
 		private var _meshes:Vector.<Mesh> = new Vector.<Mesh>();
-		private var _flameGeometry:PlaneGeometry;
+		private var _flameGeometry:Geometry;
 				
 		//rotation variables
 		private var _move:Boolean = false;
@@ -340,7 +343,7 @@ package {
 			stage.quality = StageQuality.LOW;
 			
 			//create the view
-			_view = new View3D(null, null, null, false);
+			_view = new View3D(new DefaultRenderer());
 			_view.camera.y = 150;
 			_view.camera.z = 0;
 			
@@ -445,16 +448,16 @@ package {
         private function initObjects():void
 		{
 			//create skybox
-            _view.scene.addChild(new SkyBox(_skyMap));
+            _view.scene.addChild(new SkyBox(new SkyBoxMaterial(_skyMap)));
 			
 			//create flame meshes
-			_flameGeometry = new PlaneGeometry(40, 80, 1, 1, false, true);
+			_flameGeometry = new PrimitivePlanePrefab(40, 80, 1, 1, false, true).geometry;
 			var flameVO:FlameVO;
 			for each (flameVO in _flameData)
 			{
 				var mesh : Mesh = flameVO.mesh = new Mesh(_flameGeometry, _flameMaterial);
 				mesh.position = flameVO.position;
-				mesh.subMeshes[0].scaleU = 1/16;
+				(mesh.subMeshes[0] as TriangleSubMesh).subGeometry.scaleUV( 1/16,1);
 				_view.scene.addChild(mesh);
 				mesh.addChild(flameVO.light);
 			}
@@ -969,9 +972,9 @@ package {
 				if (!mesh)
 					continue;
 				
-				var subMesh : SubMesh = mesh.subMeshes[0];
-				subMesh.offsetU += 1/16;
-				subMesh.offsetU %= 1;
+				var subMesh : TriangleSubMesh = mesh.subMeshes[0] as TriangleSubMesh;
+//				subMesh.offsetU += 1/16;
+//				subMesh.offsetU %= 1;
 				mesh.rotationY = Math.atan2(mesh.x - _view.camera.x, mesh.z - _view.camera.z)*180/Math.PI;
 			}
 			

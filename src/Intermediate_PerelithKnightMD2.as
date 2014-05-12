@@ -43,6 +43,7 @@ package
 	import away3d.animators.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
+	import away3d.core.render.DefaultRenderer;
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.events.*;
@@ -53,6 +54,7 @@ package
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
+	import away3d.prefabs.PrimitivePlanePrefab;
 	import away3d.primitives.*;
 	import away3d.utils.Cast;
 	
@@ -145,12 +147,12 @@ package
 			stage.align = StageAlign.TOP_LEFT;
 			
 			//setup the view
-			_view = new View3D();
+			_view = new View3D(new DefaultRenderer());
 			_view.addSourceURL("srcview/index.html");
 			addChild(_view);
 			
 			//setup the camera for optimal rendering
-			_view.camera.lens.far = 5000;
+			_view.camera.projection.far = 5000;
 			
 			//setup controller to be used on the camera
 			_cameraController = new HoverController(_view.camera, null, 45, 20, 2000, 5);
@@ -210,7 +212,8 @@ package
 			}
 			
 			//setup the floor
-			_floor = new Mesh(new PlaneGeometry(5000, 5000), _floorMaterial);
+			_floor = new PrimitivePlanePrefab(5000, 5000).getNewObject() as Mesh;
+			_floor.material = _floorMaterial;
 			_floor.geometry.scaleUV(5, 5);
 			
 			//setup the scene

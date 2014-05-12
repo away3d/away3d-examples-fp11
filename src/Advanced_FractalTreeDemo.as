@@ -41,9 +41,9 @@ THE SOFTWARE.
 package
 {
 	
-	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
+	import away3d.core.render.DefaultRenderer;
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.extrusions.*;
@@ -225,10 +225,10 @@ package
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
 			
-			view = new View3D();
+			view = new View3D(new DefaultRenderer());
 			scene = view.scene;
 			camera = view.camera;
-			camera.lens.far = 1000000;
+			camera.projection.far = 1000000;
 			
 			//setup controller to be used on the camera
 			cameraController = new HoverController(camera, null, 0, 10, 25000, 0, 70);
@@ -326,7 +326,7 @@ package
 		private function initObjects():void
 		{		
 			//create skybox.
-			scene.addChild(new SkyBox(cubeTexture));
+			scene.addChild(new SkyBox(new SkyBoxMaterial(cubeTexture)));
 			
 			
 			
@@ -336,7 +336,7 @@ package
 			//terrain.smoothHeightMap();
 			scene.addChild(terrain);
 			
-			terrainPolyCount = terrain.geometry.subGeometries[0].vertexData.length/3;
+			terrainPolyCount = terrain.geometry.subGeometries[0].vertices.length/3;
 			polyCount += terrainPolyCount;
 		}
 		

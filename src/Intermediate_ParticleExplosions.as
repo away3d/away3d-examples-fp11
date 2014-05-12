@@ -39,6 +39,9 @@ THE SOFTWARE.
 
 package
 {
+	import away3d.core.render.DefaultRenderer;
+	import away3d.prefabs.PrimitivePlanePrefab;
+
 	import flash.display.*;
 	import flash.events.*;
 	import flash.geom.*;
@@ -47,7 +50,6 @@ package
 	import away3d.animators.*;
 	import away3d.animators.data.*;
 	import away3d.animators.nodes.*;
-	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
 	import away3d.core.base.*;
@@ -159,7 +161,7 @@ package
 			
 			camera = new Camera3D();
 			
-			view = new View3D();
+			view = new View3D(new DefaultRenderer());
 			view.scene = scene;
 			view.camera = camera;
 			
@@ -269,7 +271,7 @@ package
 			var numWhite:uint = whitePoints.length;
 			
 			//setup the base geometry for one particle
-			var plane:PlaneGeometry = new PlaneGeometry(PARTICLE_SIZE, PARTICLE_SIZE,1,1,false);
+			var plane:Geometry = new PrimitivePlanePrefab(PARTICLE_SIZE, PARTICLE_SIZE,1,1,false).geometry;
 			
 			//combine them into a list
 			var redGeometrySet:Vector.<Geometry> = new Vector.<Geometry>;
@@ -319,8 +321,7 @@ package
 				//clone the red particle mesh
 				redParticleMesh = redParticleMesh.clone() as Mesh;
 				redParticleMesh.rotationY = 45*(i-1);
-				scene.addChild(redParticleMesh);
-				
+
 				//clone the white particle mesh
 				whiteParticleMesh = whiteParticleMesh.clone() as Mesh;
 				whiteParticleMesh.rotationY = 45*(i-1);
@@ -334,7 +335,6 @@ package
 				//create and start the white particle animator
 				whiteAnimators[i] = new ParticleAnimator(whiteAnimationSet);
 				whiteParticleMesh.animator = whiteAnimators[i];
-				scene.addChild(whiteParticleMesh);
 			}
 		}
 		

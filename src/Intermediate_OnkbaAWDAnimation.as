@@ -43,41 +43,75 @@ THE SOFTWARE.
  */
 package
 {
-    import away3d.animators.*;
-    import away3d.animators.data.*;
-    import away3d.animators.nodes.*;
-    import away3d.animators.transitions.*;
-    import away3d.cameras.lenses.*;
-    import away3d.containers.*;
-    import away3d.controllers.*;
-    import away3d.core.base.*;
-    import away3d.debug.*;
-    import away3d.entities.*;
-    import away3d.events.*;
-    import away3d.library.assets.*;
-    import away3d.lights.*;
-    import away3d.lights.shadowmaps.*;
-    import away3d.loaders.*;
-    import away3d.loaders.parsers.*;
-    import away3d.materials.*;
-    import away3d.materials.lightpickers.*;
-    import away3d.materials.methods.*;
-    import away3d.primitives.*;
-    import away3d.textures.*;
-    import away3d.utils.*;
-    
-    import flash.display.*;
-    import flash.events.*;
-    import flash.filters.*;
-    import flash.geom.*;
-    import flash.net.*;
-    import flash.text.*;
-    import flash.ui.*;
-    
-    import utils.*;
-	
-	
-    [SWF(backgroundColor="#333338", frameRate="60", quality="LOW")]
+	import away3d.animators.SkeletonAnimationSet;
+	import away3d.animators.SkeletonAnimator;
+	import away3d.animators.data.Skeleton;
+	import away3d.animators.nodes.SkeletonClipNode;
+	import away3d.animators.transitions.CrossfadeTransition;
+	import away3d.containers.ObjectContainer3D;
+	import away3d.containers.View3D;
+	import away3d.controllers.HoverController;
+	import away3d.core.base.Geometry;
+	import away3d.core.render.DefaultRenderer;
+	import away3d.debug.AwayStats;
+	import away3d.entities.Mesh;
+	import away3d.entities.SkyBox;
+	import away3d.events.AssetEvent;
+	import away3d.events.LoaderEvent;
+	import away3d.events.MouseEvent3D;
+	import away3d.library.assets.AssetType;
+	import away3d.lights.DirectionalLight;
+	import away3d.lights.PointLight;
+	import away3d.lights.shadowmaps.NearDirectionalShadowMapper;
+	import away3d.loaders.Loader3D;
+	import away3d.loaders.parsers.AWD2Parser;
+	import away3d.materials.ColorMaterial;
+	import away3d.materials.SkyBoxMaterial;
+	import away3d.materials.TextureMaterial;
+	import away3d.materials.lightpickers.StaticLightPicker;
+	import away3d.materials.methods.EnvMapMethod;
+	import away3d.materials.methods.FilteredShadowMapMethod;
+	import away3d.materials.methods.FogMethod;
+	import away3d.materials.methods.FresnelSpecularMethod;
+	import away3d.materials.methods.LightMapMethod;
+	import away3d.materials.methods.NearShadowMapMethod;
+	import away3d.materials.methods.SoftShadowMapMethod;
+	import away3d.prefabs.PrimitivePlanePrefab;
+	import away3d.prefabs.PrimitiveSpherePrefab;
+	import away3d.projections.PerspectiveProjection;
+	import away3d.textures.BitmapCubeTexture;
+	import away3d.textures.BitmapTexture;
+	import away3d.utils.Cast;
+
+	import flash.display.BitmapData;
+	import flash.display.BlendMode;
+
+	import flash.display.Loader;
+
+	import flash.display.LoaderInfo;
+
+	import flash.display.Sprite;
+	import flash.display.StageAlign;
+	import flash.display.StageScaleMode;
+	import flash.events.Event;
+	import flash.events.KeyboardEvent;
+	import flash.events.MouseEvent;
+	import flash.events.ProgressEvent;
+	import flash.filters.DropShadowFilter;
+	import flash.geom.Matrix;
+	import flash.geom.Vector3D;
+	import flash.net.URLLoader;
+	import flash.net.URLLoaderDataFormat;
+	import flash.net.URLRequest;
+	import flash.text.AntiAliasType;
+	import flash.text.GridFitType;
+	import flash.text.TextField;
+	import flash.text.TextFormat;
+	import flash.ui.Keyboard;
+
+	import utils.BitmapFilterEffects;
+
+	[SWF(backgroundColor="#333338", frameRate="60", quality="LOW")]
     public class Intermediate_OnkbaAWDAnimation extends Sprite
 	{
     	//signature swf
@@ -201,15 +235,15 @@ package
             stage.align = StageAlign.TOP_LEFT;
             
 			//create the view
-            _view = new View3D();
+            _view = new View3D(new DefaultRenderer());
 			_view.forceMouseMove = true;
             _view.backgroundColor = skyColor;
             addChild(_view);
             
 			//create custom lens
-            _view.camera.lens = new PerspectiveLens(70);
-            _view.camera.lens.far = 30000;
-            _view.camera.lens.near = 1;
+            _view.camera.projection = new PerspectiveProjection(70);
+            _view.camera.projection.far = 30000;
+            _view.camera.projection.near = 1;
             
 			//setup controller to be used on the camera
             _cameraController = new HoverController(_view.camera, null, 180, 0, 1000, 10, 90);
@@ -340,10 +374,12 @@ package
         private function initObjects():void
 		{
 			//create skybox
-            _view.scene.addChild(new SkyBox(_skyMap));
+            _view.scene.addChild(new SkyBox(new SkyBoxMaterial(_skyMap)));
 			
 			//create ground
-			_ground = new Mesh(new PlaneGeometry(100000, 100000), _groundMaterial);
+			var planePrimititve:PrimitivePlanePrefab = new PrimitivePlanePrefab(100000,100000);
+			_ground = planePrimititve.getNewObject() as Mesh;
+			_ground.material = _groundMaterial;
             _ground.geometry.scaleUV(160, 160);
             _ground.y = -480;
             _ground.castsShadows = false;
@@ -801,7 +837,7 @@ package
             _eyesOpenMaterial.repeat = true;
             
 			//geometry
-            var eyeGeometry:Geometry = new SphereGeometry(1, 32, 24);
+            var eyeGeometry:Geometry = new PrimitiveSpherePrefab(1, 32, 24).geometry;
 			eyeGeometry.scaleUV(2, 1);
 			
             // objects
@@ -826,15 +862,18 @@ package
             
             _heroPieces.addChild(_eyes);
 			
-            _eyeLook = new Mesh(new PlaneGeometry(0.3, 0.3, 1, 1), new ColorMaterial(0xFFFFFF, 1));
+            _eyeLook = new PrimitivePlanePrefab(0.3, 0.3, 1, 1).getNewObject() as Mesh;
+			_eyeLook.material = new ColorMaterial(0xFFFFFF, 1);
             _eyeLook.rotationX = 90;
             _eyeLook.visible = false;
 			
             var h:ColorMaterial = new ColorMaterial(0xFFFFFF, 1);
 			
-            var zone:Mesh = new Mesh(new PlaneGeometry(12, 6, 1, 1), h);
+            var zone:Mesh = new PrimitivePlanePrefab(12, 6, 1, 1).getNewObject() as Mesh;
+			zone.material = h;
             zone.castsShadows = false;
-            zone.material.blendMode = BlendMode.MULTIPLY;
+
+//            zone.material.blendMode = BlendMode.MULTIPLY;
             zone.addEventListener(MouseEvent3D.MOUSE_MOVE, onMeshMouseMove);
             zone.addEventListener(MouseEvent3D.MOUSE_OVER, onMeshMouseOver);
             zone.addEventListener(MouseEvent3D.MOUSE_OUT, onMeshMouseOut);

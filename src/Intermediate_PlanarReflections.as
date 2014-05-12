@@ -37,11 +37,14 @@ THE SOFTWARE.
 
 package
 {
-	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
+	import away3d.core.base.Geometry;
+	import away3d.core.render.DefaultRenderer;
 	import away3d.debug.*;
+	import away3d.entities.Camera3D;
 	import away3d.entities.Mesh;
+	import away3d.entities.SkyBox;
 	import away3d.events.*;
 	import away3d.extrusions.Elevation;
 	import away3d.library.AssetLibrary;
@@ -51,8 +54,7 @@ package
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
-	import away3d.primitives.PlaneGeometry;
-	import away3d.primitives.SkyBox;
+	import away3d.prefabs.PrimitivePlanePrefab;
 	import away3d.textures.BitmapCubeTexture;
 	import away3d.textures.BitmapTexture;
 	import away3d.textures.PlanarReflectionTexture;
@@ -178,11 +180,11 @@ package
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
 
-			view = new View3D();
+			view = new View3D(new DefaultRenderer());
 
 			scene = view.scene;
 			camera = view.camera;
-			camera.lens.far = 4000;
+			camera.projection.far = 4000;
 
 			//setup controller to be used on the camera
 			cameraController = new HoverController(camera, null, 45, 10, 400, 3, 90);
@@ -287,7 +289,7 @@ package
 					Cast.bitmapData(SkyBoxMaxZ), Cast.bitmapData(SkyBoxMinZ)
 			);
 
-			scene.addChild(new SkyBox(skyboxTexture));
+			scene.addChild(new SkyBox(new SkyBoxMaterial(skyboxTexture)));
 		}
 		
 		/**
@@ -316,7 +318,8 @@ package
 			scene.addChild(desert);
 
 			// small desert patch that can receive shadows
-			var floor:Mesh = new Mesh(new PlaneGeometry(800, 800, 1, 1), floorMaterial);
+			var floor:Mesh = new PrimitivePlanePrefab(800,800,1,1).getNewObject() as Mesh;
+			floor.material =floorMaterial;
 			floor.geometry.scaleUV(800 / 5000 * 25, 800 / 5000 * 25);	// match uv coords with that of the desert
 			scene.addChild(floor);
 		}
@@ -326,9 +329,9 @@ package
 		 */
 		private function initMirror() : void
 		{
-			var geometry:PlaneGeometry = new PlaneGeometry(400, 200, 1, 1, false);
+			var geometry:Geometry = new PrimitivePlanePrefab(400, 200, 1, 1, false).geometry;
 			var mesh:Mesh = new Mesh(geometry, reflectiveMaterial);
-			mesh.y = mesh.maxY;
+			mesh.y = mesh.bounds.aabb.y;
 			mesh.z = -200;
 			mesh.rotationY = 180;
 			scene.addChild(mesh);

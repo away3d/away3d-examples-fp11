@@ -212,20 +212,19 @@ package
 		 */
 		private function initEngine():void
 		{
+			Debug.active = true;
 
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
 			
 			_scene = new Scene3D();
 			
-			_camera = new Camera3D();
-			_camera.projection.near = 20;
-			_camera.projection.far = 1000;
-			
 			_view = new View3D(new DefaultRenderer());
 			_view.antiAlias = 4;
 			_view.scene = _scene;
-			_view.camera = _camera;
+			_camera = _view.camera;
+			_camera.projection.near = 20;
+			_camera.projection.far = 1000;
 			
 			//setup controller to be used on the camera
 			_cameraController = new HoverController(_camera, null, 225, 10, 800);

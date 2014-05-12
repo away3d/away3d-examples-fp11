@@ -43,11 +43,11 @@ THE SOFTWARE.
 
 package
 {
-	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
-	import away3d.core.base.SubGeometry;
+	import away3d.core.base.TriangleSubGeometry;
 	import away3d.core.pick.*;
+	import away3d.core.render.DefaultRenderer;
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.events.*;
@@ -55,7 +55,8 @@ package
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
-	import away3d.primitives.*;
+	import away3d.prefabs.PrimitiveCubePrefab;
+	import away3d.prefabs.PrimitivePlanePrefab;
 	import away3d.textures.*;
 	import away3d.utils.*;
 
@@ -342,7 +343,7 @@ package
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
 			
-			view = new View3D();
+			view = new View3D(new DefaultRenderer());
 			scene = view.scene;
 			camera = view.camera;
 			
@@ -418,20 +419,21 @@ package
 		private function initObjects():void
 		{		
 			//create skybox.
-			scene.addChild(new SkyBox(cubeTexture));
+			scene.addChild(new SkyBox(new SkyBoxMaterial(cubeTexture)));
 
 			//create water plane.
 			var planeSegments:uint = (gridDimension - 1);
 			planeSize = planeSegments*gridSpacing;
-			plane = new Mesh(new PlaneGeometry(planeSize, planeSize, planeSegments, planeSegments), liquidMaterial);
+			plane = new PrimitivePlanePrefab(planeSize, planeSize, planeSegments, planeSegments).getNewObject() as Mesh;
+			plane.material = liquidMaterial;
 			plane.rotationX = 90;
 			plane.x -= planeSize/2;
 			plane.z -= planeSize/2;
 			plane.mouseEnabled = true;
 			plane.pickingCollider = PickingColliderType.BOUNDS_ONLY;
-			plane.geometry.convertToSeparateBuffers();
-			plane.geometry.subGeometries[0].autoDeriveVertexNormals = false;
-			plane.geometry.subGeometries[0].autoDeriveVertexTangents = false;
+			(plane.geometry.subGeometries[0] as TriangleSubGeometry).concatenateArrays = false;
+			(plane.geometry.subGeometries[0] as TriangleSubGeometry).autoDeriveNormals = false;
+			(plane.geometry.subGeometries[0] as TriangleSubGeometry).autoDeriveTangents = false;
 			scene.addChild(plane);
 
 			//create pool
@@ -440,22 +442,26 @@ package
 			var poolVOffset:Number = 5 - poolHeight/2;
 			var poolHOffset:Number = planeSize/2 + poolThickness/2;
 			
-			var left:Mesh = new Mesh(new CubeGeometry(poolThickness, poolHeight, planeSize + poolThickness*2), poolMaterial);
+			var left:Mesh = new PrimitiveCubePrefab(poolThickness, poolHeight, planeSize + poolThickness*2).getNewObject() as Mesh;
+			left.material = poolMaterial;
 			left.x = -poolHOffset;
 			left.y = poolVOffset;
 			scene.addChild(left);
 			
-			var right:Mesh = new Mesh(new CubeGeometry(poolThickness, poolHeight, planeSize + poolThickness*2), poolMaterial);
+			var right:Mesh = new PrimitiveCubePrefab(poolThickness, poolHeight, planeSize + poolThickness*2).getNewObject() as Mesh;
+			right.material = poolMaterial;
 			right.x = poolHOffset;
 			right.y = poolVOffset;
 			scene.addChild(right);
 			
-			var back:Mesh = new Mesh(new CubeGeometry(planeSize, poolHeight, poolThickness), poolMaterial);
+			var back:Mesh = new PrimitiveCubePrefab(planeSize, poolHeight, poolThickness).getNewObject() as Mesh;
+			back.material = poolMaterial;
 			back.z = poolHOffset;
 			back.y = poolVOffset;
 			scene.addChild(back);
 			
-			var front:Mesh = new Mesh(new CubeGeometry(planeSize, poolHeight, poolThickness), poolMaterial);
+			var front:Mesh = new PrimitiveCubePrefab(planeSize, poolHeight, poolThickness).getNewObject() as Mesh;
+			front.material = poolMaterial;
 			front.z = -poolHOffset;
 			front.y = poolVOffset;
 			scene.addChild(front);
@@ -575,10 +581,10 @@ package
 			fluidDisturb.updateMemoryDisturbances();
 
 			// Update plane to fluid.
-			var subGeometry:SubGeometry = plane.geometry.subGeometries[0] as SubGeometry;
-			subGeometry.updateVertexData(fluid.points);
-			subGeometry.updateVertexNormalData(fluid.normals);
-			subGeometry.updateVertexTangentData(fluid.tangents);
+			var subGeometry:TriangleSubGeometry = plane.geometry.subGeometries[0] as TriangleSubGeometry;
+			subGeometry.updatePositions(fluid.points);
+			subGeometry.updateVertexNormals(fluid.normals);
+			subGeometry.updateVertexTangents(fluid.tangents);
 
 			if (planeDisturb) {
 				if (mouseBrushLife == 0)

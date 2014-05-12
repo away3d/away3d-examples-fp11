@@ -46,6 +46,7 @@ package {
 	import away3d.animators.SpriteSheetAnimator;
 	import away3d.animators.nodes.SpriteSheetClipNode;
 	import away3d.containers.*;
+	import away3d.core.render.DefaultRenderer;
 	import away3d.entities.*;
 	import away3d.events.AssetEvent;
 	import away3d.events.LoaderEvent;
@@ -54,6 +55,8 @@ package {
 	import away3d.loaders.Loader3D;
 	import away3d.loaders.parsers.AWD2Parser;
 	import away3d.materials.*;
+	import away3d.materials.MaterialBase;
+	import away3d.materials.MaterialBase;
 	import away3d.materials.lightpickers.StaticLightPicker;
 	import away3d.materials.methods.EnvMapMethod;
 	import away3d.materials.methods.FogMethod;
@@ -147,7 +150,7 @@ package {
 		private function setUpView():void
 		{
 			//setup the view
-			_view = new View3D();
+			_view = new View3D(new DefaultRenderer());
 			_view.addSourceURL("srcview/index.html");
 			addChild(_view);
 			
@@ -155,8 +158,8 @@ package {
 			_view.backgroundColor = 0x10c14;
 
 			//setup the camera
- 			_view.camera.lens.near = 1000;
-			_view.camera.lens.far = 100000;
+ 			_view.camera.projection.near = 1000;
+			_view.camera.projection.far = 100000;
 			_view.camera.x = -17850;
 			_view.camera.y = 12390;
 			_view.camera.z = -9322;
@@ -363,7 +366,7 @@ package {
  
 
 					case "furniture":
-						mesh.material.lightPicker = _staticLightPicker;
+						(mesh.material as MaterialBase).lightPicker = _staticLightPicker;
 						break;
 
 					case "frontscreen":
@@ -382,8 +385,8 @@ package {
 						SinglePassMaterialBase(mesh.material).addMethod(envMapMethod);
 
 					default:
-						if(!mesh.material.lightPicker)
-							mesh.material.lightPicker = _staticLightPicker;
+						if(!(mesh.material as MaterialBase).lightPicker)
+							(mesh.material as MaterialBase).lightPicker = _staticLightPicker;
 
 				}
 
