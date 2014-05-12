@@ -44,6 +44,9 @@ THE SOFTWARE.
 
 package
 {
+	import away3d.core.render.DefaultRenderer;
+	import away3d.prefabs.PrimitivePlanePrefab;
+
 	import flash.display.*;
 	import flash.events.*;
 	import flash.filters.*;
@@ -56,7 +59,6 @@ package
 	import away3d.animators.data.*;
 	import away3d.animators.nodes.*;
 	import away3d.animators.transitions.*;
-	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
 	import away3d.core.base.*;
@@ -203,13 +205,13 @@ package
 			scene = new Scene3D();
 			
 			camera = new Camera3D();
-			camera.lens.far = 5000;
-			camera.lens.near = 20;
+			camera.projection.far = 5000;
+			camera.projection.near = 20;
 			camera.y = 500;
 			camera.z = 0;
 			camera.lookAt(new Vector3D(0, 0, 1000));
 				
-			view = new View3D();
+			view = new View3D(new DefaultRenderer());
 			view.scene = scene;
 			view.camera = camera;
 			
@@ -306,14 +308,16 @@ package
 			groundMaterial.shadowMethod = softShadowMapMethod;
 			groundMaterial.addMethod(fogMethod);
 			groundMaterial.ambient = 0.5;
-			ground = new Mesh(new PlaneGeometry(50000, 50000), groundMaterial);
+			var planePrimitive:PrimitivePlanePrefab = new PrimitivePlanePrefab(50000,50000);
+			ground = planePrimitive.getNewObject() as Mesh;
+			ground.material = groundMaterial;
 			ground.geometry.scaleUV(50, 50);
 			ground.castsShadows = true;
 			scene.addChild(ground);
 			
 			//create a skybox
 			cubeTexture = new BitmapCubeTexture(Cast.bitmapData(PosX), Cast.bitmapData(NegX), Cast.bitmapData(PosY), Cast.bitmapData(NegY), Cast.bitmapData(PosZ), Cast.bitmapData(NegZ));
-			skyBox = new SkyBox(cubeTexture);
+			skyBox = new SkyBox(new SkyBoxMaterial(cubeTexture));
 			scene.addChild(skyBox);
 		}
 		
@@ -409,8 +413,6 @@ package
 					}
 					
 					var particleGeometry:Geometry = ParticleGeometryHelper.generateGeometry(geometrySet,transforms);
-					
-					
 					var particleAnimationSet:ParticleAnimationSet = new ParticleAnimationSet(true, true);
 					particleAnimationSet.addAnimation(new ParticleVelocityNode(ParticlePropertiesMode.GLOBAL, new Vector3D(0, -100, 0)));
 					particleAnimationSet.addAnimation(new ParticlePositionNode(ParticlePropertiesMode.LOCAL_STATIC));

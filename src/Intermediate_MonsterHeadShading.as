@@ -41,10 +41,10 @@ THE SOFTWARE.
 
 package
 {
-	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
 	import away3d.core.base.*;
+	import away3d.core.render.DefaultRenderer;
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.events.*;
@@ -212,16 +212,17 @@ package
 		 */
 		private function initEngine():void
 		{
+
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
 			
 			_scene = new Scene3D();
 			
 			_camera = new Camera3D();
-			_camera.lens.near = 20;
-			_camera.lens.far = 1000;
+			_camera.projection.near = 20;
+			_camera.projection.far = 1000;
 			
-			_view = new View3D();
+			_view = new View3D(new DefaultRenderer());
 			_view.antiAlias = 4;
 			_view.scene = _scene;
 			_view.camera = _camera;
@@ -531,7 +532,7 @@ package
 			_headMaterial.diffuseMethod = new GradientDiffuseMethod(Cast.bitmapTexture(DiffuseGradient));
 			
 			//apply material to head model
-			var subMesh:SubMesh;
+			var subMesh:ISubMesh;
 			for each (subMesh in _headModel.subMeshes)
 				subMesh.material = _headMaterial;
 		}

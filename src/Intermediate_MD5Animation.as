@@ -44,9 +44,9 @@ package
 	import away3d.animators.*;
 	import away3d.animators.data.*;
 	import away3d.animators.transitions.*;
-	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
+	import away3d.core.render.DefaultRenderer;
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.events.*;
@@ -58,6 +58,7 @@ package
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
+	import away3d.prefabs.PrimitivePlanePrefab;
 	import away3d.primitives.*;
 	import away3d.textures.*;
 	import away3d.utils.*;
@@ -238,11 +239,11 @@ package
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
 
-			view = new View3D();
+			view = new View3D(new DefaultRenderer());
 			scene = view.scene;
 			camera = view.camera;
 
-			camera.lens.far = 5000;
+			camera.projection.far = 5000;
 			camera.z = -200;
 			camera.y = 160;
 
@@ -321,7 +322,7 @@ package
 			shadowMapMethod.epsilon = .1;
 
 			//create a global fog method
-			fogMethod = new FogMethod(0, camera.lens.far*0.5, 0x000000);
+			fogMethod = new FogMethod(0, camera.projection.far*0.5, 0x000000);
 		}
 
 		/**
@@ -367,23 +368,32 @@ package
 		private function initObjects():void
 		{
 			//create light billboards
-			redLight.addChild(new Sprite3D(redLightMaterial, 200, 200));
-			blueLight.addChild(new Sprite3D(blueLightMaterial, 200, 200));
+			var redSprite:Billboard = new Billboard(redLightMaterial);
+			redSprite.width = 200;
+			redSprite.height = 200;
+			redSprite.castsShadows = false;
+			var blueSprite:Billboard = new Billboard(blueLightMaterial);
+			blueSprite.width = 200;
+			blueSprite.height = 200;
+			blueSprite.castsShadows = false;
+			redLight.addChild(redSprite);
+			blueLight.addChild(blueSprite);
 
-			//AssetLibrary.enableParser(MD5MeshParser);
-			//AssetLibrary.enableParser(MD5AnimParser);
+			AssetLibrary.enableParser(MD5MeshParser);
+			AssetLibrary.enableParser(MD5AnimParser);
 
 			initMesh();
 
 			//create a snowy ground plane
-			ground = new Mesh(new PlaneGeometry(50000, 50000, 1, 1), groundMaterial);
+			ground = new PrimitivePlanePrefab(50000, 50000, 1, 1).getNewObject() as Mesh;
+			ground.material = groundMaterial;
 			ground.geometry.scaleUV(200, 200);
 			ground.castsShadows = false;
 			scene.addChild(ground);
 
 			//create a skybox
 			cubeTexture = new BitmapCubeTexture(Cast.bitmapData(EnvPosX), Cast.bitmapData(EnvNegX), Cast.bitmapData(EnvPosY), Cast.bitmapData(EnvNegY), Cast.bitmapData(EnvPosZ), Cast.bitmapData(EnvNegZ));
-			skyBox = new SkyBox(cubeTexture);
+			skyBox = new SkyBox(new SkyBoxMaterial(cubeTexture));
 			scene.addChild(skyBox);
 		}
 

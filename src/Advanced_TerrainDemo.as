@@ -205,7 +205,7 @@ package
 			view.addSourceURL("srcview/index.html");
 			addChild(view);
 
-			renderer.filters3d = Vector.<Filter3DBase>([new BloomFilter3D(200, 200, .85, 15, 2)]);
+//			renderer.filters3d = Vector.<Filter3DBase>([new BloomFilter3D(200, 200, .85, 15, 2)]);
 
 			//add signature
 			Signature = Sprite(new SignatureSwf());

@@ -42,25 +42,38 @@ THE SOFTWARE.
 
 package
 {
-	import away3d.cameras.*;
-	import away3d.containers.*;
-	import away3d.controllers.*;
-	import away3d.debug.*;
+	import away3d.containers.Scene3D;
+	import away3d.containers.View3D;
+	import away3d.controllers.HoverController;
+	import away3d.core.render.DefaultRenderer;
+	import away3d.debug.AwayStats;
+	import away3d.debug.Debug;
+	import away3d.entities.Camera3D;
 	import away3d.entities.Mesh;
-	import away3d.events.*;
-	import away3d.library.*;
-	import away3d.library.assets.*;
-	import away3d.lights.*;
-	import away3d.loaders.parsers.*;
-	import away3d.materials.*;
-	import away3d.materials.lightpickers.*;
-	import away3d.materials.methods.*;
-	import away3d.utils.*;
-	
-	import flash.display.*;
-	import flash.events.*;
-	import flash.utils.*;
-	
+	import away3d.events.AssetEvent;
+	import away3d.library.AssetLibrary;
+	import away3d.library.assets.AssetType;
+	import away3d.lights.PointLight;
+	import away3d.loaders.parsers.Parsers;
+	import away3d.materials.TextureMaterial;
+	import away3d.materials.lightpickers.StaticLightPicker;
+	import away3d.materials.methods.BasicDiffuseMethod;
+	import away3d.materials.methods.BasicSpecularMethod;
+	import away3d.materials.methods.FresnelSpecularMethod;
+	import away3d.materials.methods.SubsurfaceScatteringDiffuseMethod;
+	import away3d.utils.Cast;
+
+	import flash.display.Bitmap;
+	import flash.display.BitmapData;
+	import flash.display.Sprite;
+	import flash.display.StageAlign;
+	import flash.display.StageQuality;
+	import flash.display.StageScaleMode;
+	import flash.events.Event;
+	import flash.events.KeyboardEvent;
+	import flash.events.MouseEvent;
+	import flash.utils.getTimer;
+
 	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
 	
 	public class Intermediate_Head extends Sprite
@@ -142,12 +155,11 @@ package
 		{
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
-			
 			scene = new Scene3D();
 			
 			camera = new Camera3D();
 			
-			view = new View3D();
+			view = new View3D(new DefaultRenderer());
 			view.antiAlias = 4;
 			view.scene = scene;
 			view.camera = camera;
@@ -255,7 +267,6 @@ package
 			light.x = Math.sin(getTimer()/10000)*15000;
 			light.y = 1000;
 			light.z = Math.cos(getTimer()/10000)*15000;
-			
 			view.render();
 		}
 		

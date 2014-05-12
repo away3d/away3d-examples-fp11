@@ -39,8 +39,10 @@ THE SOFTWARE.
 package
 {
 	import away3d.containers.*;
+	import away3d.core.render.DefaultRenderer;
 	import away3d.entities.*;
 	import away3d.materials.*;
+	import away3d.prefabs.PrimitivePlanePrefab;
 	import away3d.primitives.*;
 	import away3d.utils.*;
 	
@@ -71,7 +73,7 @@ package
 			stage.align = StageAlign.TOP_LEFT;
 			
 			//setup the view
-			_view = new View3D();
+			_view = new View3D(new DefaultRenderer());
 			addChild(_view);
 			
 			//setup the camera
@@ -80,7 +82,9 @@ package
 			_view.camera.lookAt(new Vector3D());
 			
 			//setup the scene
-			_plane = new Mesh(new PlaneGeometry(700, 700), new TextureMaterial(Cast.bitmapTexture(FloorDiffuse)));
+			var planePrimitive:PrimitivePlanePrefab = new PrimitivePlanePrefab(700, 700);
+			_plane = planePrimitive.getNewObject() as Mesh;
+			_plane.material = new TextureMaterial(Cast.bitmapTexture(FloorDiffuse));
 			_view.scene.addChild(_plane);
 			
 			//setup the render loop

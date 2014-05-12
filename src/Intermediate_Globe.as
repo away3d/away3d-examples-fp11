@@ -39,9 +39,9 @@ THE SOFTWARE.
 package 
 {
 	import away3d.*;
-	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
+	import away3d.core.render.DefaultRenderer;
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.lights.*;
@@ -50,6 +50,7 @@ package
 	import away3d.materials.compilation.*;
 	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
+	import away3d.prefabs.PrimitiveSpherePrefab;
 	import away3d.primitives.*;
 	import away3d.textures.*;
 	import away3d.utils.*;
@@ -153,7 +154,7 @@ package
 		private var cubeTexture:BitmapCubeTexture;
 		
 		//scene objects
-		private var sun:Sprite3D;
+		private var sun:Billboard;
 		private var earth:Mesh;
 		private var clouds:Mesh;
 		private var atmosphere:Mesh;
@@ -211,9 +212,9 @@ package
 			
 			//setup camera for optimal skybox rendering
 			camera = new Camera3D();
-			camera.lens.far = 100000;
+			camera.projection.far = 100000;
 			
-			view = new View3D();
+			view = new View3D(new DefaultRenderer());
 			view.scene = scene;
 			view.camera = camera;
 			
@@ -390,15 +391,20 @@ package
 			orbitContainer.addChild(light);
 			scene.addChild(orbitContainer);
 			
-			sun = new Sprite3D(sunMaterial, 3000, 3000);
+			sun = new Billboard(sunMaterial);
+			sun.width = 3000;
+			sun.height = 3000;
 			sun.x = 10000;
 			orbitContainer.addChild(sun);
 			
-			earth = new Mesh(new SphereGeometry(200, 200, 100), groundMaterial);
+			earth = new PrimitiveSpherePrefab(200, 200, 100).getNewObject() as Mesh;
+			earth.material = groundMaterial;
 			
-			clouds = new Mesh(new SphereGeometry(202, 200, 100), cloudMaterial);
+			clouds = new PrimitiveSpherePrefab(202, 200, 100).getNewObject() as Mesh;
+			clouds.material = cloudMaterial;
 
-			atmosphere = new Mesh(new SphereGeometry(210, 200, 100), atmosphereMaterial);
+			atmosphere = new PrimitiveSpherePrefab(210, 200, 100).getNewObject() as Mesh;
+			atmosphere.material = atmosphereMaterial;
 			atmosphere.scaleX = -1;
 
 			tiltContainer = new ObjectContainer3D();
@@ -412,7 +418,7 @@ package
 			cameraController.lookAtObject = tiltContainer;
 			
 			//create a skybox
-			skyBox = new SkyBox(cubeTexture);
+			skyBox = new SkyBox(new SkyBoxMaterial(cubeTexture));
 			scene.addChild(skyBox);
 		}
 		

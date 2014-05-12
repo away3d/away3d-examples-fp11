@@ -42,8 +42,10 @@ package {
 	import away3d.animators.SpriteSheetAnimator;
 	import away3d.animators.nodes.SpriteSheetClipNode;
 	import away3d.containers.*;
+	import away3d.core.render.DefaultRenderer;
 	import away3d.entities.*;
 	import away3d.materials.*;
+	import away3d.prefabs.PrimitivePlanePrefab;
 	import away3d.primitives.*;
 	import away3d.textures.BitmapTexture;
 	import away3d.textures.Texture2DBase;
@@ -77,7 +79,7 @@ package {
 			stage.align = StageAlign.TOP_LEFT;
 			
 			//setup the view
-			_view = new View3D();
+			_view = new View3D(new DefaultRenderer());
 			addChild(_view);
 			
 			//setup the camera
@@ -118,7 +120,9 @@ package {
 			var spriteSheetAnimator:SpriteSheetAnimator = new SpriteSheetAnimator(spriteSheetAnimationSet);
 
 			// construct the receiver geometry, in this case a plane;
-			var mesh:Mesh = new Mesh(new PlaneGeometry(700, 700, 1, 1, false), material);
+			var planePrimitive:PrimitivePlanePrefab = new PrimitivePlanePrefab(700,700,1,1,false);
+			var mesh:Mesh = planePrimitive.getNewObject() as Mesh;
+			mesh.material = material;
 			mesh.x = -400;
 			//asign the animator
 			mesh.animator = spriteSheetAnimator;
@@ -161,7 +165,9 @@ package {
 			var spriteSheetAnimator:SpriteSheetAnimator = new SpriteSheetAnimator(spriteSheetAnimationSet);
 
 			// construct the reciever geometry, in this case a plane;
-			var mesh:Mesh = new Mesh(new PlaneGeometry(700, 700, 1, 1, false), material);
+			var planePrimitive:PrimitivePlanePrefab = new PrimitivePlanePrefab(700,700,1,1,false);
+			var mesh:Mesh = planePrimitive.getNewObject() as Mesh;
+			mesh.material = material;
 			mesh.x = 400;
 			//asign the animator
 			mesh.animator = spriteSheetAnimator;
