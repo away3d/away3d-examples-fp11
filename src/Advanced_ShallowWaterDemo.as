@@ -127,7 +127,7 @@ package
 		//light objects
 		private var skyLight:PointLight;
 		private var lightPicker:StaticLightPicker;
-		private var fogMethod:FogMethod;
+		private var fogMethod:EffectFogMethod;
 		
 		//material objects
 		private var colorMaterial:ColorMaterial;
@@ -379,7 +379,7 @@ package
 			lightPicker = new StaticLightPicker([skyLight]);
 			
 			//create a global fog method
-			fogMethod = new FogMethod(0, 2500, 0x000000);
+			fogMethod = new EffectFogMethod(0, 2500, 0x000000);
 		}
 		
 		/**
@@ -394,7 +394,7 @@ package
 			liquidMaterial.ambient = 0.25;
 			liquidMaterial.ambientColor = 0x111199;
 			liquidMaterial.ambient = 1;
-			liquidMaterial.addMethod(new EnvMapMethod(cubeTexture, 1));
+			liquidMaterial.addMethod(new EffectEnvMapMethod(cubeTexture, 1));
 			liquidMaterial.lightPicker = lightPicker;
 			
 			colorMaterial = new ColorMaterial(liquidMaterial.color);
@@ -402,7 +402,7 @@ package
 			colorMaterial.ambient = 0.25;
 			colorMaterial.ambientColor = 0x555555;
 			colorMaterial.ambient = 1;
-			colorMaterial.diffuseMethod = new BasicDiffuseMethod();
+			colorMaterial.diffuseMethod = new DiffuseBasicMethod();
 			colorMaterial.lightPicker = lightPicker;
 			
 			var tex:BitmapData = new BitmapData(512, 512, false, 0);

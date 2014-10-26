@@ -47,13 +47,14 @@ THE SOFTWARE.
 package {
 	import away3d.containers.*;
 	import away3d.controllers.*;
-	import away3d.core.TriangleSubMesh;
+	import away3d.core.base.TriangleSubMesh;
 	import away3d.core.base.*;
+	import away3d.core.library.AssetType;
 	import away3d.core.render.DefaultRenderer;
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.events.*;
-	import away3d.library.assets.*;
+	import away3d.core.library.assets.*;
 	import away3d.lights.*;
 	import away3d.lights.shadowmaps.*;
 	import away3d.loaders.*;
@@ -62,6 +63,9 @@ package {
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
+	import away3d.materials.methods.ShadowCascadeMethod;
+	import away3d.materials.methods.ShadowFilteredMethod;
+	import away3d.materials.shadowmappers.CascadeShadowMapper;
 	import away3d.prefabs.PrimitivePlanePrefab;
 	import away3d.primitives.*;
 	import away3d.textures.*;
@@ -146,9 +150,9 @@ package {
 		
 		//light variables
 		private var _lightPicker:StaticLightPicker;
-		private var _baseShadowMethod:FilteredShadowMapMethod;
-		private var _cascadeMethod:CascadeShadowMapMethod;
-		private var _fogMethod : FogMethod;
+		private var _baseShadowMethod:ShadowFilteredMethod;
+		private var _cascadeMethod:ShadowCascadeMethod;
+		private var _fogMethod : EffectFogMethod;
 		private var _cascadeShadowMapper:CascadeShadowMapper;
 		private var _directionalLight:DirectionalLight;
 		private var _lights:Array = new Array();
@@ -243,16 +247,16 @@ package {
 			
 			switch(value) {
 				case "Unfiltered":
-					_cascadeMethod.baseMethod = new HardShadowMapMethod(_directionalLight);
+					_cascadeMethod.baseMethod = new ShadowHardMethod(_directionalLight);
 					break;
 				case "Multiple taps":
-					_cascadeMethod.baseMethod = new SoftShadowMapMethod(_directionalLight);
+					_cascadeMethod.baseMethod = new ShadowSoftMethod(_directionalLight);
 					break;
 				case "PCF":
-					_cascadeMethod.baseMethod = new FilteredShadowMapMethod(_directionalLight);
+					_cascadeMethod.baseMethod = new ShadowFilteredMethod(_directionalLight);
 					break;
 				case "Dithered":
-					_cascadeMethod.baseMethod = new DitheredShadowMapMethod(_directionalLight);
+					_cascadeMethod.baseMethod = new ShadowDitheredMethod(_directionalLight);
 					break;
 			}
 		}
@@ -419,11 +423,11 @@ package {
 			
 			//create our global light picker
 			_lightPicker = new StaticLightPicker(_lights);
-			_baseShadowMethod = new FilteredShadowMapMethod(_directionalLight);
+			_baseShadowMethod = new ShadowFilteredMethod(_directionalLight);
 			
 			//create our global fog method
-			_fogMethod = new FogMethod(0, 4000, 0x9090e7);
-			_cascadeMethod = new CascadeShadowMapMethod(_baseShadowMethod);
+			_fogMethod = new EffectFogMethod(0, 4000, 0x9090e7);
+			_cascadeMethod = new ShadowCascadeMethod(_baseShadowMethod);
 		}
 		
         /**

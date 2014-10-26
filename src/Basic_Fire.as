@@ -56,8 +56,8 @@ package
 	import away3d.debug.AwayStats;
 	import away3d.entities.Camera3D;
 	import away3d.entities.Mesh;
-	import away3d.lights.DirectionalLight;
-	import away3d.lights.PointLight;
+	import away3d.entities.DirectionalLight;
+	import away3d.entities.PointLight;
 	import away3d.materials.TextureMaterial;
 	import away3d.materials.TextureMultiPassMaterial;
 	import away3d.materials.lightpickers.StaticLightPicker;

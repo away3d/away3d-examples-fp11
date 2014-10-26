@@ -48,8 +48,8 @@ package
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.events.*;
-	import away3d.library.*;
-	import away3d.library.assets.*;
+	import away3d.core.library.*;
+	import away3d.core.library.assets.*;
 	import away3d.lights.*;
 	import away3d.lights.shadowmaps.*;
 	import away3d.loaders.misc.*;
@@ -57,6 +57,8 @@ package
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
+	import away3d.materials.methods.ShadowSoftMethod;
+	import away3d.materials.shadowmappers.DirectionalShadowMapper;
 	import away3d.textures.*;
 	import away3d.utils.*;
 	
@@ -107,8 +109,8 @@ package
 		
 		//material objects
 		private var _headMaterial:TextureMultiPassMaterial;
-		private var _softShadowMethod:SoftShadowMapMethod;
-		private var _fresnelMethod:FresnelSpecularMethod;
+		private var _softShadowMethod:ShadowSoftMethod;
+		private var _fresnelMethod:SpecularFresnelMethod;
 		//private var _diffuseMethod:BasicDiffuseMethod;
 		//private var _specularMethod:BasicSpecularMethod;
 		
@@ -514,13 +516,13 @@ package
 			_headMaterial.ambientColor = 0x303040;
 			
 			// create soft shadows with a lot of samples for best results. With the current method setup, any more samples would fail to compile
-			_softShadowMethod = new SoftShadowMapMethod(_directionalLight, 30);
+			_softShadowMethod = new ShadowSoftMethod(_directionalLight, 30);
 			_softShadowMethod.range = _shadowRange;	// the sample radius defines the softness of the shadows
 			_softShadowMethod.epsilon = .1;
 			_headMaterial.shadowMethod = _softShadowMethod;
 			
 			// create specular reflections that are stronger from the sides
-			_fresnelMethod = new FresnelSpecularMethod(true);
+			_fresnelMethod = new SpecularFresnelMethod(true);
 			_fresnelMethod.fresnelPower = 3;
 			_headMaterial.specularMethod = _fresnelMethod;
 			_headMaterial.specularMap = _textureDictionary["monsterhead_specular.jpg"];
@@ -528,7 +530,7 @@ package
 			_headMaterial.gloss = 10;
 			
 			// very low-cost and crude subsurface scattering for diffuse shading
-			_headMaterial.diffuseMethod = new GradientDiffuseMethod(Cast.bitmapTexture(DiffuseGradient));
+			_headMaterial.diffuseMethod = new DiffuseGradientMethod(Cast.bitmapTexture(DiffuseGradient));
 			
 			//apply material to head model
 			var subMesh:ISubMesh;

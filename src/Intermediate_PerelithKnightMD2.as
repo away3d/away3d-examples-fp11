@@ -47,13 +47,14 @@ package
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.events.*;
-	import away3d.library.*;
-	import away3d.library.assets.*;
+	import away3d.core.library.*;
+	import away3d.core.library.assets.*;
 	import away3d.lights.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
+	import away3d.materials.methods.ShadowFilteredMethod;
 	import away3d.prefabs.PrimitivePlanePrefab;
 	import away3d.primitives.*;
 	import away3d.utils.Cast;
@@ -119,7 +120,7 @@ package
 		
 		//material objects
 		private var _floorMaterial:TextureMaterial;
-		private var _shadowMapMethod:FilteredShadowMapMethod;
+		private var _shadowMapMethod:ShadowFilteredMethod;
 		
 		//scene objects
 		private var _floor:Mesh;
@@ -187,7 +188,7 @@ package
 			AssetLibrary.addEventListener(LoaderEvent.RESOURCE_COMPLETE, onResourceComplete);
 			
 			//create a global shadow map method
-			_shadowMapMethod = new FilteredShadowMapMethod(_light);
+			_shadowMapMethod = new ShadowFilteredMethod(_light);
 			
 			//setup floor material
 			_floorMaterial = new TextureMaterial(Cast.bitmapTexture(FloorDiffuse));

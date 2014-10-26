@@ -46,6 +46,7 @@ package
 	import away3d.core.render.DefaultRenderer;
 	import away3d.debug.*;
 	import away3d.entities.Camera3D;
+	import away3d.entities.DirectionalLight;
 	import away3d.entities.Mesh;
 	import away3d.entities.SkyBox;
 	import away3d.extrusions.*;
@@ -130,12 +131,12 @@ package
 		//light objects
 		private var sunLight:DirectionalLight;
 		private var lightPicker:StaticLightPicker;
-		private var fogMethod:FogMethod;
+		private var fogMethod:EffectFogMethod;
 		
 		//material objects
 		private var terrainMethod:TerrainDiffuseMethod;
-		private var waterMethod:SimpleWaterNormalMethod;
-		private var fresnelMethod:FresnelSpecularMethod;
+		private var waterMethod:NormalSimpleWaterMethod;
+		private var fresnelMethod:SpecularFresnelMethod;
 		private var terrainMaterial:TextureMaterial;
 		private var waterMaterial:TextureMaterial;
 		private var cubeTexture:BitmapCubeTexture;
@@ -251,7 +252,7 @@ package
 			lightPicker = new StaticLightPicker([sunLight]);
 			
 			//create a global fog method
-			fogMethod = new FogMethod(0, 8000, 0xcfd9de);
+			fogMethod = new EffectFogMethod(0, 8000, 0xcfd9de);
 		}
 		
 		/**
@@ -272,8 +273,8 @@ package
 			terrainMaterial.specular = .2;
 			terrainMaterial.addMethod(fogMethod);
 			
-			waterMethod = new SimpleWaterNormalMethod(Cast.bitmapTexture(WaterNormals), Cast.bitmapTexture(WaterNormals));
-			fresnelMethod = new FresnelSpecularMethod();
+			waterMethod = new NormalSimpleWaterMethod(Cast.bitmapTexture(WaterNormals), Cast.bitmapTexture(WaterNormals));
+			fresnelMethod = new SpecularFresnelMethod();
 			fresnelMethod.normalReflectance = .3;
 			
 			waterMaterial = new TextureMaterial(new BitmapTexture(new BitmapData(512, 512, true, 0xaa404070)));
@@ -281,7 +282,7 @@ package
 			waterMaterial.lightPicker = lightPicker;
 			waterMaterial.repeat = true;
 			waterMaterial.normalMethod = waterMethod;
-			waterMaterial.addMethod(new EnvMapMethod(cubeTexture));
+			waterMaterial.addMethod(new EffectEnvMapMethod(cubeTexture));
 			waterMaterial.specularMethod = fresnelMethod;
 			waterMaterial.gloss = 100;
 			waterMaterial.specular = 1;

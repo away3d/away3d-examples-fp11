@@ -51,16 +51,16 @@ package
 	import away3d.entities.Camera3D;
 	import away3d.entities.Mesh;
 	import away3d.events.AssetEvent;
-	import away3d.library.AssetLibrary;
-	import away3d.library.assets.AssetType;
-	import away3d.lights.PointLight;
+	import away3d.core.library.AssetLibrary;
+	import away3d.core.library.AssetType;
+	import away3d.entities.PointLight;
 	import away3d.loaders.parsers.Parsers;
 	import away3d.materials.TextureMaterial;
 	import away3d.materials.lightpickers.StaticLightPicker;
-	import away3d.materials.methods.BasicDiffuseMethod;
-	import away3d.materials.methods.BasicSpecularMethod;
-	import away3d.materials.methods.FresnelSpecularMethod;
-	import away3d.materials.methods.SubsurfaceScatteringDiffuseMethod;
+	import away3d.materials.methods.DiffuseBasicMethod;
+	import away3d.materials.methods.SpecularBasicMethod;
+	import away3d.materials.methods.SpecularFresnelMethod;
+	import away3d.materials.methods.DiffuseSubSurfaceMethod;
 	import away3d.utils.Cast;
 
 	import flash.display.Bitmap;
@@ -110,10 +110,10 @@ package
 		
 		//material objects
 		private var headMaterial:TextureMaterial;
-		private var subsurfaceMethod:SubsurfaceScatteringDiffuseMethod;
-		private var fresnelMethod:FresnelSpecularMethod;
-		private var diffuseMethod:BasicDiffuseMethod;
-		private var specularMethod:BasicSpecularMethod;
+		private var subsurfaceMethod:DiffuseSubSurfaceMethod;
+		private var fresnelMethod:SpecularFresnelMethod;
+		private var diffuseMethod:DiffuseBasicMethod;
+		private var specularMethod:SpecularBasicMethod;
 		
 		//scene objects
 		private var light:PointLight;
@@ -212,21 +212,21 @@ package
 			headMaterial.ambient = 1;
 			
 			//create subscattering diffuse method
-			subsurfaceMethod = new SubsurfaceScatteringDiffuseMethod(2048, 2);
+			subsurfaceMethod = new DiffuseSubSurfaceMethod(2048, 2);
 			subsurfaceMethod.scatterColor = 0xff7733;
 			subsurfaceMethod.scattering = 0.05;
 			subsurfaceMethod.translucency = 4;
 			headMaterial.diffuseMethod = subsurfaceMethod;
 			
 			//create fresnel specular method
-			fresnelMethod = new FresnelSpecularMethod(true);
+			fresnelMethod = new SpecularFresnelMethod(true);
 			headMaterial.specularMethod = fresnelMethod;
 			
 			//add default diffuse method
-			diffuseMethod = new BasicDiffuseMethod();
+			diffuseMethod = new DiffuseBasicMethod();
 			
 			//add default specular method
-			specularMethod = new BasicSpecularMethod();
+			specularMethod = new SpecularBasicMethod();
 		}
 		
 		/**

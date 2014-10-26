@@ -59,23 +59,23 @@ package
 	import away3d.events.AssetEvent;
 	import away3d.events.LoaderEvent;
 	import away3d.events.MouseEvent3D;
-	import away3d.library.assets.AssetType;
-	import away3d.lights.DirectionalLight;
-	import away3d.lights.PointLight;
-	import away3d.lights.shadowmaps.NearDirectionalShadowMapper;
+	import away3d.core.library.AssetType;
+	import away3d.entities.DirectionalLight;
+	import away3d.entities.PointLight;
+	import away3d.materials.shadowmappers.NearDirectionalShadowMapper;
 	import away3d.loaders.Loader3D;
 	import away3d.loaders.parsers.AWD2Parser;
 	import away3d.materials.ColorMaterial;
 	import away3d.materials.SkyBoxMaterial;
 	import away3d.materials.TextureMaterial;
 	import away3d.materials.lightpickers.StaticLightPicker;
-	import away3d.materials.methods.EnvMapMethod;
-	import away3d.materials.methods.FilteredShadowMapMethod;
-	import away3d.materials.methods.FogMethod;
-	import away3d.materials.methods.FresnelSpecularMethod;
-	import away3d.materials.methods.LightMapMethod;
-	import away3d.materials.methods.NearShadowMapMethod;
-	import away3d.materials.methods.SoftShadowMapMethod;
+	import away3d.materials.methods.EffectEnvMapMethod;
+	import away3d.materials.methods.ShadowFilteredMethod;
+	import away3d.materials.methods.EffectFogMethod;
+	import away3d.materials.methods.SpecularFresnelMethod;
+	import away3d.materials.methods.EffectLightMapMethod;
+	import away3d.materials.methods.ShadowNearMethod;
+	import away3d.materials.methods.ShadowSoftMethod;
 	import away3d.prefabs.PrimitivePlanePrefab;
 	import away3d.prefabs.PrimitiveSpherePrefab;
 	import away3d.projections.PerspectiveProjection;
@@ -201,8 +201,8 @@ package
         private var cloneActif:Boolean = false;
         private var _text:TextField;
 		
-        private var _specularMethod:FresnelSpecularMethod;
-        private var _shadowMethod:NearShadowMapMethod;
+        private var _specularMethod:SpecularFresnelMethod;
+        private var _shadowMethod:ShadowNearMethod;
         
         /**
          * Constructor
@@ -323,11 +323,11 @@ package
         private function initMaterials():void
 		{
 			//create gobal specular method
-			_specularMethod = new FresnelSpecularMethod();
+			_specularMethod = new SpecularFresnelMethod();
             _specularMethod.normalReflectance = 1.5;
             
 			//crete global shadow method
-            _shadowMethod = new NearShadowMapMethod(new FilteredShadowMapMethod(_sunLight));
+            _shadowMethod = new ShadowNearMethod(new ShadowFilteredMethod(_sunLight));
             _shadowMethod.epsilon = .1;
 			
             //create the ground material
@@ -341,7 +341,7 @@ package
             _groundMaterial.repeat = true;
 			_groundMaterial.specularMethod = _specularMethod;
 			_groundMaterial.shadowMethod = _shadowMethod;
-            _groundMaterial.addMethod(new FogMethod(fogNear, fogFar, fogColor));
+            _groundMaterial.addMethod(new EffectFogMethod(fogNear, fogFar, fogColor));
 			
 			//create the hero material
             _heroMaterial = new TextureMaterial(textureMaterials[3]);
@@ -354,7 +354,7 @@ package
             _heroMaterial.alphaThreshold = 0.9;
 			_heroMaterial.specularMethod = _specularMethod;
 			_heroMaterial.shadowMethod = _shadowMethod;
-			_heroMaterial.addMethod(new LightMapMethod(Cast.bitmapTexture(textureMaterials[5])));
+			_heroMaterial.addMethod(new EffectLightMapMethod(Cast.bitmapTexture(textureMaterials[5])));
 			
 			//create the gun material
             _gunMaterial = new TextureMaterial(textureMaterials[6]);
@@ -365,7 +365,7 @@ package
             _gunMaterial.ambient = 1;
 			_gunMaterial.specularMethod = _specularMethod;
 			_gunMaterial.shadowMethod = _shadowMethod;
-			_gunMaterial.addMethod(new LightMapMethod(Cast.bitmapTexture(textureMaterials[8])));
+			_gunMaterial.addMethod(new EffectLightMapMethod(Cast.bitmapTexture(textureMaterials[8])));
 		}
         
         /**
@@ -819,7 +819,7 @@ package
             // materials
             _eyesClosedMaterial = new ColorMaterial(0xA13D1E);
             _eyesClosedMaterial.lightPicker = _lightPicker;
-            _eyesClosedMaterial.shadowMethod = new SoftShadowMapMethod(DirectionalLight(_sunLight), 20);
+            _eyesClosedMaterial.shadowMethod = new ShadowSoftMethod(DirectionalLight(_sunLight), 20);
             _eyesClosedMaterial.gloss = 12;
             _eyesClosedMaterial.specular = 0.6;
             _eyesClosedMaterial.ambient = 1;
@@ -829,8 +829,8 @@ package
 			
             _eyesOpenMaterial = new TextureMaterial(Cast.bitmapTexture(b));
             _eyesOpenMaterial.lightPicker = _lightPicker;
-            _eyesOpenMaterial.addMethod(new EnvMapMethod(_skyMap, 0.1));
-            _eyesOpenMaterial.shadowMethod = new SoftShadowMapMethod(DirectionalLight(_sunLight), 20);
+            _eyesOpenMaterial.addMethod(new EffectEnvMapMethod(_skyMap, 0.1));
+            _eyesOpenMaterial.shadowMethod = new ShadowSoftMethod(DirectionalLight(_sunLight), 20);
             _eyesOpenMaterial.gloss = 300;
             _eyesOpenMaterial.specular = 5;
             _eyesOpenMaterial.ambient = 1;

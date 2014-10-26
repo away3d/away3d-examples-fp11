@@ -103,7 +103,7 @@ package
 			material.ambient = 0.25;
 			material.ambientColor = 0x111199;
 			material.ambient = 1;
-			material.addMethod(new EnvMapMethod(cubeTexture, 1));
+			material.addMethod(new EffectEnvMapMethod(cubeTexture, 1));
 			
 			//setup the scene
 			var primitive:PrimitiveTorusPrefab = new PrimitiveTorusPrefab(150, 60, 40, 20)

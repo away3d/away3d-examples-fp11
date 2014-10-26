@@ -40,11 +40,12 @@ package
 {
 	import away3d.containers.*;
 	import away3d.controllers.*;
+	import away3d.core.library.AssetType;
 	import away3d.core.render.DefaultRenderer;
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.events.*;
-	import away3d.library.assets.*;
+	import away3d.core.library.assets.*;
 	import away3d.lights.*;
 	import away3d.loaders.*;
 	import away3d.loaders.misc.*;
@@ -139,7 +140,7 @@ package
 			
 			//setup materials
 			_groundMaterial = new TextureMaterial(Cast.bitmapTexture(SandTexture));
-			_groundMaterial.shadowMethod = new FilteredShadowMapMethod(_light);
+			_groundMaterial.shadowMethod = new ShadowFilteredMethod(_light);
 			_groundMaterial.shadowMethod.epsilon = 0.2;
 			_groundMaterial.lightPicker = _lightPicker;
 			_groundMaterial.specular = 0;
@@ -204,7 +205,7 @@ package
 				mesh.castsShadows = true;
 			} else if (event.asset.assetType == AssetType.MATERIAL) {
 				var material:TextureMaterial = event.asset as TextureMaterial;
-				material.shadowMethod = new FilteredShadowMapMethod(_light);
+				material.shadowMethod = new ShadowFilteredMethod(_light);
 				material.lightPicker = _lightPicker;
 				material.gloss = 30;
 				material.specular = 1;

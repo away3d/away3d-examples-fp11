@@ -56,8 +56,8 @@ package
 	import away3d.entities.*;
 	import away3d.events.*;
 	import away3d.extrusions.*;
-	import away3d.library.*;
-	import away3d.library.assets.*;
+	import away3d.core.library.*;
+	import away3d.core.library.assets.*;
 	import away3d.lights.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
@@ -133,7 +133,7 @@ package
 		private var reflectiveMaterial : ColorMaterial;
 		private var r2d2Material : TextureMaterial;
 		private var lightPicker : StaticLightPicker;
-		private var fogMethod : FogMethod;
+		private var fogMethod : EffectFogMethod;
 		
 		//scene objects
 		private var light:DirectionalLight;
@@ -245,7 +245,7 @@ package
 			lightPicker = new StaticLightPicker([light]);
 			
 			//create global fog method
-			fogMethod = new FogMethod(500, 2000, 0x5f5e6e);
+			fogMethod = new EffectFogMethod(500, 2000, 0x5f5e6e);
 		}
 
 		/**
@@ -288,10 +288,10 @@ package
 			r2d2Material = new TextureMaterial(Cast.bitmapTexture(R2D2Texture));
 			r2d2Material.lightPicker = lightPicker;
 			r2d2Material.addMethod(fogMethod);
-			r2d2Material.addMethod(new EnvMapMethod(skyboxTexture,.2));
+			r2d2Material.addMethod(new EffectEnvMapMethod(skyboxTexture,.2));
 
 			// setup fresnel method using our reflective texture in the place of a static environment map
-			var fresnelMethod : FresnelEnvMapMethod = new FresnelEnvMapMethod(reflectionTexture);
+			var fresnelMethod : EffectFresnelEnvMapMethod = new EffectFresnelEnvMapMethod(reflectionTexture);
 			fresnelMethod.normalReflectance = .6;
 			fresnelMethod.fresnelPower = 2;
 			

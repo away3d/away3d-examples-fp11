@@ -44,19 +44,19 @@ package
 	import away3d.debug.AwayStats;
 	import away3d.entities.Mesh;
 	import away3d.events.AssetEvent;
-	import away3d.library.AssetLibrary;
-	import away3d.library.assets.AssetType;
-	import away3d.lights.LightProbe;
-	import away3d.lights.PointLight;
+	import away3d.core.library.AssetLibrary;
+	import away3d.core.library.AssetType;
+	import away3d.entities.LightProbe;
+	import away3d.entities.PointLight;
 	import away3d.loaders.misc.AssetLoaderContext;
 	import away3d.loaders.parsers.OBJParser;
 	import away3d.materials.LightSources;
 	import away3d.materials.TextureMaterial;
 	import away3d.materials.lightpickers.StaticLightPicker;
-	import away3d.materials.methods.FresnelSpecularMethod;
-	import away3d.materials.methods.HardShadowMapMethod;
-	import away3d.materials.methods.LightMapMethod;
-	import away3d.materials.methods.RimLightMethod;
+	import away3d.materials.methods.SpecularFresnelMethod;
+	import away3d.materials.methods.ShadowHardMethod;
+	import away3d.materials.methods.EffectLightMapMethod;
+	import away3d.materials.methods.EffectRimLightMethod;
 	import away3d.textures.BitmapTexture;
 	import away3d.textures.SpecularBitmapTexture;
 
@@ -310,7 +310,7 @@ package
 				material = new TextureMaterial(new BitmapTexture(new CornellTexture().bitmapData));
 				material.normalMap = new BitmapTexture(new CornellNormals().bitmapData);
 				material.lightPicker = new StaticLightPicker([mainLight]);
-				material.shadowMethod = new HardShadowMapMethod(mainLight);
+				material.shadowMethod = new ShadowHardMethod(mainLight);
 				material.specular = .25;
 				material.gloss = 20;
 				mesh.material = material;
@@ -330,7 +330,7 @@ package
 		 */
 		private function onHeadComplete(event : AssetEvent) : void
 		{
-			var specularMethod : FresnelSpecularMethod;
+			var specularMethod : SpecularFresnelMethod;
 
 			if (event.asset.assetType == AssetType.MESH) {
 				mesh = Mesh(event.asset);
@@ -340,12 +340,12 @@ package
 				headMaterial = new TextureMaterial(headTexture);
 				headMaterial.normalMap = new BitmapTexture(new HeadNormals().bitmapData);
 				headMaterial.specularMap = new SpecularBitmapTexture(new HeadSpecular().bitmapData);
-				specularMethod = new FresnelSpecularMethod();
+				specularMethod = new SpecularFresnelMethod();
 				specularMethod.normalReflectance = .2;
 				headMaterial.specularMethod = specularMethod;
 				headMaterial.gloss = 10;
-				headMaterial.addMethod(new RimLightMethod(0xffffff, .4, 5, RimLightMethod.ADD));
-				headMaterial.addMethod(new LightMapMethod(new BitmapTexture(new HeadOcclusion().bitmapData)));
+				headMaterial.addMethod(new EffectRimLightMethod(0xffffff, .4, 5, EffectRimLightMethod.ADD));
+				headMaterial.addMethod(new EffectLightMapMethod(new BitmapTexture(new HeadOcclusion().bitmapData)));
 				headMaterial.lightPicker = new StaticLightPicker([mainLight, lightProbeFL, lightProbeFR, lightProbeNL, lightProbeNR]);
 				headMaterial.diffuseLightSources = LightSources.PROBES;
 				headMaterial.specularLightSources = LightSources.LIGHTS;

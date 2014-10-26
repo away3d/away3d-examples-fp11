@@ -40,15 +40,17 @@ package
 	import away3d.containers.*;
 	import away3d.controllers.*;
 	import away3d.core.base.Geometry;
+	import away3d.core.library.AssetType;
 	import away3d.core.render.DefaultRenderer;
 	import away3d.debug.*;
 	import away3d.entities.Camera3D;
+	import away3d.entities.DirectionalLight;
 	import away3d.entities.Mesh;
 	import away3d.entities.SkyBox;
 	import away3d.events.*;
 	import away3d.extrusions.Elevation;
-	import away3d.library.AssetLibrary;
-	import away3d.library.assets.*;
+	import away3d.core.library.AssetLibrary;
+	import away3d.core.library.assets.*;
 	import away3d.lights.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
@@ -126,7 +128,7 @@ package
 		private var reflectiveMaterial : ColorMaterial;
 		private var r2d2Material : TextureMaterial;
 		private var lightPicker : StaticLightPicker;
-		private var fogMethod : FogMethod;
+		private var fogMethod : EffectFogMethod;
 		private var skyboxTexture : BitmapCubeTexture;
 
 
@@ -251,7 +253,7 @@ package
 		{
 			var desertTexture : BitmapTexture = Cast.bitmapTexture(DesertAlbedo);
 			lightPicker = new StaticLightPicker([light]);
-			fogMethod = new FogMethod(0, 2000, 0x100215);
+			fogMethod = new EffectFogMethod(0, 2000, 0x100215);
 
 			floorMaterial = new TextureMaterial(desertTexture);
 			floorMaterial.lightPicker = lightPicker;
@@ -270,7 +272,7 @@ package
 			r2d2Material = new TextureMaterial(Cast.bitmapTexture(R2D2Albedo));
 			r2d2Material.lightPicker = lightPicker;
 			r2d2Material.addMethod(fogMethod);
-			r2d2Material.addMethod(new EnvMapMethod(skyboxTexture,.2));
+			r2d2Material.addMethod(new EffectEnvMapMethod(skyboxTexture,.2));
 
 			// create a PlanarReflectionMethod
 			var reflectionMethod : PlanarReflectionMethod = new PlanarReflectionMethod(reflectionTexture);

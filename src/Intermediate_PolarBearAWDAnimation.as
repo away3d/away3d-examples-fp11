@@ -45,6 +45,7 @@ THE SOFTWARE.
 package
 {
 	import away3d.core.render.DefaultRenderer;
+	import away3d.materials.methods.ShadowNearMethod;
 	import away3d.prefabs.PrimitivePlanePrefab;
 
 	import flash.display.*;
@@ -65,8 +66,8 @@ package
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.events.*;
-	import away3d.library.*;
-	import away3d.library.assets.*;
+	import away3d.core.library.*;
+	import away3d.core.library.assets.*;
 	import away3d.lights.*;
 	import away3d.lights.shadowmaps.*;
 	import away3d.loaders.parsers.*;
@@ -159,8 +160,8 @@ package
 		private var sunLight:DirectionalLight;
 		private var skyLight:PointLight;
 		private var lightPicker:StaticLightPicker;
-		private var softShadowMapMethod:NearShadowMapMethod;
-		private var fogMethod:FogMethod;
+		private var softShadowMapMethod:ShadowNearMethod;
+		private var fogMethod:EffectFogMethod;
 		
 		//material objects
 		private var bearMaterial:TextureMaterial;
@@ -282,10 +283,10 @@ package
 			lightPicker = new StaticLightPicker([sunLight, skyLight]);
 			
 			//create a global shadow method
-			softShadowMapMethod = new NearShadowMapMethod(new SoftShadowMapMethod(sunLight, 10, 4));
+			softShadowMapMethod = new ShadowNearMethod(new ShadowSoftMethod(sunLight, 10, 4));
 			
 			//create a global fog method
-			fogMethod = new FogMethod(0, 3000, 0x5f5e6e);
+			fogMethod = new EffectFogMethod(0, 3000, 0x5f5e6e);
 		}
 		
 		/**

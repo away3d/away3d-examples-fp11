@@ -38,11 +38,10 @@
 
  */
 
-package
-{
-	import away3d.animators.nodes.SkeletonClipNode;
+package {
 	import away3d.animators.*;
 	import away3d.animators.data.*;
+	import away3d.animators.nodes.SkeletonClipNode;
 	import away3d.animators.transitions.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
@@ -50,29 +49,31 @@ package
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.events.*;
-	import away3d.library.*;
-	import away3d.library.assets.*;
+	import away3d.core.library.*;
+	import away3d.core.library.assets.*;
 	import away3d.lights.*;
 	import away3d.lights.shadowmaps.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
+	import away3d.materials.methods.ShadowFilteredMethod;
+	import away3d.materials.methods.ShadowNearMethod;
 	import away3d.prefabs.PrimitivePlanePrefab;
-	import away3d.primitives.*;
 	import away3d.textures.*;
 	import away3d.utils.*;
 
 	import flash.display.*;
+	import flash.display3D.Context3DProfile;
 	import flash.events.*;
 	import flash.filters.*;
+	import flash.geom.Vector3D;
 	import flash.text.*;
 	import flash.ui.*;
 
 	[SWF(backgroundColor="#000000", frameRate="30")]
 
-	public class Intermediate_MD5Animation extends Sprite
-	{
+	public class Intermediate_MD5Animation extends Sprite {
 		//signature swf
 		[Embed(source="/../embeds/signature.swf", symbol="Signature")]
 		public var SignatureSwf:Class;
@@ -192,15 +193,15 @@ package
 		private var blueLight:PointLight;
 		private var whiteLight:DirectionalLight;
 		private var lightPicker:StaticLightPicker;
-		private var shadowMapMethod:NearShadowMapMethod;
-		private var fogMethod:FogMethod;
+		private var shadowMapMethod:ShadowNearMethod;
+		private var fogMethod:EffectFogMethod;
 		private var count:Number = 0;
 
 		//material objects
-		private var redLightMaterial:TextureMaterial;
-		private var blueLightMaterial:TextureMaterial;
-		private var groundMaterial:TextureMaterial;
-		private var bodyMaterial:TextureMaterial;
+		private var redLightMaterial:TextureMultiPassMaterial;
+		private var blueLightMaterial:TextureMultiPassMaterial;
+		private var groundMaterial:TextureMultiPassMaterial;
+		private var bodyMaterial:TextureMultiPassMaterial;
 		private var cubeTexture:BitmapCubeTexture;
 
 		//scene objects
@@ -213,16 +214,14 @@ package
 		/**
 		 * Constructor
 		 */
-		public function Intermediate_MD5Animation()
-		{
+		public function Intermediate_MD5Animation() {
 			init();
 		}
 
 		/**
 		 * Global initialise function
 		 */
-		private function init():void
-		{
+		private function init():void {
 			initEngine();
 			initText();
 			initLights();
@@ -234,24 +233,24 @@ package
 		/**
 		 * Initialise the engine
 		 */
-		private function initEngine():void
-		{
+		private function initEngine():void {
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
-
-			view = new View3D(new DefaultRenderer());
+			Debug.active = true;
+			view = new View3D(new DefaultRenderer(false, Context3DProfile.STANDARD));
 			scene = view.scene;
 			camera = view.camera;
 
-			camera.projection.far = 5000;
-			camera.z = -200;
-			camera.y = 160;
+			camera.x = 0;
+			camera.y = 200;
+			camera.z = 0;
 
 			//setup controller to be used on the camera
 			placeHolder = new ObjectContainer3D();
 			placeHolder.y = 50;
-			cameraController = new LookAtController(camera, placeHolder);
-
+//			cameraController = new LookAtController(camera, placeHolder);
+			new CameraController(camera, stage);
+			camera.lookAt(new Vector3D());
 			view.addSourceURL("srcview/index.html");
 			addChild(view);
 
@@ -270,8 +269,7 @@ package
 		/**
 		 * Create an instructions overlay
 		 */
-		private function initText():void
-		{
+		private function initText():void {
 			text = new TextField();
 			text.defaultTextFormat = new TextFormat("Verdana", 11, 0xFFFFFF);
 			text.width = 240;
@@ -289,14 +287,14 @@ package
 		/**
 		 * Initialise the lights
 		 */
-		private function initLights():void
-		{
+		private function initLights():void {
 			//create a light for shadows that mimics the sun's position in the skybox
 			redLight = new PointLight();
 			redLight.x = -1000;
 			redLight.y = 200;
 			redLight.z = -1400;
 			redLight.color = 0xff1111;
+            redLight.deferred = true;
 			scene.addChild(redLight);
 
 			blueLight = new PointLight();
@@ -304,6 +302,7 @@ package
 			blueLight.y = 200;
 			blueLight.z = 1400;
 			blueLight.color = 0x1111ff;
+            blueLight.deferred  =true;
 			scene.addChild(blueLight);
 
 			whiteLight = new DirectionalLight(-50, -20, 10);
@@ -311,48 +310,46 @@ package
 			whiteLight.castsShadows = true;
 			whiteLight.ambient = 1;
 			whiteLight.ambientColor = 0x303040;
-			whiteLight.shadowMapper = new NearDirectionalShadowMapper(.2);
+            whiteLight.deferred = true;
+            whiteLight.shadowMapper = new NearDirectionalShadowMapper(.2);
 			scene.addChild(whiteLight);
 
 			lightPicker = new StaticLightPicker([redLight, blueLight, whiteLight]);
 
 
 			//create a global shadow method
-			shadowMapMethod = new NearShadowMapMethod(new FilteredShadowMapMethod(whiteLight));
+			shadowMapMethod = new ShadowNearMethod(new ShadowFilteredMethod(whiteLight));
 			shadowMapMethod.epsilon = .1;
 
 			//create a global fog method
-			fogMethod = new FogMethod(0, camera.projection.far*0.5, 0x000000);
+			fogMethod = new EffectFogMethod(0, camera.projection.far * 0.5, 0x000000);
 		}
 
 		/**
 		 * Initialise the materials
 		 */
-		private function initMaterials():void
-		{
+		private function initMaterials():void {
 			//red light material
-			redLightMaterial = new TextureMaterial(Cast.bitmapTexture(RedLight));
-			redLightMaterial.alphaBlending = true;
+			redLightMaterial = new TextureMultiPassMaterial(Cast.bitmapTexture(RedLight));
 			redLightMaterial.addMethod(fogMethod);
 
 			//blue light material
-			blueLightMaterial = new TextureMaterial(Cast.bitmapTexture(BlueLight));
-			blueLightMaterial.alphaBlending = true;
+			blueLightMaterial = new TextureMultiPassMaterial(Cast.bitmapTexture(BlueLight));
 			blueLightMaterial.addMethod(fogMethod);
 
 			//ground material
-			groundMaterial = new TextureMaterial(Cast.bitmapTexture(FloorDiffuse));
+			groundMaterial = new TextureMultiPassMaterial(Cast.bitmapTexture(FloorDiffuse));
 			groundMaterial.smooth = true;
 			groundMaterial.repeat = true;
 			groundMaterial.mipmap = true;
 			groundMaterial.lightPicker = lightPicker;
-			groundMaterial.normalMap = Cast.bitmapTexture(FloorNormals);
-			groundMaterial.specularMap = Cast.bitmapTexture(FloorSpecular);
+//			groundMaterial.normalMap = Cast.bitmapTexture(FloorNormals);
+//			groundMaterial.specularMap = Cast.bitmapTexture(FloorSpecular);
 			groundMaterial.shadowMethod = shadowMapMethod;
 			groundMaterial.addMethod(fogMethod);
 
 			//body material
-			bodyMaterial = new TextureMaterial(Cast.bitmapTexture(BodyDiffuse));
+			bodyMaterial = new TextureMultiPassMaterial(Cast.bitmapTexture(BodyDiffuse));
 			bodyMaterial.gloss = 20;
 			bodyMaterial.specular = 1.5;
 			bodyMaterial.specularMap = Cast.bitmapTexture(BodySpecular);
@@ -365,8 +362,7 @@ package
 		/**
 		 * Initialise the scene objects
 		 */
-		private function initObjects():void
-		{
+		private function initObjects():void {
 			//create light billboards
 			var redSprite:Billboard = new Billboard(redLightMaterial);
 			redSprite.width = 200;
@@ -400,8 +396,7 @@ package
 		/**
 		 * Initialise the hellknight mesh
 		 */
-		private function initMesh():void
-		{
+		private function initMesh():void {
 			//parse hellknight mesh
 			AssetLibrary.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetComplete);
 			AssetLibrary.loadData(new HellKnight_Mesh(), null, null, new MD5MeshParser());
@@ -410,32 +405,38 @@ package
 		/**
 		 * Initialise the listeners
 		 */
-		private function initListeners():void
-		{
+		private function initListeners():void {
 			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			stage.addEventListener(Event.RESIZE, onResize);
+			stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDownUtil);
 			onResize();
+		}
+
+		private function onKeyDownUtil(event:KeyboardEvent):void {
+			if (event.keyCode == Keyboard.SPACE) {
+				Debug.showGBuffer = !Debug.showGBuffer;
+			}
+
 		}
 
 		/**
 		 * Navigation and render loop
 		 */
-		private function onEnterFrame(event:Event):void
-		{
-			cameraController.update();
+		private function onEnterFrame(event:Event):void {
+//			cameraController.update();
 
 			//update character animation
 			if (mesh)
 				mesh.rotationY += currentRotationInc;
 
-			count += 0.01;
-
-			redLight.x = Math.sin(count)*1500;
-			redLight.y = 250 + Math.sin(count*0.54)*200;
-			redLight.z = Math.cos(count*0.7)*1500;
-			blueLight.x = -Math.sin(count*0.8)*1500;
-			blueLight.y = 250 - Math.sin(count*.65)*200;
-			blueLight.z = -Math.cos(count*0.9)*1500;
+//			count += 0.01;
+//
+//			redLight.x = Math.sin(count) * 1500;
+//			redLight.y = 250 + Math.sin(count * 0.54) * 200;
+//			redLight.z = Math.cos(count * 0.7) * 1500;
+//			blueLight.x = -Math.sin(count * 0.8) * 1500;
+//			blueLight.y = 250 - Math.sin(count * .65) * 200;
+//			blueLight.z = -Math.cos(count * 0.9) * 1500;
 
 			view.render();
 		}
@@ -443,8 +444,7 @@ package
 		/**
 		 * Listener function for asset complete event on loader
 		 */
-		private function onAssetComplete(event:AssetEvent):void
-		{
+		private function onAssetComplete(event:AssetEvent):void {
 			if (event.asset.assetType == AssetType.ANIMATION_NODE) {
 
 				var node:SkeletonClipNode = event.asset as SkeletonClipNode;
@@ -486,19 +486,17 @@ package
 			}
 		}
 
-		private function onPlaybackComplete(event:AnimationStateEvent):void
-		{
+		private function onPlaybackComplete(event:AnimationStateEvent):void {
 			if (animator.activeState != event.animationState)
 				return;
 
 			onceAnim = null;
 
 			animator.play(currentAnim, stateTransition);
-			animator.playbackSpeed = isMoving? movementDirection*(isRunning? RUN_SPEED : WALK_SPEED) : IDLE_SPEED;
+			animator.playbackSpeed = isMoving ? movementDirection * (isRunning ? RUN_SPEED : WALK_SPEED) : IDLE_SPEED;
 		}
 
-		private function playAction(val:uint):void
-		{
+		private function playAction(val:uint):void {
 			onceAnim = ANIM_NAMES[val + 2];
 			animator.playbackSpeed = ACTION_SPEED;
 			animator.play(onceAnim, stateTransition, 0);
@@ -508,29 +506,12 @@ package
 		/**
 		 * Key down listener for animation
 		 */
-		private function onKeyDown(event:KeyboardEvent):void
-		{
+		private function onKeyDown(event:KeyboardEvent):void {
 			switch (event.keyCode) {
 				case Keyboard.SHIFT:
 					isRunning = true;
 					if (isMoving)
 						updateMovement(movementDirection);
-					break;
-				case Keyboard.UP:
-				case Keyboard.W:
-					updateMovement(movementDirection = 1);
-					break;
-				case Keyboard.DOWN:
-				case Keyboard.S:
-					updateMovement(movementDirection = -1);
-					break;
-				case Keyboard.LEFT:
-				case Keyboard.A:
-					currentRotationInc = -ROTATION_SPEED;
-					break;
-				case Keyboard.RIGHT:
-				case Keyboard.D:
-					currentRotationInc = ROTATION_SPEED;
 					break;
 				case Keyboard.NUMBER_1:
 					playAction(1);
@@ -562,8 +543,7 @@ package
 			}
 		}
 
-		private function onKeyUp(event:KeyboardEvent):void
-		{
+		private function onKeyUp(event:KeyboardEvent):void {
 			switch (event.keyCode) {
 				case Keyboard.SHIFT:
 					isRunning = false;
@@ -585,10 +565,9 @@ package
 			}
 		}
 
-		private function updateMovement(dir:Number):void
-		{
+		private function updateMovement(dir:Number):void {
 			isMoving = true;
-			animator.playbackSpeed = dir*(isRunning? RUN_SPEED : WALK_SPEED);
+			animator.playbackSpeed = dir * (isRunning ? RUN_SPEED : WALK_SPEED);
 
 			if (currentAnim == WALK_NAME)
 				return;
@@ -602,8 +581,7 @@ package
 			animator.play(currentAnim, stateTransition);
 		}
 
-		private function stop():void
-		{
+		private function stop():void {
 			isMoving = false;
 
 			if (currentAnim == IDLE_NAME)
@@ -622,12 +600,140 @@ package
 		/**
 		 * stage listener for resize events
 		 */
-		private function onResize(event:Event = null):void
-		{
+		private function onResize(event:Event = null):void {
 			view.width = stage.stageWidth;
 			view.height = stage.stageHeight;
 			SignatureBitmap.y = stage.stageHeight - Signature.height;
 			awayStats.x = stage.stageWidth - awayStats.width;
 		}
+	}
+}
+
+import away3d.entities.Camera3D;
+
+import flash.display.Sprite;
+import flash.display.Stage;
+import flash.events.Event;
+import flash.events.KeyboardEvent;
+import flash.events.MouseEvent;
+import flash.ui.Keyboard;
+
+class CameraController extends Sprite {
+	private var camera:Camera3D;
+	private var appStage:Stage;
+	private var dist:Number = 5;
+	private var isShift:Boolean;
+
+	public function CameraController(camera:Camera3D, appStage:Stage) {
+		this.camera = camera;
+		this.appStage = appStage;
+		init();
+	}
+
+	private function init():void {
+		appStage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+		appStage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+		appStage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+		addEventListener(Event.ENTER_FRAME, onEnterFrame);
+	}
+
+	private function onEnterFrame(event:Event):void {
+		var distance:Number = dist;
+		if (isShift) {
+			distance *= 3;
+		}
+
+		if (forward) {
+			camera.moveForward(distance);
+		}
+		if (back) {
+			camera.moveBackward(distance);
+		}
+		if (left) {
+			camera.moveLeft(distance);
+		}
+		if (right) {
+			camera.moveRight(distance);
+		}
+
+	}
+
+	private var forward:Boolean = false;
+	private var back:Boolean = false;
+	private var left:Boolean = false;
+	private var right:Boolean = false;
+
+	private function onKeyDown(event:KeyboardEvent):void {
+		if (event.keyCode == Keyboard.W) {
+			forward = true;
+		}
+		if (event.keyCode == Keyboard.S) {
+			back = true;
+		}
+		if (event.keyCode == Keyboard.A) {
+			left = true;
+		}
+		if (event.keyCode == Keyboard.D) {
+			right = true;
+		}
+		if (event.keyCode == Keyboard.SHIFT) {
+			isShift = true;
+		}
+
+		if (event.keyCode == Keyboard.C) {
+			trace("camera.x = " + camera.x + ";");
+			trace("camera.y = " + camera.y + ";");
+			trace("camera.z = " + camera.z + ";");
+			trace("camera.rotationX = " + camera.rotationX + ";");
+			trace("camera.rotationY = " + camera.rotationY + ";");
+			trace("camera.rotationZ = " + camera.rotationZ + ";");
+		}
+	}
+
+	private function onKeyUp(event:KeyboardEvent):void {
+		if (event.keyCode == Keyboard.W) {
+			forward = false;
+		}
+
+		if (event.keyCode == Keyboard.S) {
+			back = false;
+		}
+
+		if (event.keyCode == Keyboard.A) {
+			left = false;
+		}
+
+		if (event.keyCode == Keyboard.D) {
+			right = false;
+		}
+		if (event.keyCode == Keyboard.SHIFT) {
+			isShift = false;
+		}
+	}
+
+	private var lastX:Number;
+	private var lastY:Number;
+	private var lastRX:Number;
+	private var lastRY:Number;
+	private var lastRZ:Number;
+
+	private function onMouseDown(event:MouseEvent):void {
+		lastX = appStage.mouseX;
+		lastY = appStage.mouseY;
+		lastRX = camera.rotationX;
+		lastRY = camera.rotationY;
+		lastRZ = camera.rotationZ;
+		appStage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+		appStage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+	}
+
+	private function onMouseMove(event:MouseEvent):void {
+		camera.rotationX = lastRX + (appStage.mouseY - lastY) / 5;
+		camera.rotationY = lastRY + (appStage.mouseX - lastX) / 5;
+	}
+
+	private function onMouseUp(event:MouseEvent):void {
+		appStage.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+		appStage.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 	}
 }

@@ -84,7 +84,7 @@ package
 			//setup the scene
 			var planePrimitive:PrimitivePlanePrefab = new PrimitivePlanePrefab(700, 700);
 			_plane = planePrimitive.getNewObject() as Mesh;
-			_plane.material = new TextureMaterial(Cast.bitmapTexture(FloorDiffuse));
+			_plane.material = new TriangleMethodMaterial(Cast.bitmapTexture(FloorDiffuse));
 			_view.scene.addChild(_plane);
 			
 			//setup the render loop

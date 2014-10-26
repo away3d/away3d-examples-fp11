@@ -50,16 +50,16 @@ package {
 	import away3d.entities.*;
 	import away3d.events.AssetEvent;
 	import away3d.events.LoaderEvent;
-	import away3d.library.assets.AssetType;
-	import away3d.lights.PointLight;
+	import away3d.core.library.AssetType;
+	import away3d.entities.PointLight;
 	import away3d.loaders.Loader3D;
 	import away3d.loaders.parsers.AWD2Parser;
 	import away3d.materials.*;
 	import away3d.materials.MaterialBase;
 	import away3d.materials.MaterialBase;
 	import away3d.materials.lightpickers.StaticLightPicker;
-	import away3d.materials.methods.EnvMapMethod;
-	import away3d.materials.methods.FogMethod;
+	import away3d.materials.methods.EffectEnvMapMethod;
+	import away3d.materials.methods.EffectFogMethod;
 	import away3d.textures.BitmapCubeTexture;
 	import away3d.textures.Texture2DBase;
 	import away3d.tools.helpers.SpriteSheetHelper;
@@ -381,7 +381,7 @@ package {
 																		Bitmap(new Back_CB4_Bitmap()).bitmapData,
 																		Bitmap(new Back_CB5_Bitmap()).bitmapData);
 
-						var envMapMethod:EnvMapMethod = new EnvMapMethod(cubeTexture, 0.1);
+						var envMapMethod:EffectEnvMapMethod = new EffectEnvMapMethod(cubeTexture, 0.1);
 						SinglePassMaterialBase(mesh.material).addMethod(envMapMethod);
 
 					default:
@@ -390,7 +390,7 @@ package {
 
 				}
 
-				var fogMethod:FogMethod = new FogMethod(20000, 50000, 0x10C14);
+				var fogMethod:EffectFogMethod = new EffectFogMethod(20000, 50000, 0x10C14);
 				SinglePassMaterialBase(mesh.material).addMethod(fogMethod);
 			}
 		}

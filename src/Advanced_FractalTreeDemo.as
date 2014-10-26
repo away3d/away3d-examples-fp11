@@ -127,7 +127,7 @@ package
 		private var cameraLight:PointLight;
 		private var skyLight:DirectionalLight;
 		private var lightPicker:StaticLightPicker;
-		private var fogMethod:FogMethod;
+		private var fogMethod:EffectFogMethod;
 		
 		//material objects
 		private var heightMapData:BitmapData;
@@ -276,7 +276,7 @@ package
 			lightPicker = new StaticLightPicker([moonLight, cameraLight, skyLight]);
 			
 			//create a global fog method
-			fogMethod = new FogMethod(0, 200000, 0x000000);
+			fogMethod = new EffectFogMethod(0, 200000, 0x000000);
 		}
 		
 		/**
@@ -291,8 +291,8 @@ package
 			trunkMaterial = new TextureMaterial(Cast.bitmapTexture(TrunkDiffuse));
 			trunkMaterial.normalMap = Cast.bitmapTexture(TrunkNormals);
 			trunkMaterial.specularMap = Cast.bitmapTexture(TrunkSpecular);
-			trunkMaterial.diffuseMethod = new BasicDiffuseMethod();
-			trunkMaterial.specularMethod = new BasicSpecularMethod();
+			trunkMaterial.diffuseMethod = new DiffuseBasicMethod();
+			trunkMaterial.specularMethod = new SpecularBasicMethod();
 			trunkMaterial.addMethod(fogMethod);
 			trunkMaterial.lightPicker = lightPicker;
 			
@@ -316,7 +316,7 @@ package
 			//create terrain material
 			terrainMaterial = new TextureMaterial(Cast.bitmapTexture(Grass));
 			terrainMaterial.diffuseMethod = terrainMethod;
-			terrainMaterial.addMethod(new FogMethod(0, 200000, 0x000000)); //TODO: global fog method affects splats when updated
+			terrainMaterial.addMethod(new EffectFogMethod(0, 200000, 0x000000)); //TODO: global fog method affects splats when updated
 			terrainMaterial.lightPicker = lightPicker;
 		}
 		

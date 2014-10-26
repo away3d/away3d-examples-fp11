@@ -149,8 +149,8 @@ package
 		private var groundMaterial:TextureMaterial;
 		private var cloudMaterial:TextureMaterial;
 		private var atmosphereMaterial:ColorMaterial;
-		private var atmosphereDiffuseMethod:BasicDiffuseMethod;
-		private var atmosphereSpecularMethod:BasicSpecularMethod;
+		private var atmosphereDiffuseMethod:DiffuseBasicMethod;
+		private var atmosphereSpecularMethod:SpecularBasicMethod;
 		private var cubeTexture:BitmapCubeTexture;
 		
 		//scene objects
@@ -306,7 +306,7 @@ package
 			var specBitmap:BitmapData = Cast.bitmapData(EarthSpecular); 
 			specBitmap.colorTransform(specBitmap.rect, new ColorTransform(1, 1, 1, 1, 64, 64, 64));
 			
-			var specular:FresnelSpecularMethod = new FresnelSpecularMethod(true, new PhongSpecularMethod());
+			var specular:SpecularFresnelMethod = new SpecularFresnelMethod(true, new SpecularPhongMethod());
 			specular.fresnelPower = 1;
 			specular.normalReflectance = 0.1;
 			
@@ -334,8 +334,8 @@ package
 			cloudMaterial.ambientColor = 0x1b2048;
 			cloudMaterial.ambient = 1;
 			
-			atmosphereDiffuseMethod =  new CompositeDiffuseMethod(modulateDiffuseMethod);
-			atmosphereSpecularMethod =  new CompositeSpecularMethod(modulateSpecularMethod, new PhongSpecularMethod());
+			atmosphereDiffuseMethod =  new DiffuseCompositeMethod(modulateDiffuseMethod);
+			atmosphereSpecularMethod =  new SpecularCompositeMethod(modulateSpecularMethod, new SpecularPhongMethod());
 			
 			atmosphereMaterial = new ColorMaterial(0x1671cc);
 			atmosphereMaterial.diffuseMethod = atmosphereDiffuseMethod;
