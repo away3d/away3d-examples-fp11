@@ -198,7 +198,7 @@ package
 				var mesh:Mesh = event.asset as Mesh;
 				mesh.castsShadows = true;
 			} else if (event.asset.assetType == AssetType.MATERIAL) {
-				var material:TextureMaterial = event.asset as TextureMaterial;
+				var material:SinglePassMaterialBase = event.asset as SinglePassMaterialBase;
 				material.shadowMethod = new FilteredShadowMapMethod(_light);
 				material.lightPicker = _lightPicker;
 				material.gloss = 30;
