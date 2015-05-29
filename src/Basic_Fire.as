@@ -55,11 +55,11 @@ package
 	import away3d.core.render.DefaultRenderer;
 	import away3d.debug.AwayStats;
 	import away3d.entities.Camera3D;
-	import away3d.entities.Mesh;
 	import away3d.entities.DirectionalLight;
+	import away3d.entities.Mesh;
 	import away3d.entities.PointLight;
-	import away3d.materials.TextureMaterial;
-	import away3d.materials.TextureMultiPassMaterial;
+	import away3d.materials.TriangleBasicMaterial;
+	import away3d.materials.TriangleMethodMaterial;
 	import away3d.materials.lightpickers.StaticLightPicker;
 	import away3d.prefabs.PrimitivePlanePrefab;
 	import away3d.tools.helpers.ParticleGeometryHelper;
@@ -68,7 +68,6 @@ package
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.BlendMode;
-
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
 	import flash.display.StageQuality;
@@ -112,8 +111,8 @@ package
 		private var SignatureBitmap:Bitmap;
 		
 		//material objects
-		private var planeMaterial:TextureMultiPassMaterial;
-		private var particleMaterial:TextureMaterial;
+		private var planeMaterial:TriangleMethodMaterial;
+		private var particleMaterial:TriangleBasicMaterial;
 		
 		//light objects
 		private var directionalLight:DirectionalLight;
@@ -217,7 +216,7 @@ package
 		 */
 		private function initMaterials():void
 		{
-			planeMaterial = new TextureMultiPassMaterial(Cast.bitmapTexture(FloorDiffuse));
+			planeMaterial = new TriangleMethodMaterial(Cast.bitmapTexture(FloorDiffuse));
 			planeMaterial.specularMap = Cast.bitmapTexture(FloorSpecular);
 			planeMaterial.normalMap = Cast.bitmapTexture(FloorNormals);
 			planeMaterial.lightPicker = lightPicker;
@@ -225,7 +224,7 @@ package
 			planeMaterial.mipmap = false;
 			planeMaterial.specular = 10;
 			
-			particleMaterial = new TextureMaterial(Cast.bitmapTexture(FireTexture));
+			particleMaterial = new TriangleBasicMaterial(Cast.bitmapTexture(FireTexture));
 			particleMaterial.blendMode = BlendMode.ADD;
 		}
 		
@@ -441,7 +440,6 @@ package
 
 import away3d.animators.*;
 import away3d.entities.*;
-import away3d.lights.*;
 
 /**
  * Data class for the fire objects

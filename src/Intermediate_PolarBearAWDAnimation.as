@@ -44,9 +44,28 @@ THE SOFTWARE.
 
 package
 {
+	import away3d.animators.*;
+	import away3d.animators.data.*;
+	import away3d.animators.nodes.*;
+	import away3d.animators.transitions.*;
+	import away3d.containers.*;
+	import away3d.controllers.*;
+	import away3d.core.base.*;
+	import away3d.core.library.*;
 	import away3d.core.render.DefaultRenderer;
-	import away3d.materials.methods.ShadowNearMethod;
+	import away3d.debug.*;
+	import away3d.entities.*;
+	import away3d.events.*;
+	import away3d.loaders.parsers.*;
+	import away3d.materials.*;
+	import away3d.materials.lightpickers.*;
+	import away3d.materials.methods.*;
+	import away3d.materials.shadowmappers.NearDirectionalShadowMapper;
 	import away3d.prefabs.PrimitivePlanePrefab;
+	import away3d.textures.*;
+	import away3d.tools.helpers.*;
+	import away3d.tools.helpers.data.*;
+	import away3d.utils.*;
 
 	import flash.display.*;
 	import flash.events.*;
@@ -55,31 +74,7 @@ package
 	import flash.net.*;
 	import flash.text.*;
 	import flash.ui.*;
-	
-	import away3d.animators.*;
-	import away3d.animators.data.*;
-	import away3d.animators.nodes.*;
-	import away3d.animators.transitions.*;
-	import away3d.containers.*;
-	import away3d.controllers.*;
-	import away3d.core.base.*;
-	import away3d.debug.*;
-	import away3d.entities.*;
-	import away3d.events.*;
-	import away3d.core.library.*;
-	import away3d.core.library.assets.*;
-	import away3d.lights.*;
-	import away3d.lights.shadowmaps.*;
-	import away3d.loaders.parsers.*;
-	import away3d.materials.*;
-	import away3d.materials.lightpickers.*;
-	import away3d.materials.methods.*;
-	import away3d.primitives.*;
-	import away3d.textures.*;
-	import away3d.tools.helpers.*;
-	import away3d.tools.helpers.data.*;
-	import away3d.utils.*;
-	
+
 	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
 	
 	public class Intermediate_PolarBearAWDAnimation extends Sprite
@@ -164,8 +159,8 @@ package
 		private var fogMethod:EffectFogMethod;
 		
 		//material objects
-		private var bearMaterial:TextureMaterial;
-		private var groundMaterial:TextureMaterial;
+		private var bearMaterial:TriangleMethodMaterial;
+		private var groundMaterial:TriangleMethodMaterial;
 		private var cubeTexture:BitmapCubeTexture;
 		
 		//scene objects
@@ -302,12 +297,12 @@ package
 			AssetLibrary.load(new URLRequest("assets/snow.obj"));
 			
 			//create a snowy ground plane
-			groundMaterial = new TextureMaterial(Cast.bitmapTexture(SnowDiffuse), true, true, true);
+			groundMaterial = new TriangleMethodMaterial(Cast.bitmapTexture(SnowDiffuse), true, true, true);
 			groundMaterial.lightPicker = lightPicker;
 			groundMaterial.specularMap = Cast.bitmapTexture(SnowSpecular);
 			groundMaterial.normalMap = Cast.bitmapTexture(SnowNormal);
 			groundMaterial.shadowMethod = softShadowMapMethod;
-			groundMaterial.addMethod(fogMethod);
+			groundMaterial.addEffectMethod(fogMethod);
 			groundMaterial.ambient = 0.5;
 			var planePrimitive:PrimitivePlanePrefab = new PrimitivePlanePrefab(50000,50000);
 			ground = planePrimitive.getNewObject() as Mesh;
@@ -375,11 +370,11 @@ package
 			} else if (event.asset.assetType == AssetType.MESH) {
 				if (event.asset.name == "PolarBear") {
 					//create material object and assign it to our mesh
-					bearMaterial = new TextureMaterial(Cast.bitmapTexture(BearDiffuse));
+					bearMaterial = new TriangleMethodMaterial(Cast.bitmapTexture(BearDiffuse));
 					bearMaterial.shadowMethod = softShadowMapMethod;
 					bearMaterial.normalMap = Cast.bitmapTexture(BearNormal);
 					bearMaterial.specularMap = Cast.bitmapTexture(BearSpecular);
-					bearMaterial.addMethod(fogMethod);
+					bearMaterial.addEffectMethod(fogMethod);
 					bearMaterial.lightPicker = lightPicker;
 					bearMaterial.gloss = 50;
 					bearMaterial.specular = 0.5;
@@ -421,7 +416,7 @@ package
 					particleAnimationSet.addAnimation(new ParticleRotationalVelocityNode(ParticlePropertiesMode.LOCAL_STATIC));
 					particleAnimationSet.initParticleFunc = initParticleFunc;
 					
-					var material:ColorMaterial = new ColorMaterial();
+					var material:TriangleMethodMaterial = new TriangleMethodMaterial();
 					material.lightPicker = lightPicker;
 					particleMesh = new Mesh(particleGeometry, material);
 					particleMesh.bounds.fromSphere(new Vector3D(), 2000);

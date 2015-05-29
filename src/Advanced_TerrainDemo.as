@@ -137,8 +137,8 @@ package
 		private var terrainMethod:TerrainDiffuseMethod;
 		private var waterMethod:NormalSimpleWaterMethod;
 		private var fresnelMethod:SpecularFresnelMethod;
-		private var terrainMaterial:TextureMaterial;
-		private var waterMaterial:TextureMaterial;
+		private var terrainMaterial:TriangleMethodMaterial;
+		private var waterMaterial:TriangleMethodMaterial;
 		private var cubeTexture:BitmapCubeTexture;
 		
 		//scene objects
@@ -264,25 +264,25 @@ package
 
 			terrainMethod = new TerrainDiffuseMethod([Cast.bitmapTexture(Beach), Cast.bitmapTexture(Grass), Cast.bitmapTexture(Rock)], Cast.bitmapTexture(Blend), [1, 50, 150, 100]);
 
-			terrainMaterial = new TextureMaterial(Cast.bitmapTexture(Albedo));
+			terrainMaterial = new TriangleMethodMaterial(Cast.bitmapTexture(Albedo));
 			terrainMaterial.diffuseMethod = terrainMethod;
 			terrainMaterial.normalMap = Cast.bitmapTexture(Normals);
 			terrainMaterial.lightPicker = lightPicker;
 			terrainMaterial.ambientColor = 0x303040;
 			terrainMaterial.ambient = 1;
 			terrainMaterial.specular = .2;
-			terrainMaterial.addMethod(fogMethod);
+			terrainMaterial.addEffectMethod(fogMethod);
 			
 			waterMethod = new NormalSimpleWaterMethod(Cast.bitmapTexture(WaterNormals), Cast.bitmapTexture(WaterNormals));
 			fresnelMethod = new SpecularFresnelMethod();
 			fresnelMethod.normalReflectance = .3;
 			
-			waterMaterial = new TextureMaterial(new BitmapTexture(new BitmapData(512, 512, true, 0xaa404070)));
+			waterMaterial = new TriangleMethodMaterial(new BitmapTexture(new BitmapData(512, 512, true, 0xaa404070)));
 			waterMaterial.alphaBlending = true;
 			waterMaterial.lightPicker = lightPicker;
 			waterMaterial.repeat = true;
 			waterMaterial.normalMethod = waterMethod;
-			waterMaterial.addMethod(new EffectEnvMapMethod(cubeTexture));
+			waterMaterial.addEffectMethod(new EffectEnvMapMethod(cubeTexture));
 			waterMaterial.specularMethod = fresnelMethod;
 			waterMaterial.gloss = 100;
 			waterMaterial.specular = 1;

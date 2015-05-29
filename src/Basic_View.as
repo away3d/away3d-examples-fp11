@@ -40,6 +40,7 @@ package
 {
 	import away3d.containers.*;
 	import away3d.core.render.DefaultRenderer;
+	import away3d.debug.Debug;
 	import away3d.entities.*;
 	import away3d.materials.*;
 	import away3d.prefabs.PrimitivePlanePrefab;
@@ -71,7 +72,8 @@ package
 		{
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
-			
+
+			Debug.active = true;
 			//setup the view
 			_view = new View3D(new DefaultRenderer());
 			addChild(_view);

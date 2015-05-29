@@ -98,12 +98,13 @@ package
 			var cubeTexture:BitmapCubeTexture = new BitmapCubeTexture(Cast.bitmapData(EnvPosX), Cast.bitmapData(EnvNegX), Cast.bitmapData(EnvPosY), Cast.bitmapData(EnvNegY), Cast.bitmapData(EnvPosZ), Cast.bitmapData(EnvNegZ));
 			
 			//setup the environment map material
-			var material:ColorMaterial = new ColorMaterial(0xFFFFFF, 1);
+			var material:TriangleMethodMaterial = new TriangleMethodMaterial();
+			material.color = 0xFFFFFF;
 			material.specular = 0.5;
 			material.ambient = 0.25;
 			material.ambientColor = 0x111199;
 			material.ambient = 1;
-			material.addMethod(new EffectEnvMapMethod(cubeTexture, 1));
+			material.addEffectMethod(new EffectEnvMapMethod(cubeTexture, 1));
 			
 			//setup the scene
 			var primitive:PrimitiveTorusPrefab = new PrimitiveTorusPrefab(150, 60, 40, 20)

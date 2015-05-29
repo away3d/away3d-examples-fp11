@@ -51,7 +51,6 @@ package
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.events.*;
-	import away3d.lights.*;
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
@@ -60,15 +59,13 @@ package
 	import away3d.textures.*;
 	import away3d.utils.*;
 
-	import shallowwater.*;
-
-	import uk.co.soulwire.gui.*;
-
 	import flash.display.*;
 	import flash.events.*;
 	import flash.geom.*;
 	import flash.ui.*;
 	import flash.utils.*;
+
+	import shallowwater.*;
 
 	[SWF(backgroundColor="#000000", frameRate="30")]
 	public class Advanced_ShallowWaterDemo extends Sprite
@@ -130,9 +127,9 @@ package
 		private var fogMethod:EffectFogMethod;
 		
 		//material objects
-		private var colorMaterial:ColorMaterial;
-		private var liquidMaterial:ColorMaterial;
-		private var poolMaterial:TextureMaterial;
+		private var colorMaterial:TriangleMethodMaterial;
+		private var liquidMaterial:TriangleMethodMaterial;
+		private var poolMaterial:TriangleMethodMaterial;
 		private var cubeTexture:BitmapCubeTexture;
 		
 		//fluid simulation variables
@@ -389,15 +386,17 @@ package
 		{
 			cubeTexture = new BitmapCubeTexture(Cast.bitmapData(EnvPosX), Cast.bitmapData(EnvNegX), Cast.bitmapData(EnvPosY), Cast.bitmapData(EnvNegY), Cast.bitmapData(EnvPosZ), Cast.bitmapData(EnvNegZ));
 			
-			liquidMaterial = new ColorMaterial(0xFFFFFF);
+			liquidMaterial = new TriangleMethodMaterial();
+			liquidMaterial.color = 0xFFFFFF;
 			liquidMaterial.specular = 0.5;
 			liquidMaterial.ambient = 0.25;
 			liquidMaterial.ambientColor = 0x111199;
 			liquidMaterial.ambient = 1;
-			liquidMaterial.addMethod(new EffectEnvMapMethod(cubeTexture, 1));
+			liquidMaterial.addEffectMethod(new EffectEnvMapMethod(cubeTexture, 1));
 			liquidMaterial.lightPicker = lightPicker;
 			
-			colorMaterial = new ColorMaterial(liquidMaterial.color);
+			colorMaterial = new TriangleMethodMaterial();
+			colorMaterial.color = liquidMaterial.color;
 			colorMaterial.specular = 0.5;
 			colorMaterial.ambient = 0.25;
 			colorMaterial.ambientColor = 0x555555;
@@ -408,8 +407,8 @@ package
 			var tex:BitmapData = new BitmapData(512, 512, false, 0);
 			tex.perlinNoise(25, 25, 8, 1, false, true, 7, true);
 			tex.colorTransform(tex.rect, new ColorTransform(0.1, 0.1, 0.1, 1, 0, 0, 0, 0));
-			poolMaterial = new TextureMaterial(new BitmapTexture(tex));
-			poolMaterial.addMethod(fogMethod);
+			poolMaterial = new TriangleMethodMaterial(new BitmapTexture(tex));
+			poolMaterial.addEffectMethod(fogMethod);
 			
 		}
 		

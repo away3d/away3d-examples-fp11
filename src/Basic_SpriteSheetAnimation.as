@@ -104,7 +104,7 @@ package {
 		{
 			//if the animation is something that plays non stop, and fits a single map,
 			// you can use a regular TextureMaterial
-			var material:TextureMaterial = new TextureMaterial(Cast.bitmapTexture(testSheet1));
+			var material:TriangleMethodMaterial = new TriangleMethodMaterial(Cast.bitmapTexture(testSheet1));
 
 			// the name of the animation
 			var animID:String = "mySingleMapAnim";

@@ -39,29 +39,27 @@ THE SOFTWARE.
 
 package
 {
-	import away3d.core.render.DefaultRenderer;
-	import away3d.prefabs.PrimitivePlanePrefab;
-
-	import flash.display.*;
-	import flash.events.*;
-	import flash.geom.*;
-	import flash.utils.*;
-	
 	import away3d.animators.*;
 	import away3d.animators.data.*;
 	import away3d.animators.nodes.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
 	import away3d.core.base.*;
+	import away3d.core.render.DefaultRenderer;
 	import away3d.debug.*;
 	import away3d.entities.*;
-	import away3d.lights.*;
-	import away3d.materials.*;
+	import away3d.materials.TriangleBasicMaterial;
+	import away3d.materials.TriangleMethodMaterial;
 	import away3d.materials.lightpickers.*;
-	import away3d.primitives.*;
+	import away3d.prefabs.PrimitivePlanePrefab;
 	import away3d.tools.helpers.*;
 	import away3d.utils.*;
-	
+
+	import flash.display.*;
+	import flash.events.*;
+	import flash.geom.*;
+	import flash.utils.*;
+
 	[SWF(backgroundColor="#000000", frameRate="60", quality="LOW")]
 	
 	public class Intermediate_ParticleExplosions extends Sprite
@@ -105,8 +103,8 @@ package
 		private var whiteSeparation:int;
 		
 		//material objects
-		private var whiteMaterial:ColorMaterial;
-		private var redMaterial:ColorMaterial;
+		private var whiteMaterial:TriangleBasicMaterial;
+		private var redMaterial:TriangleBasicMaterial;
 		
 		//particle objects
 		private var redGeometry:ParticleGeometry;
@@ -215,13 +213,15 @@ package
 		{
 			
 			//setup the red particle material
-			redMaterial = new ColorMaterial(0xBE0E0E);
+			redMaterial = new TriangleBasicMaterial();
+			redMaterial.color = 0xBE0E0E;
 			redMaterial.alphaPremultiplied = true;
 			redMaterial.bothSides = true;
 			redMaterial.lightPicker = lightPicker;
 			
 			//setup the white particle material
-			whiteMaterial = new ColorMaterial(0xBEBEBE);
+			whiteMaterial = new TriangleBasicMaterial();
+			whiteMaterial.color = 0xBEBEBE;
 			whiteMaterial.alphaPremultiplied = true;
 			whiteMaterial.bothSides = true;
 			whiteMaterial.lightPicker = lightPicker;

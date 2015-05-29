@@ -81,7 +81,7 @@ package {
 		private var SignatureBitmap:Bitmap;
 		
 		//material objects
-		private var particleMaterial:TextureMaterial;
+		private var particleMaterial:TriangleBasicMaterial;
 		
 		//particle objects
 		private var particleAnimationSet:ParticleAnimationSet;
@@ -164,7 +164,7 @@ package {
 		private function initMaterials():void
 		{
 			//setup particle material
-			particleMaterial = new TextureMaterial(Cast.bitmapTexture(ParticleTexture));
+			particleMaterial = new TriangleBasicMaterial(Cast.bitmapTexture(ParticleTexture));
 			particleMaterial.blendMode = BlendMode.ADD;
 		}
 		

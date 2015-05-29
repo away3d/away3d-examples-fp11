@@ -40,6 +40,7 @@ package
 	import away3d.containers.*;
 	import away3d.controllers.*;
 	import away3d.core.base.Geometry;
+	import away3d.core.library.AssetLibrary;
 	import away3d.core.library.AssetType;
 	import away3d.core.render.DefaultRenderer;
 	import away3d.debug.*;
@@ -49,9 +50,6 @@ package
 	import away3d.entities.SkyBox;
 	import away3d.events.*;
 	import away3d.extrusions.Elevation;
-	import away3d.core.library.AssetLibrary;
-	import away3d.core.library.assets.*;
-	import away3d.lights.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.*;
@@ -123,10 +121,10 @@ package
 		private var SignatureBitmap:Bitmap;
 		
 		//material objects
-		private var floorMaterial : TextureMaterial;
-		private var desertMaterial : TextureMaterial;
-		private var reflectiveMaterial : ColorMaterial;
-		private var r2d2Material : TextureMaterial;
+		private var floorMaterial : TriangleMethodMaterial;
+		private var desertMaterial : TriangleMethodMaterial;
+		private var reflectiveMaterial : TriangleMethodMaterial;
+		private var r2d2Material : TriangleMethodMaterial;
 		private var lightPicker : StaticLightPicker;
 		private var fogMethod : EffectFogMethod;
 		private var skyboxTexture : BitmapCubeTexture;
@@ -255,29 +253,31 @@ package
 			lightPicker = new StaticLightPicker([light]);
 			fogMethod = new EffectFogMethod(0, 2000, 0x100215);
 
-			floorMaterial = new TextureMaterial(desertTexture);
+			floorMaterial = new TriangleMethodMaterial(desertTexture);
 			floorMaterial.lightPicker = lightPicker;
-			floorMaterial.addMethod(fogMethod);
+			floorMaterial.addEffectMethod(fogMethod);
 			floorMaterial.repeat = true;
 			floorMaterial.gloss = 5;
 			floorMaterial.specular = .1;
 
-			desertMaterial = new TextureMaterial(desertTexture);
+			desertMaterial = new TriangleMethodMaterial(desertTexture);
 			desertMaterial.lightPicker = lightPicker;
-			desertMaterial.addMethod(fogMethod);
+			desertMaterial.addEffectMethod(fogMethod);
 			desertMaterial.repeat = true;
 			desertMaterial.gloss = 5;
 			desertMaterial.specular = .1;
 
-			r2d2Material = new TextureMaterial(Cast.bitmapTexture(R2D2Albedo));
+			r2d2Material = new TriangleMethodMaterial(Cast.bitmapTexture(R2D2Albedo));
 			r2d2Material.lightPicker = lightPicker;
-			r2d2Material.addMethod(fogMethod);
-			r2d2Material.addMethod(new EffectEnvMapMethod(skyboxTexture,.2));
+			r2d2Material.addEffectMethod(fogMethod);
+			r2d2Material.addEffectMethod(new EffectEnvMapMethod(skyboxTexture,.2));
 
 			// create a PlanarReflectionMethod
 			var reflectionMethod : PlanarReflectionMethod = new PlanarReflectionMethod(reflectionTexture);
-			reflectiveMaterial = new ColorMaterial(0x000000,.9);
-			reflectiveMaterial.addMethod(reflectionMethod);
+			reflectiveMaterial = new TriangleMethodMaterial();
+			reflectiveMaterial.color = 0x000000;
+			reflectiveMaterial.alpha = 0.9;
+			reflectiveMaterial.addEffectMethod(reflectionMethod);
 		}
 
 		/**

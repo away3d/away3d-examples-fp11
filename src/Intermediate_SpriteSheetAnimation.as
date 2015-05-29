@@ -46,25 +46,20 @@ package {
 	import away3d.animators.SpriteSheetAnimator;
 	import away3d.animators.nodes.SpriteSheetClipNode;
 	import away3d.containers.*;
+	import away3d.core.library.AssetType;
 	import away3d.core.render.DefaultRenderer;
 	import away3d.entities.*;
 	import away3d.events.AssetEvent;
 	import away3d.events.LoaderEvent;
-	import away3d.core.library.AssetType;
-	import away3d.entities.PointLight;
 	import away3d.loaders.Loader3D;
 	import away3d.loaders.parsers.AWD2Parser;
 	import away3d.materials.*;
-	import away3d.materials.MaterialBase;
-	import away3d.materials.MaterialBase;
 	import away3d.materials.lightpickers.StaticLightPicker;
 	import away3d.materials.methods.EffectEnvMapMethod;
 	import away3d.materials.methods.EffectFogMethod;
 	import away3d.textures.BitmapCubeTexture;
 	import away3d.textures.Texture2DBase;
 	import away3d.tools.helpers.SpriteSheetHelper;
-
-	import caurina.transitions.Tweener;
 
 	import flash.display.*;
 	import flash.events.*;
@@ -382,7 +377,7 @@ package {
 																		Bitmap(new Back_CB5_Bitmap()).bitmapData);
 
 						var envMapMethod:EffectEnvMapMethod = new EffectEnvMapMethod(cubeTexture, 0.1);
-						SinglePassMaterialBase(mesh.material).addMethod(envMapMethod);
+						TriangleMethodMaterial(mesh.material).addEffectMethod(envMapMethod);
 
 					default:
 						if(!(mesh.material as MaterialBase).lightPicker)
@@ -391,7 +386,7 @@ package {
 				}
 
 				var fogMethod:EffectFogMethod = new EffectFogMethod(20000, 50000, 0x10C14);
-				SinglePassMaterialBase(mesh.material).addMethod(fogMethod);
+				TriangleMethodMaterial(mesh.material).addEffectMethod(fogMethod);
 			}
 		}
 

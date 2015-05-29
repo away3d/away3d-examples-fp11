@@ -37,26 +37,28 @@
 
 package
 {
-	import away3d.cameras.Camera3D;
 	import away3d.containers.Scene3D;
 	import away3d.containers.View3D;
 	import away3d.controllers.LookAtController;
-	import away3d.debug.AwayStats;
-	import away3d.entities.Mesh;
-	import away3d.events.AssetEvent;
+	import away3d.core.base.TriangleSubGeometry;
 	import away3d.core.library.AssetLibrary;
 	import away3d.core.library.AssetType;
+	import away3d.core.render.DefaultRenderer;
+	import away3d.debug.AwayStats;
+	import away3d.entities.Camera3D;
 	import away3d.entities.LightProbe;
+	import away3d.entities.Mesh;
 	import away3d.entities.PointLight;
+	import away3d.events.AssetEvent;
 	import away3d.loaders.misc.AssetLoaderContext;
 	import away3d.loaders.parsers.OBJParser;
 	import away3d.materials.LightSources;
-	import away3d.materials.TextureMaterial;
+	import away3d.materials.TriangleMethodMaterial;
 	import away3d.materials.lightpickers.StaticLightPicker;
-	import away3d.materials.methods.SpecularFresnelMethod;
-	import away3d.materials.methods.ShadowHardMethod;
 	import away3d.materials.methods.EffectLightMapMethod;
 	import away3d.materials.methods.EffectRimLightMethod;
+	import away3d.materials.methods.ShadowHardMethod;
+	import away3d.materials.methods.SpecularFresnelMethod;
 	import away3d.textures.BitmapTexture;
 	import away3d.textures.SpecularBitmapTexture;
 
@@ -67,7 +69,6 @@ package
 
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
-
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
@@ -140,7 +141,7 @@ package
 
 		private var headTexture : BitmapTexture;
 		private var whiteTexture : BitmapTexture;
-		private var headMaterial : TextureMaterial;
+		private var headMaterial : TriangleMethodMaterial;
 
 		/**
 		 * Constructor
@@ -172,11 +173,11 @@ package
 			scene = new Scene3D();
 
 			camera = new Camera3D();
-			camera.lens.far = 2000;
-			camera.lens.near = 20;
+			camera.projection.far = 2000;
+			camera.projection.near = 20;
 			camera.lookAt(new Vector3D(0, 0, 1000));
 
-			view = new View3D();
+			view = new View3D(new DefaultRenderer());
 			view.antiAlias = 16;
 			view.scene = scene;
 			view.camera = camera;
@@ -301,13 +302,13 @@ package
 		 */
 		private function onCornellComplete(event : AssetEvent) : void
 		{
-			var material : TextureMaterial;
+			var material : TriangleMethodMaterial;
 			var mesh : Mesh;
 
 			if (event.asset.assetType == AssetType.MESH) {
 				mesh = Mesh(event.asset);
 				//create material object and assign it to our mesh
-				material = new TextureMaterial(new BitmapTexture(new CornellTexture().bitmapData));
+				material = new TriangleMethodMaterial(new BitmapTexture(new CornellTexture().bitmapData));
 				material.normalMap = new BitmapTexture(new CornellNormals().bitmapData);
 				material.lightPicker = new StaticLightPicker([mainLight]);
 				material.shadowMethod = new ShadowHardMethod(mainLight);
@@ -315,7 +316,7 @@ package
 				material.gloss = 20;
 				mesh.material = material;
 				mesh.scale(100);
-				mesh.geometry.subGeometries[0].autoDeriveVertexNormals = true;
+				(mesh.geometry.subGeometries[0] as TriangleSubGeometry).autoDeriveNormals  = true;
 
 				scene.addChild(mesh);
 
@@ -337,15 +338,15 @@ package
 				//create material object and assign it to our mesh
 				headTexture = new BitmapTexture(new HeadAlbedo().bitmapData);
 				whiteTexture = new BitmapTexture(new BitmapData(512, 512, false, 0xbbbbaa));
-				headMaterial = new TextureMaterial(headTexture);
+				headMaterial = new TriangleMethodMaterial(headTexture);
 				headMaterial.normalMap = new BitmapTexture(new HeadNormals().bitmapData);
 				headMaterial.specularMap = new SpecularBitmapTexture(new HeadSpecular().bitmapData);
 				specularMethod = new SpecularFresnelMethod();
 				specularMethod.normalReflectance = .2;
 				headMaterial.specularMethod = specularMethod;
 				headMaterial.gloss = 10;
-				headMaterial.addMethod(new EffectRimLightMethod(0xffffff, .4, 5, EffectRimLightMethod.ADD));
-				headMaterial.addMethod(new EffectLightMapMethod(new BitmapTexture(new HeadOcclusion().bitmapData)));
+				headMaterial.addEffectMethod(new EffectRimLightMethod(0xffffff, .4, 5, EffectRimLightMethod.ADD));
+				headMaterial.addEffectMethod(new EffectLightMapMethod(new BitmapTexture(new HeadOcclusion().bitmapData)));
 				headMaterial.lightPicker = new StaticLightPicker([mainLight, lightProbeFL, lightProbeFR, lightProbeNL, lightProbeNR]);
 				headMaterial.diffuseLightSources = LightSources.PROBES;
 				headMaterial.specularLightSources = LightSources.LIGHTS;

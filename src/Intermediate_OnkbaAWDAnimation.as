@@ -43,75 +43,70 @@ THE SOFTWARE.
  */
 package
 {
-	import away3d.animators.SkeletonAnimationSet;
-	import away3d.animators.SkeletonAnimator;
-	import away3d.animators.data.Skeleton;
-	import away3d.animators.nodes.SkeletonClipNode;
-	import away3d.animators.transitions.CrossfadeTransition;
-	import away3d.containers.ObjectContainer3D;
-	import away3d.containers.View3D;
-	import away3d.controllers.HoverController;
-	import away3d.core.base.Geometry;
-	import away3d.core.render.DefaultRenderer;
-	import away3d.debug.AwayStats;
-	import away3d.entities.Mesh;
-	import away3d.entities.SkyBox;
-	import away3d.events.AssetEvent;
-	import away3d.events.LoaderEvent;
-	import away3d.events.MouseEvent3D;
-	import away3d.core.library.AssetType;
-	import away3d.entities.DirectionalLight;
-	import away3d.entities.PointLight;
-	import away3d.materials.shadowmappers.NearDirectionalShadowMapper;
-	import away3d.loaders.Loader3D;
-	import away3d.loaders.parsers.AWD2Parser;
-	import away3d.materials.ColorMaterial;
-	import away3d.materials.SkyBoxMaterial;
-	import away3d.materials.TextureMaterial;
-	import away3d.materials.lightpickers.StaticLightPicker;
-	import away3d.materials.methods.EffectEnvMapMethod;
-	import away3d.materials.methods.ShadowFilteredMethod;
-	import away3d.materials.methods.EffectFogMethod;
-	import away3d.materials.methods.SpecularFresnelMethod;
-	import away3d.materials.methods.EffectLightMapMethod;
-	import away3d.materials.methods.ShadowNearMethod;
-	import away3d.materials.methods.ShadowSoftMethod;
-	import away3d.prefabs.PrimitivePlanePrefab;
-	import away3d.prefabs.PrimitiveSpherePrefab;
-	import away3d.projections.PerspectiveProjection;
-	import away3d.textures.BitmapCubeTexture;
-	import away3d.textures.BitmapTexture;
-	import away3d.utils.Cast;
+    import away3d.animators.SkeletonAnimationSet;
+    import away3d.animators.SkeletonAnimator;
+    import away3d.animators.data.Skeleton;
+    import away3d.animators.nodes.SkeletonClipNode;
+    import away3d.animators.transitions.CrossfadeTransition;
+    import away3d.containers.ObjectContainer3D;
+    import away3d.containers.View3D;
+    import away3d.controllers.HoverController;
+    import away3d.core.base.Geometry;
+    import away3d.core.library.AssetType;
+    import away3d.core.render.DefaultRenderer;
+    import away3d.debug.AwayStats;
+    import away3d.entities.DirectionalLight;
+    import away3d.entities.Mesh;
+    import away3d.entities.PointLight;
+    import away3d.entities.SkyBox;
+    import away3d.events.AssetEvent;
+    import away3d.events.LoaderEvent;
+    import away3d.events.MouseEvent3D;
+    import away3d.loaders.Loader3D;
+    import away3d.loaders.parsers.AWD2Parser;
+    import away3d.materials.SkyBoxMaterial;
+    import away3d.materials.TriangleMethodMaterial;
+    import away3d.materials.lightpickers.StaticLightPicker;
+    import away3d.materials.methods.EffectEnvMapMethod;
+    import away3d.materials.methods.EffectFogMethod;
+    import away3d.materials.methods.EffectLightMapMethod;
+    import away3d.materials.methods.ShadowFilteredMethod;
+    import away3d.materials.methods.ShadowNearMethod;
+    import away3d.materials.methods.ShadowSoftMethod;
+    import away3d.materials.methods.SpecularFresnelMethod;
+    import away3d.materials.shadowmappers.NearDirectionalShadowMapper;
+    import away3d.prefabs.PrimitivePlanePrefab;
+    import away3d.prefabs.PrimitiveSpherePrefab;
+    import away3d.projections.PerspectiveProjection;
+    import away3d.textures.BitmapCubeTexture;
+    import away3d.textures.BitmapTexture;
+    import away3d.utils.Cast;
 
-	import flash.display.BitmapData;
-	import flash.display.BlendMode;
+    import flash.display.BitmapData;
+    import flash.display.Loader;
+    import flash.display.LoaderInfo;
+    import flash.display.Sprite;
+    import flash.display.StageAlign;
+    import flash.display.StageScaleMode;
+    import flash.events.Event;
+    import flash.events.KeyboardEvent;
+    import flash.events.MouseEvent;
+    import flash.events.ProgressEvent;
+    import flash.filters.DropShadowFilter;
+    import flash.geom.Matrix;
+    import flash.geom.Vector3D;
+    import flash.net.URLLoader;
+    import flash.net.URLLoaderDataFormat;
+    import flash.net.URLRequest;
+    import flash.text.AntiAliasType;
+    import flash.text.GridFitType;
+    import flash.text.TextField;
+    import flash.text.TextFormat;
+    import flash.ui.Keyboard;
 
-	import flash.display.Loader;
+    import utils.BitmapFilterEffects;
 
-	import flash.display.LoaderInfo;
-
-	import flash.display.Sprite;
-	import flash.display.StageAlign;
-	import flash.display.StageScaleMode;
-	import flash.events.Event;
-	import flash.events.KeyboardEvent;
-	import flash.events.MouseEvent;
-	import flash.events.ProgressEvent;
-	import flash.filters.DropShadowFilter;
-	import flash.geom.Matrix;
-	import flash.geom.Vector3D;
-	import flash.net.URLLoader;
-	import flash.net.URLLoaderDataFormat;
-	import flash.net.URLRequest;
-	import flash.text.AntiAliasType;
-	import flash.text.GridFitType;
-	import flash.text.TextField;
-	import flash.text.TextFormat;
-	import flash.ui.Keyboard;
-
-	import utils.BitmapFilterEffects;
-
-	[SWF(backgroundColor="#333338", frameRate="60", quality="LOW")]
+    [SWF(backgroundColor="#333338", frameRate="60", quality="LOW")]
     public class Intermediate_OnkbaAWDAnimation extends Sprite
 	{
     	//signature swf
@@ -149,9 +144,9 @@ package
         
         //materials
         private var _skyMap:BitmapCubeTexture;
-        private var _groundMaterial:TextureMaterial;
-        private var _heroMaterial:TextureMaterial;
-		private var _gunMaterial:TextureMaterial;
+        private var _groundMaterial:TriangleMethodMaterial;
+        private var _heroMaterial:TriangleMethodMaterial;
+		private var _gunMaterial:TriangleMethodMaterial;
 		
         //animation variables
         private var transition:CrossfadeTransition = new CrossfadeTransition(0.5);
@@ -187,8 +182,8 @@ package
         private var _eyeL:Mesh;
         private var _eyeR:Mesh;
         private var _eyeCount:int = 0;
-        private var _eyesClosedMaterial:ColorMaterial;
-        private var _eyesOpenMaterial:TextureMaterial;
+        private var _eyesClosedMaterial:TriangleMethodMaterial;
+        private var _eyesOpenMaterial:TriangleMethodMaterial;
         private var _eyeLook:Mesh;
         
         //navigation
@@ -331,7 +326,7 @@ package
             _shadowMethod.epsilon = .1;
 			
             //create the ground material
-            _groundMaterial = new TextureMaterial(textureMaterials[0]);
+            _groundMaterial = new TriangleMethodMaterial(textureMaterials[0]);
 			_groundMaterial.normalMap = textureMaterials[1];
 			_groundMaterial.specularMap = textureMaterials[2];
 			_groundMaterial.lightPicker = _lightPicker;
@@ -341,10 +336,10 @@ package
             _groundMaterial.repeat = true;
 			_groundMaterial.specularMethod = _specularMethod;
 			_groundMaterial.shadowMethod = _shadowMethod;
-            _groundMaterial.addMethod(new EffectFogMethod(fogNear, fogFar, fogColor));
+            _groundMaterial.addEffectMethod(new EffectFogMethod(fogNear, fogFar, fogColor));
 			
 			//create the hero material
-            _heroMaterial = new TextureMaterial(textureMaterials[3]);
+            _heroMaterial = new TriangleMethodMaterial(textureMaterials[3]);
 			_heroMaterial.normalMap = textureMaterials[4];
 			_heroMaterial.lightPicker = _lightPicker;
             _heroMaterial.gloss = 16;
@@ -354,10 +349,10 @@ package
             _heroMaterial.alphaThreshold = 0.9;
 			_heroMaterial.specularMethod = _specularMethod;
 			_heroMaterial.shadowMethod = _shadowMethod;
-			_heroMaterial.addMethod(new EffectLightMapMethod(Cast.bitmapTexture(textureMaterials[5])));
+			_heroMaterial.addEffectMethod(new EffectLightMapMethod(Cast.bitmapTexture(textureMaterials[5])));
 			
 			//create the gun material
-            _gunMaterial = new TextureMaterial(textureMaterials[6]);
+            _gunMaterial = new TriangleMethodMaterial(textureMaterials[6]);
 			_gunMaterial.normalMap = textureMaterials[7];
 			_gunMaterial.lightPicker = _lightPicker;
 			_gunMaterial.gloss = 16;
@@ -365,7 +360,7 @@ package
             _gunMaterial.ambient = 1;
 			_gunMaterial.specularMethod = _specularMethod;
 			_gunMaterial.shadowMethod = _shadowMethod;
-			_gunMaterial.addMethod(new EffectLightMapMethod(Cast.bitmapTexture(textureMaterials[8])));
+			_gunMaterial.addEffectMethod(new EffectLightMapMethod(Cast.bitmapTexture(textureMaterials[8])));
 		}
         
         /**
@@ -817,7 +812,8 @@ package
         public function addHeroEye():void
 		{
             // materials
-            _eyesClosedMaterial = new ColorMaterial(0xA13D1E);
+            _eyesClosedMaterial = new TriangleMethodMaterial();
+            _eyesClosedMaterial.color = 0xA13D1E;
             _eyesClosedMaterial.lightPicker = _lightPicker;
             _eyesClosedMaterial.shadowMethod = new ShadowSoftMethod(DirectionalLight(_sunLight), 20);
             _eyesClosedMaterial.gloss = 12;
@@ -827,9 +823,9 @@ package
             var b:BitmapData = new BitmapData(256, 256, false);
             b.draw(textureMaterials[3].bitmapData, new Matrix(1, 0, 0, 1, -283, -197));
 			
-            _eyesOpenMaterial = new TextureMaterial(Cast.bitmapTexture(b));
+            _eyesOpenMaterial = new TriangleMethodMaterial(Cast.bitmapTexture(b));
             _eyesOpenMaterial.lightPicker = _lightPicker;
-            _eyesOpenMaterial.addMethod(new EffectEnvMapMethod(_skyMap, 0.1));
+            _eyesOpenMaterial.addEffectMethod(new EffectEnvMapMethod(_skyMap, 0.1));
             _eyesOpenMaterial.shadowMethod = new ShadowSoftMethod(DirectionalLight(_sunLight), 20);
             _eyesOpenMaterial.gloss = 300;
             _eyesOpenMaterial.specular = 5;
@@ -863,11 +859,13 @@ package
             _heroPieces.addChild(_eyes);
 			
             _eyeLook = new PrimitivePlanePrefab(0.3, 0.3, 1, 1).getNewObject() as Mesh;
-			_eyeLook.material = new ColorMaterial(0xFFFFFF, 1);
+			_eyeLook.material = new TriangleMethodMaterial();
+            _eyeLook.material.color = 0xFFFFFF;
             _eyeLook.rotationX = 90;
             _eyeLook.visible = false;
 			
-            var h:ColorMaterial = new ColorMaterial(0xFFFFFF, 1);
+            var h:TriangleMethodMaterial = new TriangleMethodMaterial();
+            h.color = 0xFFFFFF;
 			
             var zone:Mesh = new PrimitivePlanePrefab(12, 6, 1, 1).getNewObject() as Mesh;
 			zone.material = h;

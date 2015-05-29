@@ -44,24 +44,22 @@ package
 	import away3d.core.render.DefaultRenderer;
 	import away3d.debug.*;
 	import away3d.entities.*;
-	import away3d.lights.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
 	import away3d.materials.compilation.*;
 	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
 	import away3d.prefabs.PrimitiveSpherePrefab;
-	import away3d.primitives.*;
 	import away3d.textures.*;
 	import away3d.utils.*;
-	
+
 	import flash.display.*;
 	import flash.events.*;
 	import flash.filters.*;
 	import flash.geom.*;
 	import flash.text.*;
 	import flash.ui.*;
-	
+
 	use namespace arcane;
 	
 	[SWF(backgroundColor="#000000", frameRate="30", quality="BEST")]
@@ -145,10 +143,10 @@ package
 		private var SignatureBitmap:Bitmap;
 		
 		//material objects
-		private var sunMaterial:TextureMaterial;
-		private var groundMaterial:TextureMaterial;
-		private var cloudMaterial:TextureMaterial;
-		private var atmosphereMaterial:ColorMaterial;
+		private var sunMaterial:TriangleMethodMaterial;
+		private var groundMaterial:TriangleMethodMaterial;
+		private var cloudMaterial:TriangleMethodMaterial;
+		private var atmosphereMaterial:TriangleMethodMaterial;
 		private var atmosphereDiffuseMethod:DiffuseBasicMethod;
 		private var atmosphereSpecularMethod:SpecularBasicMethod;
 		private var cubeTexture:BitmapCubeTexture;
@@ -310,14 +308,15 @@ package
 			specular.fresnelPower = 1;
 			specular.normalReflectance = 0.1;
 			
-			sunMaterial = new TextureMaterial(Cast.bitmapTexture(Flare10));
+			sunMaterial = new TriangleMethodMaterial(Cast.bitmapTexture(Flare10));
 			sunMaterial.blendMode = BlendMode.ADD;
 
- 			groundMaterial = new TextureMaterial(Cast.bitmapTexture(EarthDiffuse));
+ 			groundMaterial = new TriangleMethodMaterial(Cast.bitmapTexture(EarthDiffuse));
 			groundMaterial.specularMethod = specular;
 			groundMaterial.specularMap = new BitmapTexture(specBitmap);
 			groundMaterial.normalMap = Cast.bitmapTexture(EarthNormals);
-			groundMaterial.ambientTexture = Cast.bitmapTexture(EarthNight);
+			//TODO:
+//			groundMaterial.ambientTexture = Cast.bitmapTexture(EarthNight);
  			groundMaterial.lightPicker = lightPicker;
 			groundMaterial.gloss = 5;
 			groundMaterial.specular = 1;
@@ -327,7 +326,7 @@ package
 			var skyBitmap:BitmapData = new BitmapData(2048, 1024, true, 0xFFFFFFFF);
 			skyBitmap.copyChannel(Cast.bitmapData(SkyDiffuse), skyBitmap.rect, new Point(), BitmapDataChannel.RED, BitmapDataChannel.ALPHA);
 			
-			cloudMaterial = new TextureMaterial(new BitmapTexture(skyBitmap));
+			cloudMaterial = new TriangleMethodMaterial(new BitmapTexture(skyBitmap));
 			cloudMaterial.alphaBlending = true;
 			cloudMaterial.lightPicker = lightPicker;
 			cloudMaterial.specular = 0;
@@ -337,7 +336,8 @@ package
 			atmosphereDiffuseMethod =  new DiffuseCompositeMethod(modulateDiffuseMethod);
 			atmosphereSpecularMethod =  new SpecularCompositeMethod(modulateSpecularMethod, new SpecularPhongMethod());
 			
-			atmosphereMaterial = new ColorMaterial(0x1671cc);
+			atmosphereMaterial = new TriangleMethodMaterial();
+			atmosphereMaterial.color = 0x1671cc;
 			atmosphereMaterial.diffuseMethod = atmosphereDiffuseMethod;
 			atmosphereMaterial.specularMethod = atmosphereSpecularMethod;
 			atmosphereMaterial.blendMode = BlendMode.ADD;
@@ -353,8 +353,8 @@ package
 			vo=vo;
 			regCache=regCache;
 			sharedRegisters=sharedRegisters; 
-			var viewDirFragmentReg:ShaderRegisterElement = atmosphereDiffuseMethod.sharedRegisters.viewDirFragment;
-			var normalFragmentReg:ShaderRegisterElement = atmosphereDiffuseMethod.sharedRegisters.normalFragment;
+			var viewDirFragmentReg:ShaderRegisterElement = sharedRegisters.viewDirFragment;
+			var normalFragmentReg:ShaderRegisterElement = sharedRegisters.normalFragment;
 			
 			var code:String = "dp3 " + t + ".w, " + viewDirFragmentReg + ".xyz, " + normalFragmentReg + ".xyz\n" + 
 							"mul " + t + ".w, " + t + ".w, " + t + ".w\n";
@@ -368,8 +368,8 @@ package
 			regCache=regCache;
 			sharedRegisters=sharedRegisters; 
 
-			var viewDirFragmentReg:ShaderRegisterElement = atmosphereDiffuseMethod.sharedRegisters.viewDirFragment;
-			var normalFragmentReg:ShaderRegisterElement = atmosphereDiffuseMethod.sharedRegisters.normalFragment;
+			var viewDirFragmentReg:ShaderRegisterElement = sharedRegisters.viewDirFragment;
+			var normalFragmentReg:ShaderRegisterElement = sharedRegisters.normalFragment;
 			var temp:ShaderRegisterElement = regCache.getFreeFragmentSingleTemp();
 			regCache.addFragmentTempUsages(temp, 1);
 			

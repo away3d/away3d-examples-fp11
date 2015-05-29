@@ -41,7 +41,20 @@ THE SOFTWARE.
 package
 {
 
+	import away3d.containers.*;
+	import away3d.controllers.*;
+	import away3d.core.library.*;
 	import away3d.core.render.DefaultRenderer;
+	import away3d.debug.*;
+	import away3d.entities.*;
+	import away3d.events.*;
+	import away3d.extrusions.*;
+	import away3d.loaders.parsers.*;
+	import away3d.materials.*;
+	import away3d.materials.lightpickers.*;
+	import away3d.materials.methods.*;
+	import away3d.textures.*;
+	import away3d.utils.*;
 
 	import flash.display.*;
 	import flash.events.*;
@@ -49,24 +62,7 @@ package
 	import flash.geom.*;
 	import flash.text.*;
 	import flash.ui.*;
-	
-	import away3d.containers.*;
-	import away3d.controllers.*;
-	import away3d.debug.*;
-	import away3d.entities.*;
-	import away3d.events.*;
-	import away3d.extrusions.*;
-	import away3d.core.library.*;
-	import away3d.core.library.assets.*;
-	import away3d.lights.*;
-	import away3d.loaders.parsers.*;
-	import away3d.materials.*;
-	import away3d.materials.lightpickers.*;
-	import away3d.materials.methods.*;
-	import away3d.primitives.*;
-	import away3d.textures.*;
-	import away3d.utils.*;
-	
+
 	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
 	
 	public class Intermediate_RealTimeEnvMap extends Sprite
@@ -129,9 +125,9 @@ package
 		private var skyboxTexture : BitmapCubeTexture;
 		private var reflectionTexture:CubeReflectionTexture;
 		//private var floorMaterial : TextureMaterial;
-		private var desertMaterial : TextureMaterial;
-		private var reflectiveMaterial : ColorMaterial;
-		private var r2d2Material : TextureMaterial;
+		private var desertMaterial : TriangleMethodMaterial;
+		private var reflectiveMaterial : TriangleMethodMaterial;
+		private var r2d2Material : TriangleMethodMaterial;
 		private var lightPicker : StaticLightPicker;
 		private var fogMethod : EffectFogMethod;
 		
@@ -277,18 +273,18 @@ package
 			);
 			
 			// setup desert floor material
-			desertMaterial = new TextureMaterial(Cast.bitmapTexture(DesertTexture));
+			desertMaterial = new TriangleMethodMaterial(Cast.bitmapTexture(DesertTexture));
 			desertMaterial.lightPicker = lightPicker;
-			desertMaterial.addMethod(fogMethod);
+			desertMaterial.addEffectMethod(fogMethod);
 			desertMaterial.repeat = true;
 			desertMaterial.gloss = 5;
 			desertMaterial.specular = .1;
 			
 			//setup R2D2 material
-			r2d2Material = new TextureMaterial(Cast.bitmapTexture(R2D2Texture));
+			r2d2Material = new TriangleMethodMaterial(Cast.bitmapTexture(R2D2Texture));
 			r2d2Material.lightPicker = lightPicker;
-			r2d2Material.addMethod(fogMethod);
-			r2d2Material.addMethod(new EffectEnvMapMethod(skyboxTexture,.2));
+			r2d2Material.addEffectMethod(fogMethod);
+			r2d2Material.addEffectMethod(new EffectEnvMapMethod(skyboxTexture,.2));
 
 			// setup fresnel method using our reflective texture in the place of a static environment map
 			var fresnelMethod : EffectFresnelEnvMapMethod = new EffectFresnelEnvMapMethod(reflectionTexture);
@@ -296,8 +292,9 @@ package
 			fresnelMethod.fresnelPower = 2;
 			
 			//setup the reflective material
-			reflectiveMaterial = new ColorMaterial(0x000000);
-			reflectiveMaterial.addMethod(fresnelMethod);
+			reflectiveMaterial = new TriangleMethodMaterial();
+			reflectiveMaterial.color = 0x000000;
+			reflectiveMaterial.addEffectMethod(fresnelMethod);
 		}
 		
 		/**

@@ -108,7 +108,7 @@ package
 		private var _gui:SimpleGUI;
 		
 		//material objects
-		private var _headMaterial:TextureMultiPassMaterial;
+		private var _headMaterial:TriangleMethodMaterial;
 		private var _softShadowMethod:ShadowSoftMethod;
 		private var _fresnelMethod:SpecularFresnelMethod;
 		//private var _diffuseMethod:BasicDiffuseMethod;
@@ -510,7 +510,7 @@ package
 			AssetLibrary.removeEventListener(LoaderEvent.RESOURCE_COMPLETE, onResourceComplete);
 			
 			//setup custom multipass material
-			_headMaterial = new TextureMultiPassMaterial(_textureDictionary["monsterhead_diffuse.jpg"]);
+			_headMaterial = new TriangleMethodMaterial(_textureDictionary["monsterhead_diffuse.jpg"]);
 			_headMaterial.normalMap = _textureDictionary["monsterhead_normals.jpg"];
 			_headMaterial.lightPicker = _lightPicker;
 			_headMaterial.ambientColor = 0x303040;

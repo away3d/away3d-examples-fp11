@@ -47,32 +47,23 @@ THE SOFTWARE.
 package {
 	import away3d.containers.*;
 	import away3d.controllers.*;
-	import away3d.core.base.TriangleSubMesh;
 	import away3d.core.base.*;
 	import away3d.core.library.AssetType;
 	import away3d.core.render.DefaultRenderer;
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.events.*;
-	import away3d.core.library.assets.*;
-	import away3d.lights.*;
-	import away3d.lights.shadowmaps.*;
 	import away3d.loaders.*;
 	import away3d.loaders.misc.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
-	import away3d.materials.methods.ShadowCascadeMethod;
-	import away3d.materials.methods.ShadowFilteredMethod;
 	import away3d.materials.shadowmappers.CascadeShadowMapper;
 	import away3d.prefabs.PrimitivePlanePrefab;
-	import away3d.primitives.*;
 	import away3d.textures.*;
 	import away3d.tools.commands.*;
 	import away3d.utils.*;
-
-	import uk.co.soulwire.gui.*;
 
 	import flash.display.*;
 	import flash.events.*;
@@ -82,7 +73,7 @@ package {
 	import flash.text.*;
 	import flash.ui.*;
 	import flash.utils.*;
-	
+
 	[SWF(frameRate="30", backgroundColor="#000000")]
 	
 	public class Advanced_MultiPassSponzaDemo extends Sprite
@@ -159,7 +150,7 @@ package {
 		
 		//material variables
 		private var _skyMap:ATFCubeTexture;
-		private var _flameMaterial:TextureMaterial;
+		private var _flameMaterial:TriangleBasicMaterial;
 		private var _numTextures:uint = 0;
 		private var _currentTexture:uint = 0;
 		private var _loadingTextureStrings:Vector.<String>;
@@ -440,7 +431,7 @@ package {
 			
 			//create flame material
 			//_flameMaterial = new TextureMaterial(Cast.bitmapTexture(FlameTexture));
-			_flameMaterial = new TextureMaterial(new ATFTexture(new FlameTexture()));
+			_flameMaterial = new TriangleBasicMaterial(new ATFTexture(new FlameTexture()));
 			_flameMaterial.blendMode = BlendMode.ADD;
 			_flameMaterial.animateUVs = true;
 			
@@ -838,16 +829,16 @@ package {
 				var specularTextureName:String;
 				
 				//store single pass materials for use later
-				var singleMaterial:TextureMaterial = _singleMaterialDictionary[name];
+				var singleMaterial:TriangleMethodMaterial = _singleMaterialDictionary[name];
 				
 				if (!singleMaterial) {
 					
 					//create singlepass material
-					singleMaterial = new TextureMaterial(_textureDictionary[textureName]);
+					singleMaterial = new TriangleMethodMaterial(_textureDictionary[textureName]);
 					
 					singleMaterial.name = name;
 					singleMaterial.lightPicker = _lightPicker;
-					singleMaterial.addMethod(_fogMethod);
+					singleMaterial.addEffectMethod(_fogMethod);
 					singleMaterial.mipmap = true;
 					singleMaterial.repeat = true;
 					singleMaterial.specular = 2;
@@ -871,16 +862,16 @@ package {
 				}
 
 				//store multi pass materials for use later
-				var multiMaterial:TextureMultiPassMaterial = _multiMaterialDictionary[name];
+				var multiMaterial:TriangleMethodMaterial = _multiMaterialDictionary[name];
 				
 				if (!multiMaterial) {
 					
 					//create multipass material
-					multiMaterial = new TextureMultiPassMaterial(_textureDictionary[textureName]);
+					multiMaterial = new TriangleMethodMaterial(_textureDictionary[textureName]);
 					multiMaterial.name = name;
 					multiMaterial.lightPicker = _lightPicker;
 					multiMaterial.shadowMethod = _cascadeMethod;
-					multiMaterial.addMethod(_fogMethod);
+					multiMaterial.addEffectMethod(_fogMethod);
 					multiMaterial.mipmap = true;
 					multiMaterial.repeat = true;
 					multiMaterial.specular = 2;
@@ -1095,8 +1086,8 @@ package {
         }
 	}
 }
+
 import away3d.entities.*;
-import away3d.lights.*;
 
 import flash.geom.*;
 

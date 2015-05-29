@@ -45,20 +45,16 @@ package {
 	import away3d.animators.transitions.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
+	import away3d.core.library.*;
 	import away3d.core.render.DefaultRenderer;
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.events.*;
-	import away3d.core.library.*;
-	import away3d.core.library.assets.*;
-	import away3d.lights.*;
-	import away3d.lights.shadowmaps.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
 	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
-	import away3d.materials.methods.ShadowFilteredMethod;
-	import away3d.materials.methods.ShadowNearMethod;
+	import away3d.materials.shadowmappers.NearDirectionalShadowMapper;
 	import away3d.prefabs.PrimitivePlanePrefab;
 	import away3d.textures.*;
 	import away3d.utils.*;
@@ -198,10 +194,10 @@ package {
 		private var count:Number = 0;
 
 		//material objects
-		private var redLightMaterial:TextureMultiPassMaterial;
-		private var blueLightMaterial:TextureMultiPassMaterial;
-		private var groundMaterial:TextureMultiPassMaterial;
-		private var bodyMaterial:TextureMultiPassMaterial;
+		private var redLightMaterial:TriangleMethodMaterial;
+		private var blueLightMaterial:TriangleMethodMaterial;
+		private var groundMaterial:TriangleMethodMaterial;
+		private var bodyMaterial:TriangleMethodMaterial;
 		private var cubeTexture:BitmapCubeTexture;
 
 		//scene objects
@@ -294,7 +290,7 @@ package {
 			redLight.y = 200;
 			redLight.z = -1400;
 			redLight.color = 0xff1111;
-            redLight.deferred = true;
+			redLight.deferred = true;
 			scene.addChild(redLight);
 
 			blueLight = new PointLight();
@@ -302,7 +298,7 @@ package {
 			blueLight.y = 200;
 			blueLight.z = 1400;
 			blueLight.color = 0x1111ff;
-            blueLight.deferred  =true;
+			blueLight.deferred = true;
 			scene.addChild(blueLight);
 
 			whiteLight = new DirectionalLight(-50, -20, 10);
@@ -310,8 +306,8 @@ package {
 			whiteLight.castsShadows = true;
 			whiteLight.ambient = 1;
 			whiteLight.ambientColor = 0x303040;
-            whiteLight.deferred = true;
-            whiteLight.shadowMapper = new NearDirectionalShadowMapper(.2);
+			whiteLight.deferred = true;
+			whiteLight.shadowMapper = new NearDirectionalShadowMapper(.2);
 			scene.addChild(whiteLight);
 
 			lightPicker = new StaticLightPicker([redLight, blueLight, whiteLight]);
@@ -330,15 +326,15 @@ package {
 		 */
 		private function initMaterials():void {
 			//red light material
-			redLightMaterial = new TextureMultiPassMaterial(Cast.bitmapTexture(RedLight));
-			redLightMaterial.addMethod(fogMethod);
+			redLightMaterial = new TriangleMethodMaterial(Cast.bitmapTexture(RedLight));
+			redLightMaterial.addEffectMethod(fogMethod);
 
 			//blue light material
-			blueLightMaterial = new TextureMultiPassMaterial(Cast.bitmapTexture(BlueLight));
-			blueLightMaterial.addMethod(fogMethod);
+			blueLightMaterial = new TriangleMethodMaterial(Cast.bitmapTexture(BlueLight));
+			blueLightMaterial.addEffectMethod(fogMethod);
 
 			//ground material
-			groundMaterial = new TextureMultiPassMaterial(Cast.bitmapTexture(FloorDiffuse));
+			groundMaterial = new TriangleMethodMaterial(Cast.bitmapTexture(FloorDiffuse));
 			groundMaterial.smooth = true;
 			groundMaterial.repeat = true;
 			groundMaterial.mipmap = true;
@@ -346,15 +342,15 @@ package {
 //			groundMaterial.normalMap = Cast.bitmapTexture(FloorNormals);
 //			groundMaterial.specularMap = Cast.bitmapTexture(FloorSpecular);
 			groundMaterial.shadowMethod = shadowMapMethod;
-			groundMaterial.addMethod(fogMethod);
+			groundMaterial.addEffectMethod(fogMethod);
 
 			//body material
-			bodyMaterial = new TextureMultiPassMaterial(Cast.bitmapTexture(BodyDiffuse));
+			bodyMaterial = new TriangleMethodMaterial(Cast.bitmapTexture(BodyDiffuse));
 			bodyMaterial.gloss = 20;
 			bodyMaterial.specular = 1.5;
 			bodyMaterial.specularMap = Cast.bitmapTexture(BodySpecular);
 			bodyMaterial.normalMap = Cast.bitmapTexture(BodyNormals);
-			bodyMaterial.addMethod(fogMethod);
+			bodyMaterial.addEffectMethod(fogMethod);
 			bodyMaterial.lightPicker = lightPicker;
 			bodyMaterial.shadowMethod = shadowMapMethod;
 		}

@@ -135,9 +135,9 @@ package
 		private var destPoint:Point = new Point();
 		private var blendTexture:BitmapTexture;
 		private var terrainMethod:TerrainDiffuseMethod;
-		private var terrainMaterial:TextureMaterial;
-		private var trunkMaterial:TextureMaterial;
-		private var leafMaterial:TextureMaterial;
+		private var terrainMaterial:TriangleMethodMaterial;
+		private var trunkMaterial:TriangleMethodMaterial;
+		private var leafMaterial:TriangleMethodMaterial;
 		private var cubeTexture:BitmapCubeTexture;
 		
 		//scene objects
@@ -288,7 +288,7 @@ package
 			cubeTexture = new BitmapCubeTexture(Cast.bitmapData(EnvPosX), Cast.bitmapData(EnvNegX), Cast.bitmapData(EnvPosY), Cast.bitmapData(EnvNegY), Cast.bitmapData(EnvPosZ), Cast.bitmapData(EnvNegZ));
 			
 			//create tree material
-			trunkMaterial = new TextureMaterial(Cast.bitmapTexture(TrunkDiffuse));
+			trunkMaterial = new TriangleMethodMaterial(Cast.bitmapTexture(TrunkDiffuse));
 			trunkMaterial.normalMap = Cast.bitmapTexture(TrunkNormals);
 			trunkMaterial.specularMap = Cast.bitmapTexture(TrunkSpecular);
 			trunkMaterial.diffuseMethod = new DiffuseBasicMethod();

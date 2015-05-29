@@ -45,22 +45,21 @@ package
 	import away3d.containers.Scene3D;
 	import away3d.containers.View3D;
 	import away3d.controllers.HoverController;
-	import away3d.core.render.DefaultRenderer;
-	import away3d.debug.AwayStats;
-	import away3d.debug.Debug;
-	import away3d.entities.Camera3D;
-	import away3d.entities.Mesh;
-	import away3d.events.AssetEvent;
 	import away3d.core.library.AssetLibrary;
 	import away3d.core.library.AssetType;
+	import away3d.core.render.DefaultRenderer;
+	import away3d.debug.AwayStats;
+	import away3d.entities.Camera3D;
+	import away3d.entities.Mesh;
 	import away3d.entities.PointLight;
+	import away3d.events.AssetEvent;
 	import away3d.loaders.parsers.Parsers;
-	import away3d.materials.TextureMaterial;
+	import away3d.materials.TriangleMethodMaterial;
 	import away3d.materials.lightpickers.StaticLightPicker;
 	import away3d.materials.methods.DiffuseBasicMethod;
+	import away3d.materials.methods.DiffuseSubSurfaceMethod;
 	import away3d.materials.methods.SpecularBasicMethod;
 	import away3d.materials.methods.SpecularFresnelMethod;
-	import away3d.materials.methods.DiffuseSubSurfaceMethod;
 	import away3d.utils.Cast;
 
 	import flash.display.Bitmap;
@@ -109,7 +108,7 @@ package
 		private var SignatureBitmap:Bitmap;
 		
 		//material objects
-		private var headMaterial:TextureMaterial;
+		private var headMaterial:TriangleMethodMaterial;
 		private var subsurfaceMethod:DiffuseSubSurfaceMethod;
 		private var fresnelMethod:SpecularFresnelMethod;
 		private var diffuseMethod:DiffuseBasicMethod;
@@ -202,7 +201,7 @@ package
 		private function initMaterials():void
 		{
 			//setup custom bitmap material
-			headMaterial = new TextureMaterial(Cast.bitmapTexture(Diffuse));
+			headMaterial = new TriangleMethodMaterial(Cast.bitmapTexture(Diffuse));
 			headMaterial.normalMap = Cast.bitmapTexture(Normal);
 			headMaterial.specularMap = Cast.bitmapTexture(Specular);
 			headMaterial.lightPicker = lightPicker;

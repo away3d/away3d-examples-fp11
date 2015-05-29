@@ -128,7 +128,7 @@ package {
 			_particleAnimationSet.initParticleFunc = initParticleFunc;
 			
 			//setup the particle material
-			var material:TextureMaterial = new TextureMaterial(Cast.bitmapTexture(ParticleImg));
+			var material:TriangleBasicMaterial = new TriangleBasicMaterial(Cast.bitmapTexture(ParticleImg));
 			material.blendMode = BlendMode.ADD;
 			
 			//setup the particle animator and mesh
